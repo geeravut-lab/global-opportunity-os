@@ -1,5 +1,7 @@
 # ผลงาน S0/S1 สำหรับทบทวน
 
+> รายงานนี้เป็นหลักฐานฐาน S1 ก่อนรอบแก้ Vercel 404; ผล deployment/การเชื่อมต่อล่าสุดดู [DEPLOYMENT_STATUS_TH.md](DEPLOYMENT_STATUS_TH.md)
+
 วันที่ 2026-11-04 สาขา local `feat/s1-email-google-auth` ต่อจากต้นแบบ `5585012`
 อ้าง C-11: อนุมัติขั้น 1–4 และ Email/Google; C-12/13: มี Supabase/ตั้ง Provider แล้ว
 C-14/15: Project เป้าหมายระบบจริง **เจ้าของอนุญาตใช้ Project เดิมทดสอบได้** และให้เคลียร์ fixture ก่อนขึ้น production

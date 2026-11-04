@@ -62,7 +62,8 @@ Vercel environment variables แยกจาก Cloud Environment; ค่าท�
 ## สาเหตุ Ready แต่เปิดหน้าแรกเป็น 404 ที่ตรวจพบจริง
 
 Project ถูกสร้างตอน repo ยังเป็นเอกสาร จึงมี `framework: null` (Other) ค้างอยู่
-แม้ build logs รัน `npm run build`/`next build` ผ่าน แต่ deployment `0e7c957` มี `routes: null` และ `builds: []`
+แม้ build logs รัน `npm run build`/`next build` ผ่าน แต่ Framework ยังไม่ใช้ Next.js adapter
+API ของ deployment `0e7c957` ไม่แสดง routes ที่ใช้ยืนยันเว็บได้; ไม่ใช้ builds array เพียงอย่างเดียววินิจฉัย functions
 โดเมน `opp4all.vercel.app` verified และผูก production ถูกต้องแล้ว จึงไม่ต้องสร้าง domain/Project ใหม่
 
 แก้โดยกำหนด `framework: nextjs` ใน Project เดิมและ `vercel.json` พร้อม npm ci/npm run build
