@@ -9,9 +9,9 @@ C-17 อนุญาต push/deploy production แล้ว ใช้ Vercel Pro
 
 | รายการ | ค่าที่โครงการนี้เตรียมไว้ |
 | --- | --- |
-| Framework Preset | Next.js |
+| Framework Preset | Next.js (`nextjs`); ระบุใน `vercel.json` และ Project settings |
 | Root Directory | รากของ Git repository ไม่ใช่ /workspace/global-opportunity-os ซึ่งเป็น path เฉพาะเซสชัน |
-| Node.js | 24.x ให้ตรง engines; ในเครื่องทดสอบ 24.22.1 |
+| Node.js | 24.x ตรง engines; เปลี่ยน Project เดิมจาก 26.x เป็น 24.x แล้ว |
 | Package manager | npm; packageManager ระบุ npm@11.9.0 และมี package-lock.json |
 | Install Command | npm ci |
 | Build Command | npm run build |
@@ -57,3 +57,16 @@ Vercel environment variables แยกจาก Cloud Environment; ค่าท�
 `SUPABASE_ACCESS_TOKEN` มาจาก [Supabase Account → Access Tokens](https://supabase.com/dashboard/account/tokens)
 เป็น Personal Access Token สำหรับ Management API ไม่ใช่ publishable key/service_role
 ใช้สำหรับตรวจ Project/schema และใช้ migrations ที่ผ่านการตรวจแล้ว ไม่ฝัง token ในเว็บหรือ commit
+
+
+## สาเหตุ Ready แต่เปิดหน้าแรกเป็น 404 ที่ตรวจพบจริง
+
+Project ถูกสร้างตอน repo ยังเป็นเอกสาร จึงมี `framework: null` (Other) ค้างอยู่
+แม้ build logs รัน `npm run build`/`next build` ผ่าน แต่ deployment `0e7c957` มี `routes: null` และ `builds: []`
+โดเมน `opp4all.vercel.app` verified และผูก production ถูกต้องแล้ว จึงไม่ต้องสร้าง domain/Project ใหม่
+
+แก้โดยกำหนด `framework: nextjs` ใน Project เดิมและ `vercel.json` พร้อม npm ci/npm run build
+ไม่เพิ่ม catch-all rewrite หรือ static output directory ที่ทำให้ App Router/Auth ทำงานผิดรูปแบบ
+Node Project เดิม 26.x ถูกเปลี่ยนเป็น 24.x ให้ตรง package.json; warning Node override ไม่ใช่ต้นเหตุหลักของ 404
+หลังเปลี่ยนต้อง deploy ใหม่ deployment เก่าไม่เปลี่ยนตาม Project settings อัตโนมัติ
+รายละเอียดผลตรวจหลังแก้ดู DEPLOYMENT_STATUS_TH.md
