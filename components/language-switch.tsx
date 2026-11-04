@@ -10,7 +10,11 @@ export function LanguageSwitch({ lang }: { lang: Locale }) {
   const params = useSearchParams();
   const other = lang === "th" ? "en" : "th";
   const path = pathname.replace(/^\/(th|en)(?=\/|$)/, `/${other}`);
-  const query = filterQuery(normalizeFilters(Object.fromEntries(params)));
+  const filter = filterQuery(normalizeFilters(Object.fromEntries(params)));
+  const safe = new URLSearchParams(filter);
+  const section = params.get("section");
+  if (section && /^[a-z-]{1,30}$/.test(section)) safe.set("section", section);
+  const query = safe.size ? `?${safe}` : "";
   return <Link className="language" href={`${path}${query}`} hrefLang={other} lang={other}>
     {other === "en" ? "English" : "ภาษาไทย"}<Arrow />
   </Link>;

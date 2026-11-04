@@ -11,7 +11,7 @@ export function Directory({ lang, entries, initial, invalid }: { lang: Locale; e
   const update = (next: Filters) => {
     const normalized = { ...next, q: next.q.slice(0, 120) };
     setFilters(normalized);
-    window.history.replaceState(null, "", `/${lang}${filterQuery(normalized)}`);
+    window.history.replaceState(null, "", `/${lang}/opportunities${filterQuery(normalized)}`);
   };
   const results = filterPublicEntries(entries, filters, lang);
   return <main id="main" className="wrap">
@@ -26,7 +26,7 @@ export function Directory({ lang, entries, initial, invalid }: { lang: Locale; e
     </section>
     <section className="directory-section" aria-labelledby="directory-title">
       <div className="section-heading"><h2 id="directory-title">{t.directory}</h2><p>{t.synthetic}</p></div>
-      <form className="filters" role="search" action={`/${lang}`} onSubmit={(event) => { event.preventDefault(); update(filters); }}>
+      <form className="filters" role="search" action={`/${lang}/opportunities`} onSubmit={(event) => { event.preventDefault(); update(filters); }}>
         <div className="search-field"><label htmlFor="q">{t.q}</label><input id="q" name="q" type="search" maxLength={120} placeholder={t.placeholder} aria-describedby="query-help" value={filters.q} onChange={(event) => update({ ...filters, q: event.target.value })} /></div>
         <div><label htmlFor="category">{t.category}</label><select id="category" name="category" value={filters.category} onChange={(event) => update({ ...filters, category: event.target.value })}>
           <option value="all">{t.all}</option>{Object.entries(categories).map(([key, label]) => <option key={key} value={key}>{label[lang]}</option>)}</select></div>

@@ -1,0 +1,71 @@
+{
+  "captured_at": "2026-11-04T10:00:08.007Z",
+  "timezone": "Asia/Bangkok",
+  "browser": "155.0.8059.79",
+  "base_commit": "60de51ec685745a4d92347a9d7d511c9b230703a",
+  "working_tree": "uncommitted prototype changes",
+  "next_build_id": "xazws-vJDGJbpS5ItFrwp",
+  "captures": [
+    {
+      "file": "beneficiary-desktop.png",
+      "path": "/th",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "http_status": 200,
+      "horizontal_overflow": false
+    },
+    {
+      "file": "beneficiary-mobile.png",
+      "path": "/th",
+      "viewport": {
+        "width": 375,
+        "height": 900
+      },
+      "http_status": 200,
+      "horizontal_overflow": false
+    },
+    {
+      "file": "partner-desktop.png",
+      "path": "/th/demo/partner",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "http_status": 200,
+      "horizontal_overflow": false
+    },
+    {
+      "file": "partner-mobile.png",
+      "path": "/th/demo/partner",
+      "viewport": {
+        "width": 375,
+        "height": 900
+      },
+      "http_status": 200,
+      "horizontal_overflow": false
+    },
+    {
+      "file": "admin-desktop.png",
+      "path": "/th/demo/admin",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "http_status": 200,
+      "horizontal_overflow": false
+    },
+    {
+      "file": "admin-mobile.png",
+      "path": "/th/demo/admin",
+      "viewport": {
+        "width": 375,
+        "height": 900
+      },
+      "http_status": 200,
+      "horizontal_overflow": false
+    }
+  ],
+  "page_errors": []
+}

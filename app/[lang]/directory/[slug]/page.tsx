@@ -16,7 +16,7 @@ export default async function DetailPage({ params, searchParams }: {
   const strings = Object.fromEntries(Object.entries(query).filter((pair): pair is [string, string] => typeof pair[1] === "string"));
   const t = copy[lang], status = effectiveStatus(entry);
   const format = (date: string) => new Intl.DateTimeFormat(lang === "th" ? "th-TH" : "en-GB", { dateStyle: "long", timeZone: "UTC" }).format(new Date(date));
-  return <main id="main" className="wrap detail-main"><Link className="back-link" href={`/${lang}${filterQuery(normalizeFilters(strings))}`}>← {t.back}</Link>
+  return <main id="main" className="wrap detail-main"><Link className="back-link" href={`/${lang}/opportunities${filterQuery(normalizeFilters(strings))}`}>← {t.back}</Link>
     <article className="detail-article"><p className="eyebrow">{categories[entry.category][lang]} · {t.synthetic}</p>
       <h1>{entry.title[lang]}</h1><div className="detail-meta"><span className={`badge ${status}`}>{t[status]}</span><span>{regions[entry.region][lang]}</span></div>
       <p className="detail-intro">{entry.description[lang]}</p>

@@ -1,5 +1,6 @@
 import { type Locale, type Localized } from "./i18n";
 export const categories = {
+  jobs: { th: "งานและรายได้", en: "Jobs & income" },
   skills: { th: "ทักษะและอาชีพ", en: "Skills & livelihoods" },
   access: { th: "การเข้าถึงและการสนับสนุน", en: "Access & support" },
   community: { th: "ชุมชนและทรัพยากร", en: "Community & resources" },

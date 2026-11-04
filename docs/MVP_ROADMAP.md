@@ -1,3 +1,7 @@
+> หมายเหตุรอบปัจจุบัน: roadmap ด้านล่างเป็นต้นฉบับ starter pack จาก main ไม่ใช่สถานะชิ้นงานล่าสุด
+> ใช้ [แผนตาม Blueprint v1.0 S0–S6](PHASE_PLAN_TH.md) สำหรับลำดับงานปัจจุบัน
+> [รายงานต้นแบบ](PROTOTYPE_REPORT_TH.md) แยกสิ่งที่ทำแล้วออกจากระบบจริงที่ยังไม่มี
+
 # MVP roadmap — proposed, capacity-dependent
 
 No work below is implemented. Durations are sequencing estimates, not delivery promises. Start with a synthetic prototype, then a locally staffed pilot only after gates pass.

@@ -18,7 +18,7 @@ describe("กฎสถานะและข้อมูลสมมติ", () =
   it("วันหมดอายุก่อนตรวจไม่ผ่าน", () => { const e = clone(); e.expiresAt = "2020-01-01T00:00:00Z"; expect(() => validateEntries([e])).toThrow(); });
 });
 describe("ค้นหาและการเลือกฟิลด์สาธารณะ", () => {
-  it("เริ่มแสดงเฉพาะปัจจุบันสองรายการ", () => expect(filterEntries(entries, defaults, "th", now)).toHaveLength(2));
+  it("เริ่มแสดงเฉพาะปัจจุบันสามรายการ", () => expect(filterEntries(entries, defaults, "th", now)).toHaveLength(3));
   it("ดูสถานะหมดอายุได้", () => expect(filterEntries(entries, { ...defaults, status: "expired" }, "en", now).map((e) => e.slug)).toEqual(["community-resource-circle"]));
   it("กรองหมวดและพื้นที่ร่วมกัน", () => expect(filterEntries(entries, { ...defaults, category: "access", region: "asia" }, "th", now).map((e) => e.slug)).toEqual(["bridge-access"]));
   it("ค้นหาอังกฤษไม่สนตัวพิมพ์และช่องว่าง", () => expect(filterEntries(entries, { ...defaults, q: "  OPEN PATH  " }, "en", now)).toHaveLength(1));

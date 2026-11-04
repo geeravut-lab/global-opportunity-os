@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 for (const lang of ["th", "en"]) {
-  for (const route of ["", "/directory/open-path-skills", "/directory/community-resource-circle", "/directory/shared-horizon", "?q=no-matching-service", "/directory/not-a-listing"]) {
+  for (const route of ["/opportunities", "/directory/open-path-skills", "/directory/community-resource-circle", "/directory/shared-horizon", "/opportunities?q=no-matching-service", "/directory/not-a-listing"]) {
     test(`${lang}${route}: axe WCAG 2.2 AA`, async ({ page }) => {
       await page.goto(`/${lang}${route}`);
       await expect(page.locator("main h1")).toBeVisible();
@@ -11,8 +11,8 @@ for (const lang of ["th", "en"]) {
   }
   test(`${lang}: จัดหน้าใหม่ 320 CSS px และข้อความยาว`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 800 });
-    await page.goto(`/${lang}?status=all`);
-    await expect(page.locator("article")).toHaveCount(4);
+    await page.goto(`/${lang}/opportunities?status=all`);
+    await expect(page.locator("article")).toHaveCount(5);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.locator("article h3 a").first().click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

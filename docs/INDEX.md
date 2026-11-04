@@ -8,6 +8,7 @@
 - [ผลเทียบ Blueprint และภาพ UX](BLUEPRINT_ALIGNMENT_TH.md)
 - [แผนทุก Phase พร้อม functions/features](PHASE_PLAN_TH.md)
 - [ข้อกำหนดต้นแบบและ UX ที่อิงภาพ](UX_SPEC_TH.md)
+- [ADR ขอบเขตต้นแบบกับ architecture ระบบจริง](adr/ADR-001-PROTOTYPE-BOUNDARY-TH.md)
 - [รายงานผลตรวจต้นแบบ](PROTOTYPE_REPORT_TH.md)
 - [สิ่งที่เจ้าของต้องทำต่อ](NEXT_STEPS.md)
 - [คู่มือ Vercel เดิม](VERCEL.md)

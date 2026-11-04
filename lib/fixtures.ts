@@ -20,5 +20,8 @@ export const entries: readonly Entry[] = [
   { ...common, id: "demo-04", slug: "shared-horizon", status: "suspended", category: "skills", region: "global",
     title: { th: "ขอบฟ้าร่วมกัน", en: "Shared Horizon" },
     description: { th: "ตัวอย่างรายการที่ถูกระงับ แม้วันหมดอายุยังไม่ถึง ก็ไม่มีปุ่มดำเนินการ", en: "An example suspended listing. Actions stay unavailable even before its expiry date." } },
+  { ...common, id: "demo-05", slug: "community-coordinator", status: "current", category: "jobs", region: "asia",
+    title: { th: "ผู้ช่วยประสานงานชุมชน", en: "Community Coordination Assistant" },
+    description: { th: "งานสมมติสำหรับผู้ใหญ่: ตัวอย่างค่าตอบแทน 12,000–15,000 บาท/เดือน ไม่ใช่ประกาศรับสมัครจริง และไม่มีค่าธรรมเนียมสมัคร", en: "Fictional adult job: example pay THB 12,000–15,000/month. Not a real vacancy; no application fee." } },
 ];
 validateEntries(entries);
