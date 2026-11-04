@@ -29,7 +29,7 @@
 - ตั้ง Site URL `https://opp4all.vercel.app`, exact callback ไทย/อังกฤษและ recovery, Email confirmation, minimum password12, secure password change, refresh rotation/TOTP; รักษา Google Provider ที่เจ้าของตั้งไว้
 - ใส่เฉพาะ production app variables ใน Vercel เดิม: URL, publishable key, APP_ORIGIN, Auth/Google flags, Realtime flag; ไม่ใส่ management token/service_role/Google secret ในเว็บ
 - ชื่อ Project, repo link, Next.js/Node24 และ production branch main ตรวจตรงกัน; เจ้าของยืนยันแก้ 404 ก่อนหน้านี้แล้ว
-- ขั้น push/deploy และผล API รุ่นสุดท้ายบันทึกต่อท้ายรายงานเมื่อเสร็จ ไม่ถือว่าการตั้ง env ทำให้ deployment เก่าเปลี่ยนเอง
+- ขั้น push/deploy และผล API รุ่นที่ตรวจบันทึกในส่วนท้ายรายงาน ไม่ถือว่าการตั้ง env ทำให้ deployment เก่าเปลี่ยนเอง
 
 ยังไม่ได้สร้าง hosted test accounts หรือข้อมูลบุคคลสมมติ จึงไม่มี fixture hosted ที่ต้องลบในรอบนี้
 ข้อมูล Auth fixture/local Mailpit อยู่ `.local`/Docker แยกจาก Project จริง ไม่ commit credentials
@@ -104,7 +104,7 @@ public backend search/filter/detail, needs assessment แบบข้าม sens
 
 รวม suites หลัก 174 กรณี ไม่มี skipped; หลังแก้รูปแบบลูกศร SVG ตรวจ build/types/lint และภาพหน้าจอซ้ำเฉพาะส่วนที่เกี่ยวข้อง
 ใช้ Chromium ของระบบตาม Playwright config; NO_COLOR/FORCE_COLOR warnings ไม่ทำให้ tests ล้มเหลว
-CI workflow ถูกเตรียมไว้แต่ไม่อ้างว่าผ่านบน GitHub จนมี actual run evidence
+CI บน GitHub ของ code commit ตรวจผ่านทั้งสอง jobs ตามหลักฐานส่วนท้ายรายงาน
 
 ## ดูตารางใน Supabase Dashboard
 
@@ -123,3 +123,22 @@ order by schemaname, tablename;
 `app` มี accounts, subjects, organizations, memberships, invitations, notices, delegations, notifications, platform_settings และตาราง role/scope
 `private` มี audit/consent, brand_assets, platform owner/grants/designation, session revocations, live revisions และ migration ledger
 อย่าส่งข้อมูลในตาราง private หรือ Auth secrets มาในแชต; การดู schema ไม่ต้องเปลี่ยน RLS/สิทธิ์
+
+## Production deployment ที่ยืนยันแล้ว
+
+- push feature branch และ `main` แบบ fast-forward สำเร็จ: code commit `e8bf29b`
+- Vercel deployment `dpl_4vaQ27ioV1JvVQtxgTEoitmerzJa` เป็น `READY`, `aliasAssigned:true`, alias มี `opp4all.vercel.app`
+- logs ยืนยัน Next.js16.4.5, compiled/static generation, Route(app), Build Completed และ Deployment completed
+- GitHub workflow ของ code commit เริ่มแล้ว: [run41853602993](https://github.com/geeravut-lab/global-opportunity-os/actions/runs/41853602993); ตรวจผลแล้ว `success` ทั้ง `check` และ `s1-local`
+- ส่งขั้นตอนให้เจ้าของทดสอบ verified Google login/MFA/admin branding แล้ว รอผล actual human round-trip; ไม่ขอให้ส่ง credentials
+- workspace probe ไป frontend/provider ยัง network unavailable และ network allowlist ยังมีเฉพาะ management APIs; Ready ไม่ถูกนำมาแทน hosted browser tests
+
+หน้าให้ทบทวน: https://opp4all.vercel.app/th, `/th/demo/partner`, `/th/demo/admin`, `/th/auth/login`, `/th/account`, `/th/admin/branding`
+งานค้าง S1/แผน S2 ตาม NEXT_STEPS ยังมีผล ไม่ถือว่า deploy สำเร็จแล้วผ่าน real pilot gates
+
+## Email delivery ที่ยังต้องตั้งค่า
+
+ตรวจ Auth config หลัง deploy: Email confirmation=true, Google enabled=true และ Site URL production ถูกต้อง แต่ **custom SMTP ยังไม่ได้ตั้ง** (`smtp_host` ว่าง; ไม่บันทึก credential/ผู้รับ)
+Email/password BFF และ recovery ผ่าน local Mailpit แล้ว แต่ไม่ถือว่า Project ส่งถึงผู้ใช้ทั่วไปได้
+ต้องตั้ง SMTP ที่เจ้าของเลือกใน Supabase Authentication → Email/SMTP Settings และทดสอบ confirmation/recovery กับอีเมลที่เจ้าของควบคุมก่อนปิด hosted Email gate
+ไม่ provision บริการ Email แบบมีค่าใช้จ่ายหรือเลือก vendor แทนเจ้าของในรอบนี้ ไม่ส่ง SMTP password/key ในแชต

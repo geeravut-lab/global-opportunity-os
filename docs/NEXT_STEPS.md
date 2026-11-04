@@ -18,7 +18,7 @@
 | --- | --- | --- |
 | 1 เปิด network สำหรับ agent ตรวจเว็บจริง | Review/Save/Publish draft Cloud Environment ที่เพิ่ม `opp4all.vercel.app` และ `fxqgvqvthrdzmgnmqgom.supabase.co`; รักษา API domains/secret เดิม | HTTP/browser/provider/Realtime smoke ได้จาก workspace; ไม่มีการหลบ proxy/TLS |
 | 2 เจ้าของเข้าใช้งาน | เปิด `/th/auth/login` ใช้บัญชีที่ระบุเป็น owner แล้วตั้ง TOTP ที่ `/th/account/security` | verified owner claim ครั้งเดียว, MFA แล้วเปิด `/th/admin/branding` ได้; ไม่ส่งรหัสผ่าน/OTP/secret ในแชต |
-| 3 ทดสอบ hosted Auth | Google success/cancel, Email confirmation/recovery/delivery, HTTPS cookies/refresh, session revoke และสองหน้าต่าง | แยก actual hosted evidence จาก local Mailpit/PKCE; ถ้ามี synthetic fixture hosted ต้องมี manifest และลบเฉพาะ fixture |
+| 3 ทดสอบ hosted Auth | ตั้ง custom SMTP ของเจ้าของ (ตรวจแล้วยังว่าง), Google success/cancel, Email confirmation/recovery/delivery, HTTPS cookies/refresh, session revoke และสองหน้าต่าง | แยก actual hosted evidence จาก local Mailpit/PKCE; ถ้ามี synthetic fixture hosted ต้องมี manifest และลบเฉพาะ fixture |
 | 4 ปิด operational gaps ก่อนข้อมูลจริง | owner-transfer/MFA recovery/no-email assisted SOP, manual keyboard/NVDA/VoiceOver/UAT; privacy/retention/safety/ops owners และ backup/restore | เจ้าของรับรองนโยบายและผู้รับผิดชอบตาม BP-G0–G6 ที่เกี่ยวข้อง; technical deploy ไม่ใช่ real pilot readiness |
 
 ไม่ต้องสร้าง Supabase/Vercel Project หรือส่ง management token ใหม่เพียงเพราะ frontend host ถูก network policy ปฏิเสธ
