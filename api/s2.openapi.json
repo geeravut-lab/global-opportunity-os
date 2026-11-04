@@ -1,0 +1,1442 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Opp4All S2 — สัญญา API ชิ้นงานสมมติ",
+    "version": "0.1.0",
+    "description": "S2_ENABLED=true; HttpOnly user cookies และ current DB authorization; development notices, PNG-only inspection ไม่ใช่ AV ทุกไฟล์; ไม่มี application/referral/AI ใน S2"
+  },
+  "servers": [
+    {
+      "url": "/api/s2"
+    }
+  ],
+  "security": [
+    {
+      "sessionCookie": []
+    }
+  ],
+  "paths": {
+    "/catalog": {
+      "get": {
+        "summary": "รายการ approved/current จากองค์กรที่ยังผ่านการตรวจ; ไม่มี draft/PII",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "security": [],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "access",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "remote",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "free",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "operationId": "get__catalog"
+      }
+    },
+    "/catalog/{id}": {
+      "get": {
+        "summary": "รายละเอียด public current; items ว่างหากไม่พร้อม",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "security": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "operationId": "get__catalog_id_"
+      }
+    },
+    "/organizations": {
+      "get": {
+        "summary": "องค์กรของสมาชิก หรือคิวตรวจอิสระเมื่อ review=true",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "parameters": [
+          {
+            "name": "review",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "operationId": "get__organizations"
+      }
+    },
+    "/organizations/{id}/transition": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "summary": "state transition + version + reason; ตรวจ independence/assignment/MFA",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "enum": [
+                      "submit",
+                      "appeal",
+                      "start_review",
+                      "request_changes",
+                      "verify",
+                      "reject",
+                      "suspend"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "expires": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "date-time"
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "action",
+                  "reason",
+                  "expectedVersion"
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "post__organizations_id_transition"
+      }
+    },
+    "/organizations/{id}/evidence": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "summary": "metadata หลักฐานของผู้มีสิทธิ์; ไม่คืน bytes",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "operationId": "get__organizations_id_evidence"
+      }
+    },
+    "/organizations/{id}/intent": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "summary": "ขอ upload intent15นาทีสำหรับ PNG≤1MiB",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "operationId": "post__organizations_id_intent"
+      }
+    },
+    "/evidence/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "summary": "download ภาพที่ worker สร้างใหม่เท่านั้น; current authorization, attachment/no-store/nosniff",
+        "responses": {
+          "200": {
+            "description": "PNG attachment",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "operationId": "get__evidence_id_"
+      },
+      "post": {
+        "summary": "ส่ง PNG เข้า quarantine; client ระบุ clean verdict ไม่ได้",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "post__evidence_id_"
+      }
+    },
+    "/listings": {
+      "get": {
+        "summary": "latest revision ของ editor หรือ independent reviewer; ไม่ใช่ public DTO",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "parameters": [
+          {
+            "name": "org",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "review",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "operationId": "get__listings"
+      },
+      "post": {
+        "summary": "สร้าง draft/material revision; ไม่เผยแพร่อัตโนมัติ",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "org": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid"
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/Listing"
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "org",
+                  "data",
+                  "expectedVersion"
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "post__listings"
+      }
+    },
+    "/listings/{id}/submit": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "summary": "ส่ง draft ให้ตรวจ; ต้องมีองค์กร current verified",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "expectedVersion"
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "post__listings_id_submit"
+      }
+    },
+    "/listings/{id}/review": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "summary": "ผู้ตรวจอิสระเผยแพร่/ขอแก้/หยุด/เก็บประวัติ",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "enum": [
+                      "publish",
+                      "request_changes",
+                      "pause",
+                      "archive"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "action",
+                  "reason",
+                  "expectedVersion"
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "post__listings_id_review"
+      }
+    },
+    "/notices": {
+      "get": {
+        "summary": "development assessment notice เฉพาะ purpose พร้อม version/hash",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "th",
+                "en"
+              ]
+            }
+          }
+        ],
+        "operationId": "get__notices"
+      }
+    },
+    "/assessment": {
+      "get": {
+        "summary": "assessment ของ subject เจ้าของ; ไม่สืบทอด delegation",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "operationId": "get__assessment"
+      },
+      "post": {
+        "summary": "draft/confirm assessment และ append-only confirmation event",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "subject": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/Assessment"
+                  },
+                  "notice": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "confirmed": {
+                    "type": "boolean"
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "subject",
+                  "data",
+                  "notice",
+                  "confirmed",
+                  "expectedVersion"
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "post__assessment"
+      }
+    },
+    "/assessment-events": {
+      "get": {
+        "summary": "ประวัติการยืนยัน20รายการล่าสุดของเจ้าของเท่านั้น",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "operationId": "get__assessment_events"
+      }
+    },
+    "/bookmarks": {
+      "get": {
+        "summary": "bookmark ของเจ้าของ; unavailable ไม่คืนชื่อจากฉบับเก่าหรือ draft",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "operationId": "get__bookmarks"
+      }
+    },
+    "/bookmarks/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "summary": "เพิ่ม/ลบแบบ idempotent เฉพาะบัญชีตนเอง",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "saved": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "saved"
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "post__bookmarks_id_"
+      }
+    },
+    "/matches": {
+      "get": {
+        "summary": "กฎตาม assessment ที่ยืนยัน; eligible/ineligible/unknown และเหตุผล ไม่ใช่ final decision",
+        "responses": {
+          "200": {
+            "description": "สำเร็จ; data เป็น safe DTO หรือ null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "403": {
+            "description": "Origin หรือ MFA ไม่ผ่าน"
+          },
+          "404": {
+            "description": "ไม่พบหรือไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "สถานะ/version เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลหรือไฟล์ไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "feature/backend ยังไม่พร้อม"
+          }
+        },
+        "operationId": "get__matches"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sb-project-auth-token",
+        "description": "Supabase HttpOnly cookies อาจแบ่งเป็นหลาย chunks; browser เป็นผู้จัดการ"
+      }
+    },
+    "schemas": {
+      "Envelope": {
+        "type": "object",
+        "properties": {
+          "data": {},
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        }
+      },
+      "Rule": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "enum": [
+              "country",
+              "region",
+              "language",
+              "adult",
+              "remote",
+              "hours"
+            ]
+          },
+          "op": {
+            "enum": [
+              "eq",
+              "in",
+              "gte",
+              "lte"
+            ]
+          },
+          "value": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "field",
+          "op",
+          "value"
+        ]
+      },
+      "Assessment": {
+        "type": "object",
+        "properties": {
+          "goals": {
+            "type": "array",
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "jobs",
+                "skills",
+                "access",
+                "community"
+              ]
+            }
+          },
+          "country_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[A-Z]{2}$"
+          },
+          "coarse_region": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 80
+          },
+          "preferred_language": {
+            "enum": [
+              "th",
+              "en",
+              null
+            ]
+          },
+          "remote_ok": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "available_hours_week": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 168
+          }
+        },
+        "additionalProperties": false
+      },
+      "Listing": {
+        "type": "object",
+        "properties": {
+          "title_th": {
+            "type": "string"
+          },
+          "title_en": {
+            "type": "string"
+          },
+          "description_th": {
+            "type": "string"
+          },
+          "description_en": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "country_code": {
+            "type": "string"
+          },
+          "coarse_region": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "accessibility_th": {
+            "type": "string"
+          },
+          "accessibility_en": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "job_pay_unit": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "hour",
+              "day",
+              "month",
+              null
+            ]
+          },
+          "job_contract": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 80
+          },
+          "languages": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "enum": [
+                "th",
+                "en"
+              ]
+            }
+          },
+          "remote": {
+            "type": "boolean"
+          },
+          "cost_amount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "capacity": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "job_pay_min": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "job_pay_max": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "rules": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "$ref": "#/components/schemas/Rule"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "title_th",
+          "title_en",
+          "description_th",
+          "description_en",
+          "category",
+          "country_code",
+          "languages",
+          "remote",
+          "cost_amount",
+          "currency",
+          "accessibility_th",
+          "accessibility_en",
+          "source_url",
+          "valid_until"
+        ]
+      }
+    }
+  }
+}

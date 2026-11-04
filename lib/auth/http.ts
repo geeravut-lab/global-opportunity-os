@@ -30,6 +30,7 @@ export function problem(status: number, code: string) {
 export async function readBody(
   request: NextRequest,
   origin: string,
+  maxBytes = 8192,
 ): Promise<unknown> {
   if (
     request.headers.get("origin") !== origin ||
@@ -43,10 +44,10 @@ export async function readBody(
       .startsWith("application/json")
   )
     throw new InputError("invalid_content_type");
-  if (Number(request.headers.get("content-length") ?? "0") > 8192)
+  if (Number(request.headers.get("content-length") ?? "0") > maxBytes)
     throw new InputError("body_too_large");
   const bytes = await request.arrayBuffer();
-  if (bytes.byteLength > 8192) throw new InputError("body_too_large");
+  if (bytes.byteLength > maxBytes) throw new InputError("body_too_large");
   try {
     return JSON.parse(new TextDecoder().decode(bytes));
   } catch {
