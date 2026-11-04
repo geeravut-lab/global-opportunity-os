@@ -70,6 +70,14 @@ test("anonymous workspace is protected; public catalog contains only current app
 test("Thai backend search, filters, zero results and detail source/expiry work", async ({
   page,
 }) => {
+  await page.goto("/th");
+  await expect(page.locator('main a[href="/th/opportunities"]')).toBeVisible();
+  await expect(
+    page.locator('main a[href="/th/workspace/assessment"]'),
+  ).toBeVisible();
+  await expect(page.locator('main a[href^="/th/directory/"]')).toHaveCount(0);
+  await page.locator('main a[href="/th/opportunities"]').click();
+  await expect(page).toHaveURL(/\/th\/opportunities$/);
   await page.goto("/th/opportunities?q=" + fixture.run);
   await expect(page.locator("main article")).toHaveCount(1);
   await page
@@ -338,6 +346,7 @@ for (const lang of ["th", "en"] as const)
     page,
   }) => {
     const targets: [Page, string][] = [
+      [page, ""],
       [page, "/opportunities?q=" + fixture.run],
       [page, "/directory/" + fixture.current],
       [pages.user, "/workspace"],

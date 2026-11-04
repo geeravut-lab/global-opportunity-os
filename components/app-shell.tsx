@@ -212,7 +212,13 @@ function ShellContent({
       </aside>
       <div className="app-workspace">
         <div className="prototype-banner">
-          {accountMode ? authText[lang].development : t.prototype}
+          {s2
+            ? lang === "th"
+              ? "พื้นที่ทดสอบ Opp4All · รองรับการเข้าสู่ระบบ · ใช้ข้อมูลสมมติ"
+              : "Opp4All test environment · Sign-in supported · Fictional data"
+            : accountMode
+              ? authText[lang].development
+              : t.prototype}
         </div>
         <header className="app-topbar">
           <div className="topbar-start">

@@ -112,12 +112,29 @@ export function navigationFor(
     pathname.includes("/opportunities") || pathname.includes("/directory/")
       ? "opportunities"
       : safeSection(role, section ?? "home");
-  return demoNav[role].map((s) => ({
-    href: demoHref(lang, role, s.id),
-    label: s.label[lang],
-    icon: s.icon,
-    active: current === s.id,
-  }));
+  const publicS2 = s2 && role === "beneficiary";
+  const destinations: Record<string, string> = {
+    assessment: "workspace/assessment",
+    saved: "workspace/bookmarks",
+    profile: "account/profile",
+  };
+  return demoNav[role]
+    .filter(
+      (s) =>
+        !publicS2 ||
+        ["home", "opportunities", "assessment", "saved", "profile"].includes(
+          s.id,
+        ),
+    )
+    .map((s) => ({
+      href:
+        publicS2 && destinations[s.id]
+          ? `/${lang}/${destinations[s.id]}`
+          : demoHref(lang, role, s.id),
+      label: s.label[lang],
+      icon: s.icon,
+      active: current === s.id,
+    }));
 }
 export function backTarget(pathname: string, from: string | null) {
   const locale = pathname.startsWith("/en") ? "en" : "th";
