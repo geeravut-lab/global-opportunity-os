@@ -11,12 +11,14 @@
 - จัดทำคู่มือกู้ MFA/โอน owner และซ้อม backup/restore ลง target แยก รวม exact ACL, login/MFA, audit และ replay ถอนสิทธิ์
 - ทดสอบ headful Chromium/Orca มีเสียงอ่าน controls จริงและตรวจ axe/keyboard/reflow8เส้นทางภาษา; ไม่อ้าง NVDA/VoiceOver ผ่าน
 - Email Recovery/SMTP เลื่อนตาม C-24; ไม่ถือเป็น blocker ของ S2 รอบนี้
+- PR #1 merge เข้า main และ production Ready แล้ว; CI ของ PR ผ่านทั้ง check/s1-local ดู [หลักฐานส่งขึ้นระบบและวิธีทดสอบต่อ](S1_HOSTED_HANDOFF_TH.md)
+- C-27 เจ้าของยืนยันรอ S1 hosted ผ่านก่อนเริ่ม S2 ไม่เริ่ม S2 local คู่ขนานระหว่าง Network ถูกบล็อก
 
 ## ขั้นถัดไปที่ยังเหลือ
 
 | ลำดับ / Phase | Functions/features และสิ่งที่จะทำ | เงื่อนไข/สถานะ |
 | --- | --- | --- |
-| 1 / S1 hosted | Email signup/login/logout/session, สองหน้าต่าง Live sync, private Broadcast, cross-user/tenant, ถอน delegation/member และ MFA | เจ้าของแจ้ง Publish/apply แล้ว แต่ runtime ที่ตรวจยังใช้ allowlist เดิม ต้องให้ runtime เข้าถึง opp4all.vercel.app และ Project Supabase ได้จริง; ไม่ต้องสร้าง Project/token ใหม่ |
+| 1 / S1 hosted | Email signup/login/logout/session, สองหน้าต่าง Live sync, private Broadcast, cross-user/tenant, ถอน delegation/member และ MFA | เจ้าของแจ้ง Publish/apply แล้ว แต่ runtime ที่ตรวจยังใช้ allowlist เดิม ต้องให้ task ใช้ Network รุ่นใหม่จริง; หาก task นี้ยังผูกเวอร์ชันเก่าให้เริ่ม task จาก Environment รุ่นล่าสุดตามคู่มือ handoff; ไม่ต้องสร้าง Project/token ใหม่ |
 | 2 / S1 readiness ก่อนผู้ใช้จริง | ระบุผู้ตรวจสอบ MFA/owner transfer, backup policy/ผู้รับผิดชอบ/RPO/RTO และ manual NVDA/VoiceOver/UAT ตามอุปกรณ์เป้าหมาย | คู่มือ/การซ้อม local ทำแล้ว; hosted backup metadata ไม่มี snapshot/PITR และยังไม่อ้างว่ากู้ production ผ่าน |
 | 3 / S2.1–S2.2 | onboarding/independent verification/expiry/suspend/appeal และ private evidence quarantine/scan | **อนุมัติแล้วตาม C-25 หลังปิด S1 ที่ระบุ**; ตอนนี้เตรียมแผน ไม่เริ่ม runtime/schema ระหว่าง hosted test blocked |
 | 4 / S2.3–S2.4 | catalog draft/review/publish/revision/expiry, public backend search/filter/detail ไทย–อังกฤษ | ต่อจาก org verification; ไม่เผยข้อมูล draft/PII/expired/suspended |

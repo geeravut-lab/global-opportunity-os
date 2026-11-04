@@ -6,6 +6,7 @@
 ## เอกสารรอบปัจจุบัน
 
 - [หลักฐานปิด S1 / blocker ของ hosted / เงื่อนไขเริ่ม S2](S1_READINESS_EXECUTION_TH.md)
+- [ผล merge/deploy PR #1 และวิธีทดสอบ hosted ต่อ](S1_HOSTED_HANDOFF_TH.md)
 - [คู่มือกู้ MFA และโอน platform owner](MFA_OWNER_RUNBOOK_TH.md)
 - [คู่มือ backup/restore และ replay สิทธิ์](BACKUP_RESTORE_RUNBOOK_TH.md)
 - [แผน PR S2: functions/features, schema และ tests](S2_EXECUTION_PLAN_TH.md)
