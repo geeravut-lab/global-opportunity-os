@@ -3,6 +3,10 @@
 ใช้ C-22 Confirm email Off และคำสั่งเจ้าของรอบล่าสุดเป็นขอบเขต ไม่เปิด confirmation กลับเอง
 เชื่อม BP-AC-02/03/08/17/18 และ BP-G3/G4/G6 เฉพาะหลักฐานที่ตรวจจริง
 
+อัปเดตหลังเจ้าของสั่ง merge/deploy: PR #1 merge และ production Ready แล้ว CI ผ่านทั้ง check/s1-local
+ดู [ผลตรวจ deployment และวิธีเริ่ม hosted tests ต่อ](S1_HOSTED_HANDOFF_TH.md)
+C-27 ยืนยันให้รอ S1 hosted ผ่านก่อนเริ่ม S2; ไม่เริ่ม S2 local คู่ขนานและไม่เปลี่ยนผล blocked เป็นผ่าน
+
 | งาน | หลักฐานที่ต้องได้ | ผลที่ตรวจจริงรอบนี้ |
 | --- | --- | --- |
 | Email hosted | signup ผ่านหน้าเว็บ, bootstrap, HttpOnly/Secure/no-store, reload, logout/login, global session revoke | รอ network มีผลกับ runtime |
