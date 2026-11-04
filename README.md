@@ -5,10 +5,11 @@
 ปรับตาม [Product Blueprint TH v1.0](docs/Global-Opportunity-OS-Product-Blueprint-TH.md) และภาพ UX Showcase ที่เจ้าของแนบ
 ไดเรกทอรีและ dashboard สามบทบาทยังใช้ข้อมูลสมมติ การสลับ role เป็น demo navigation
 บัญชี S1 อยู่ `/th/auth/login` และ `/th/account` แยกจาก demo; ผู้ดูแลจริงอยู่ `/th/admin` และต้องผ่าน MFA
-ใช้ migrations ทั้ง 12 ไฟล์กับ Supabase ที่เจ้าของอนุญาตแล้ว พร้อมตั้ง Auth callback/production env ใน Vercel
+ใช้ migrations ทั้ง 13 ไฟล์กับ Supabase ที่เจ้าของอนุญาตแล้ว พร้อมตั้ง Auth callback/production env ใน Vercel
 ยังไม่มี AI หรือการส่งต่อจริง; เจ้าของยืนยัน Google login/MFA และเปิดหน้าผู้ดูแลได้แล้ว
 Confirm email ปิดชั่วคราวตามเจ้าของ: signup ที่ได้ session เข้าบัญชีทันที โดยคง JWT/RLS/MFA
-SMTP/recovery และ hosted security/live smoke ยังต้องยืนยัน แยกจากผลทดสอบในเครื่อง
+Email Recovery/SMTP เลื่อนตาม C-24 จนก่อนเปิดรับผู้ใช้จริง; ไม่ขวาง S2 ตาม C-25
+hosted Email/security/live smoke ยังติด network ของ runtime แยกจากผลทดสอบในเครื่อง
 
 [ดูแผน S0–S6 พร้อม functions/features](docs/PHASE_PLAN_TH.md) ·
 [ดูผลเทียบ Blueprint/ภาพ](docs/BLUEPRINT_ALIGNMENT_TH.md) ·
@@ -16,6 +17,11 @@ SMTP/recovery และ hosted security/live smoke ยังต้องยื�
 
 [ผลรอบ branding/live/หน้าแรก](docs/PLATFORM_REPORT_TH.md) ·
 [นำ knowledge ทั้ง 15 เรื่องมาใช้อย่างไร](docs/KNOWLEDGE_ADOPTION_TH.md)
+
+[งานปิด S1 รอบปัจจุบันและหลักฐาน](docs/S1_READINESS_EXECUTION_TH.md) ·
+[กู้ MFA/โอน owner](docs/MFA_OWNER_RUNBOOK_TH.md) ·
+[backup/restore](docs/BACKUP_RESTORE_RUNBOOK_TH.md) ·
+[แผน PR ของ S2 ที่อนุมัติแบบมีเงื่อนไข](docs/S2_EXECUTION_PLAN_TH.md)
 
 โลโก้/favicon เริ่มต้นคัดลอกจากสองไฟล์ Opp4All ใน docs; ผู้ดูแลที่ผ่าน MFA เปลี่ยนภาพ PNG หรือคืนค่าเดิมได้
 หน้าแรกทุก role ใช้ภาพประกอบใหม่และการ์ดขนาดต่างกัน คง mobile bottom bar + เพิ่มเติม
@@ -119,6 +125,46 @@ npm run db:stop
 และ [สถาปัตยกรรม/ข้อจำกัดสิทธิ์](docs/adr/ADR-002-S1-AUTH-TH.md) ก่อนใช้ Project ระยะไกล
 C-15/C-17 อนุญาต Project เดิม; ตรวจ preflight และใช้ migrations แบบ transaction/checksum แล้ว ไม่ reset ข้อมูลเดิม
 อย่าคัดลอก service_role หรือ Google Client Secret มาใส่ในแอป
+
+## ทดสอบ Confirm email Off, Live sync และการกู้ระบบ
+
+คำสั่งด้านล่างมีสคริปต์จริง ต้อง build ก่อน และมี Docker daemon ในเครื่อง
+stack ทดสอบแยกใช้พอร์ต56320–56324 พร้อม Realtime; ไม่เปลี่ยน Confirm email ของ stack543xx หรือ hosted
+
+```sh
+npm run db:validation:start
+npm run test:validation:local
+npm run db:validation:stop
+npm run test:backup-restore
+```
+
+restore ต้องเปิด stack543xx ด้วย `npm run db:start` ก่อน สร้าง target ใหม่573xx ไม่ทับต้นทาง
+suite ใหม่ใช้ signup ผ่าน UI, HttpOnly cookies, session จริง, MFA, private WebSocket,
+สองหน้าต่าง, user/tenant isolation และถอนสิทธิ์; ลบเฉพาะ fixture ตาม manifest/UUID/tag
+คำสั่ง cleanup เมื่อหยุดกลางคัน: `node scripts/cleanup-validation.mjs .local/<ชื่อ manifest จริง>.json`
+ห้ามลบ fixture แบบเหมารวมตาม email suffix หรือใช้ manifest คนละ environment
+หลักฐานที่มี credentials/QR/เสียง/backup อยู่ใน `.local/` ที่ ignored ไม่อัปโหลดเป็น CI artifact
+
+Orca smoke ต้องเริ่ม validation stack และสร้าง image ก่อน (Linux/Docker; CA bundle ของ environment ต้องมีจริง):
+
+```sh
+docker --host=unix:///var/run/docker.sock build --secret id=ca_bundle,src=/etc/ssl/certs/ca-certificates.crt -t goos-a11y:node24-orca -f scripts/a11y/Dockerfile scripts/a11y
+npm run test:a11y:orca
+```
+
+ใช้ headful Chromium/Orca, keyboard, axe และ reflow สำหรับ public/profile/admin ภาษาไทยและอังกฤษ
+ไม่อ้างว่าได้ตรวจ NVDA/VoiceOver หรือรับรอง WCAG ครบจาก smoke นี้
+
+hosted suite เปลี่ยนข้อมูลเฉพาะบัญชีสมมติ จึงต้องมี C-23, runtime network ที่เข้าถึงเว็บ/Supabase จริง
+และ operator token สำหรับ tag/cleanup ใน environment ของเครื่องทดสอบเท่านั้น:
+
+```sh
+npm run test:validation:hosted
+```
+
+guard จำกัด Project/origin ตรวจ Confirm email Off และสิทธิ์ cleanup ก่อน signup
+ไม่ใช้ test bypass ในเว็บ ไม่เผย service key ให้ browser; ถ้า network ไม่ผ่านจะหยุดก่อนสร้าง fixture
+รอบนี้ยังไม่ถือว่าผล hosted ผ่าน ดูรายงานหลักฐานที่แยก target ชัดเจน
 
 ## โครงสร้าง
 

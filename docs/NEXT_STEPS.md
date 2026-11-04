@@ -1,49 +1,34 @@
-# งานถัดไปหลัง Branding / Live sync / หน้าแรก
+# งานถัดไปตามคำสั่งปิด S1 และดำเนิน S2
 
-วันที่ 2026-11-04 ตาม C-18 แยกสิ่งที่ทำแล้วและสิ่งที่ยังรอหลักฐาน ไม่ถือว่าขั้นถัดไปอนุมัติอัตโนมัติ
-ดู [รายงานรอบล่าสุด](PLATFORM_REPORT_TH.md) และ [functions/features ทุก Phase](PHASE_PLAN_TH.md)
+วันที่ 2026-11-04 ใช้ C-18 และ C-23–C-25; ทุกคำตอบจบ prompt ต้องแจ้งงานถัดไปในแชตด้วย
+ดู [หลักฐานรอบล่าสุด](S1_READINESS_EXECUTION_TH.md), [แผนทุก Phase](PHASE_PLAN_TH.md) และ [PR ของ S2](S2_EXECUTION_PLAN_TH.md)
 
-กฎสรุปทุก prompt ตาม C-18 ที่เจ้าของย้ำอีกครั้ง: หลังบอกผลที่ทำแล้ว ต้องแสดงรายการขั้นตอนถัดไปในแชตด้วย
-แต่ละข้อระบุ Phase, functions/features และสิ่งที่จะทำ พร้อมข้อมูลหรือเงื่อนไขที่ยังรอเมื่อมี เพื่อให้เจ้าของเลือกสั่งต่อได้
-หาก Phase ปัจจุบันยังไม่ครบ ให้แสดงงานค้างตามจริง; หากครบแล้ว ให้บอกสถานะและเสนอ Phase ถัดไป
-ใช้กฎนี้ตั้งแต่ prompt ที่บันทึกกฎ ไม่ถือว่าการเสนอเป็นการอนุมัติให้เริ่ม Phase ใหม่
+## สิ่งที่ดำเนินการในรอบนี้
 
-## สิ่งที่พร้อมให้ทบทวน
+- เพิ่ม stack ทดสอบ Confirm email Off พร้อม Realtime แยกจาก hosted และ stack local เดิม
+- เพิ่ม browser suite ใช้ Auth/session/PostgREST/WebSocket จริง ครอบคลุมสองหน้าต่าง, user/tenant isolation, revoke, MFA และ guarded cleanup
+- พบและแก้ signal fan-out ที่ยังแจ้งกิจกรรมให้ผู้ถูกถอนสิทธิ์ด้วย migration0013 โดยไม่เปลี่ยน SQL ที่ apply แล้ว
+- จัดทำคู่มือกู้ MFA/โอน owner และซ้อม backup/restore ลง target แยก รวม exact ACL, login/MFA, audit และ replay ถอนสิทธิ์
+- ทดสอบ headful Chromium/Orca มีเสียงอ่าน controls จริงและตรวจ axe/keyboard/reflow8เส้นทางภาษา; ไม่อ้าง NVDA/VoiceOver ผ่าน
+- Email Recovery/SMTP เลื่อนตาม C-24; ไม่ถือเป็น blocker ของ S2 รอบนี้
 
-- หน้าแรกผู้ใช้/NGO/admin เปลี่ยนเป็นการ์ดหลายขนาดพร้อมภาพประกอบใหม่ คงธีม Opp4All และ bottom menu
-- `/th/account`: Email/Google, profile/consent/delegation/org invitation/security/in-app inbox
-- `/th/admin`: ผู้ดูแลจริงที่ผ่าน MFA เปลี่ยนโลโก้/favicon/ชื่อสองภาษา, feature switches, admins, audit/CSV
-- private Live sync+polling ไม่ต้อง refresh เองและไม่ทับ dirty form; demo cards ยังระบุข้อมูลสมมติ
-- hosted migrations12 และ Auth/Vercel production env ตั้งแล้ว; ผล deploy/test ล่าสุดอยู่ในรายงาน
-- knowledge ทั้ง15เรื่องมี [mapping ใช้กับ Opp4All](KNOWLEDGE_ADOPTION_TH.md) AI/LINE/automation/reporting ที่ยังไม่มีระบุเป็นแผน
+## ขั้นถัดไปที่ยังเหลือ
 
-Confirm email เป็น **Off ชั่วคราวตาม C-22**: Email/password signup/login ไม่ต้องรอ SMTP; recovery และการเปิด confirmation กลับยังต้องตั้ง/ทดสอบการส่งอีเมล
-
-## S1 ที่ยังต้องปิดหลักฐาน
-
-| ขั้นถัดไป | สิ่งที่ต้องทำ | ผลที่ต้องได้ |
+| ลำดับ / Phase | Functions/features และสิ่งที่จะทำ | เงื่อนไข/สถานะ |
 | --- | --- | --- |
-| 1 เปิด network สำหรับ agent ตรวจเว็บจริง | Review/Save/Publish draft Cloud Environment ที่เพิ่ม `opp4all.vercel.app` และ `fxqgvqvthrdzmgnmqgom.supabase.co`; รักษา API domains/secret เดิม | HTTP/browser/provider/Realtime smoke ได้จาก workspace; ไม่มีการหลบ proxy/TLS |
-| 2 เจ้าของเข้าใช้งาน — ผ่านแล้ว | เจ้าของยืนยันล็อกอินและเปิดหน้าผู้ดูแลได้; ตรวจ owner claimed/verified/Google identity/TOTP เป็น true ทั้งหมด | ปิด Google happy path/owner bootstrap/MFA/admin access; upload/reset จริงยังไม่ยืนยัน |
-| 3 ทดสอบ hosted Auth | Email signup/login แบบ Confirm email Off ตาม C-22; ตั้ง custom SMTP สำหรับ recovery (และ confirmation เมื่อเปิดกลับ), Google cancel/refresh, HTTPS cookies/refresh, session revoke และสองหน้าต่าง | แยก actual hosted evidence จาก local Mailpit/PKCE; ถ้ามี synthetic fixture hosted ต้องมี manifest และลบเฉพาะ fixture |
-| 4 ปิด operational gaps ก่อนข้อมูลจริง | owner-transfer/MFA recovery/no-email assisted SOP, manual keyboard/NVDA/VoiceOver/UAT; privacy/retention/safety/ops owners และ backup/restore | เจ้าของรับรองนโยบายและผู้รับผิดชอบตาม BP-G0–G6 ที่เกี่ยวข้อง; technical deploy ไม่ใช่ real pilot readiness |
+| 1 / S1 hosted | Email signup/login/logout/session, สองหน้าต่าง Live sync, private Broadcast, cross-user/tenant, ถอน delegation/member และ MFA | เจ้าของแจ้ง Publish/apply แล้ว แต่ runtime ที่ตรวจยังใช้ allowlist เดิม ต้องให้ runtime เข้าถึง opp4all.vercel.app และ Project Supabase ได้จริง; ไม่ต้องสร้าง Project/token ใหม่ |
+| 2 / S1 readiness ก่อนผู้ใช้จริง | ระบุผู้ตรวจสอบ MFA/owner transfer, backup policy/ผู้รับผิดชอบ/RPO/RTO และ manual NVDA/VoiceOver/UAT ตามอุปกรณ์เป้าหมาย | คู่มือ/การซ้อม local ทำแล้ว; hosted backup metadata ไม่มี snapshot/PITR และยังไม่อ้างว่ากู้ production ผ่าน |
+| 3 / S2.1–S2.2 | onboarding/independent verification/expiry/suspend/appeal และ private evidence quarantine/scan | **อนุมัติแล้วตาม C-25 หลังปิด S1 ที่ระบุ**; ตอนนี้เตรียมแผน ไม่เริ่ม runtime/schema ระหว่าง hosted test blocked |
+| 4 / S2.3–S2.4 | catalog draft/review/publish/revision/expiry, public backend search/filter/detail ไทย–อังกฤษ | ต่อจาก org verification; ไม่เผยข้อมูล draft/PII/expired/suspended |
+| 5 / S2.5–S2.6 | needs assessment ข้ามคำถามได้, preferences/bookmarks, rule matching พร้อม eligible/ineligible/unknown และเหตุผล | ต่อจาก catalog และ S1 consent/authority; ไม่ auto-apply, ไม่ใช้ AI ตัดสินสิทธิ์ |
+| 6 / ก่อน real-user production launch | Email Recovery/SMTP ที่เลื่อนไว้, operational/privacy/safety/backup release evidence | คงเป็นงานค้างตาม C-24 ไม่เปลี่ยนสถานะว่าเสร็จหรือถอด gate ทิ้ง |
 
-ไม่ต้องสร้าง Supabase/Vercel Project หรือส่ง management token ใหม่เพียงเพราะ frontend host ถูก network policy ปฏิเสธ
-C-17 อนุญาตจัดการ Supabase/push/deploy อยู่แล้ว ไม่มีการขออนุญาตเดิมซ้ำ
-
-## Phase S2 ที่เสนอให้เลือกสั่งต่อ
-
-1. **Verified organizations**: onboarding, independent review, หลักฐาน/วันหมดอายุ, suspend/appeal และ server/RLS isolation
-2. **Catalog backend**: draft→review→publish/revision, source/freshness/coverage/cost/accessibility, หยุดเผยแพร่เมื่อหมดอายุหรือองค์กรถูกระงับ
-3. **ผู้ใช้**: public search/filter/detail จาก backend, needs assessment ที่ข้าม sensitive fields ได้, bookmarks และ deterministic matching พร้อมเหตุผล/unknown
-4. **Knowledge ที่เพิ่มใน S2**: versioned flags/audit สำหรับ lifecycle, expiry rules และ privacy-safe usage event design ไม่มี paid ranking หรือ external partner messages
-
-ใช้ข้อมูลสมมติและ allow/deny tests ต่อ ไม่เริ่ม S2 อัตโนมัติจากการปิดงาน UI
-S3 เพิ่มใบสมัคร/คิวเคส/outbox; S4 ส่งต่อ/ผลลัพธ์/privacy lifecycle; S5 AI Navigator/impact; S6 operational drills และ UAT
-พันธกิจยังทั่วโลกทุกกลุ่มและธุรกิจยั่งยืน แต่ไม่เปิด no-email/minor personalization/real beneficiary workflows จากคำสั่งนี้
+C-17 อนุญาต Supabase/push/deploy แล้ว และ C-25 อนุมัติ S2 ตามเงื่อนไขแล้ว ไม่ขออนุมัติเรื่องเดิมซ้ำ
+S3 applications/cases/outbox, S4 referrals/outcomes/privacy, S5 AI/impact, S6 pilot readiness ยังเป็นแผน
+การ deploy ทางเทคนิคที่มีอยู่ไม่เท่ากับเปิดรับข้อมูลจริงหรือผ่าน release gates
 
 ## ส่งต่อบริบท
 
-อ่าน AGENTS.md, README.md, INDEX.md, DECISIONS.md, PLATFORM_REPORT_TH.md และ ADR-003
-รักษาต้นฉบับ Blueprint/knowledge ไม่เปลี่ยน P/G เป็น accepted โดยไม่มีหลักฐานเจ้าของ
-ใช้ภาษาไทย รายงาน checks ที่รันจริง และแสดงงานค้างปัจจุบัน/Phase ถัดไปทุกครั้ง
+อ่าน AGENTS.md, README.md, INDEX.md, DECISIONS.md และ S1_READINESS_EXECUTION_TH.md
+รักษาต้นฉบับ Blueprint/knowledge, P/G/D ที่ยังไม่ accepted, ภาษาไทย และ C-18
+แยกผล local/hosted และคำสั่งที่รัน/ยังไม่รัน ห้ามนับการ Publish environment แทน network/browser evidence

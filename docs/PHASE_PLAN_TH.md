@@ -7,6 +7,10 @@
 **อนุมัติรอบนี้:** C-11 เพิ่มการตรวจต้นแบบ/รายละเอียด S0/ทดลอง Auth→DB และพัฒนา S1 ต่อจาก C-10
 ผลทำจริงและส่วน S1 ที่ยังเหลืออยู่ใน [รายงาน S1](S1_REPORT_TH.md) ไม่ขยายไป S2–S6 โดยปริยาย
 **อนุมัติเพิ่ม:** C-17 จัดการ Supabase/push/deploy ชิ้นงาน S1; C-19–C-21 เพิ่ม branding/live/knowledge adoption และหน้าแรกการ์ดภาพประกอบ
+**คำสั่งล่าสุด C-23–C-25:** ปิด hosted Email/Live sync/สิทธิ์และ readiness S1 ก่อนเริ่ม S2
+อนุมัติ S2 verified organizations/catalog/search/assessment/bookmarks/rule matching แบบมีเงื่อนไขแล้ว
+Email Recovery/SMTP เลื่อนจนก่อนเปิดรับผู้ใช้จริง ไม่เป็นเงื่อนไขเริ่ม S2 ในรอบนี้
+ดู [หลักฐาน S1](S1_READINESS_EXECUTION_TH.md) และ [ลำดับ PR S2](S2_EXECUTION_PLAN_TH.md)
 **ยังไม่อนุมัติ:** real-data onboarding, vendor contracts, paid provisioning, external messages และ minor workflows
 P/D ใน Blueprint ยังต้อง disposition ตามเรื่อง ไม่ใช่อ่านเอกสารแล้วทุกตัวเลขกลายเป็น approved
 
@@ -15,7 +19,7 @@ P/D ใน Blueprint ยังต้อง disposition ตามเรื่อ�
 รายละเอียดความสามารถ RooSuk ทั้ง 15 เรื่องและสิ่งที่ทำจริง/เสนอในแต่ละ Phase อยู่ [KNOWLEDGE_ADOPTION_TH.md](KNOWLEDGE_ADOPTION_TH.md)
 S1 เพิ่ม real platform admin/MFA, protected owner, โลโก้/favicon upload/reset, feature switches, audit/CSV,
 in-app notifications, private Live sync+polling, password hardening, PWA offline shell และเมนูการ์ดทุก role
-S2–S6 ในตารางยังเป็นแผน ไม่ขยายเป็นการอนุมัติอัตโนมัติ
+S2 มีขอบเขตที่อนุมัติตาม C-25 แต่ยังไม่เริ่ม implementation ระหว่าง hosted S1 ถูกบล็อก; S3–S6 ยังเป็นแผน
 
 | Phase / เป้าหมาย | Functions & features ที่จะทำจริงในระยะนั้น | ผู้ใช้/หน้าจอ | Dependency / exit evidence |
 | --- | --- | --- | --- |
@@ -31,7 +35,7 @@ S2–S6 ในตารางยังเป็นแผน ไม่ขยา�
 
 | BP-MOD-ID | Function/feature | ระยะหลัก | ข้อจำกัด |
 | --- | --- | --- | --- |
-| ID-01 | Auth / recovery / MFA | S1 | ใช้ provider adapter ไม่สร้าง password protocol ใหม่ |
+| ID-01 | Auth / recovery / MFA | S1 | Recovery/SMTP เลื่อนตาม C-24; MFA runbook ยังอยู่รอบนี้ |
 | ID-02 | Minimal profile / assisted authority | S1 | actor ≠ subject; no password sharing |
 | NA-01 | Needs assessment | S2 | optional sensitive questions; confirmed draft เท่านั้น |
 | OR-01 | Organization verification | S2 | independent review, evidence expiry, appeal |
@@ -111,8 +115,8 @@ BP-D-01/02/03/04 ส่วนที่เกี่ยวข้อง ระบ�
 | ระยะ | ทำแล้ว | งานถัดไป/สิ่งที่ยังไม่ยืนยัน |
 | --- | --- | --- |
 | S0 | prototype/แผน, ADR-002, schema/permissions, OpenAPI S1, local user-JWT/RLS spike | pilot scope/ops/privacy sign-off, hosted region/PITR/budget; ไม่อ้างว่าปิด S0 ทั้งระยะ |
-| S1 | Email/password/confirm/recovery, Google PKCE initiation, MFA, session revoke, own adult profile, notice/consent, scoped delegation/read-back/revoke, draft org/member invitation/revoke, local migrations/tests | hosted Google round-trip, SMTP/refresh on hosting, distributed abuse controls, MFA recovery, assisted/no-email ownership SOP; prepare/submit scopes รอ domain S3 |
-| S2 | public directory และหน้าจอ demo จาก fixtures เท่านั้น | verified partner/catalog backend, storage quarantine, assessment/bookmarks/matching จริง |
+| S1 | Email/password, Google login/MFA/admin ที่ owner ยืนยัน, session revoke, own adult profile, notice/consent/delegation, org invitations, branding/admin/live; เพิ่ม validation/Orca/restore และ MFA-owner runbooks | hosted Email/Live/tenant tests ยังติด network; Recovery/SMTP เลื่อนตาม C-24; operational roster/backup/device UAT ก่อนผู้ใช้จริง; prepare/submit รอ S3 |
+| S2 | public directory และหน้าจอ demo จาก fixtures; แผน6 PR ตาม C-25 | ขอบเขตอนุมัติแบบมีเงื่อนไขแล้ว แต่ยังไม่เริ่ม implementation จน hosted S1 ผ่าน: verified partner/catalog/quarantine/search/assessment/bookmarks/matching |
 | S3 | หน้าตัวอย่าง applications/plan/case เท่านั้น | consent preview/atomic apply/cases/notifications จริง |
 | S4 | ยังไม่มี backend ของระยะนี้ | warm referral/outcomes/safety/privacy lifecycle |
 | S5 | มีหน้าตัวอย่าง AI/impact เท่านั้น | RAG/AI gateway/evaluation และ aggregate privacy จริง |

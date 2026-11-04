@@ -20,7 +20,7 @@ jobs:
       - run: npm run check
   s1-local:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
@@ -36,5 +36,10 @@ jobs:
       - run: npm run build
       - run: npm run check:s1
       - run: npm run db:test:fresh
+      - run: npm run db:validation:start
+      - run: npm run test:validation:local
+      - run: npm run test:backup-restore
+      - if: always()
+        run: npm run db:validation:stop
       - if: always()
         run: npm run db:stop

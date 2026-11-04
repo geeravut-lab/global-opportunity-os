@@ -24,7 +24,13 @@
     "test:auth": "playwright test --config playwright.auth.config.ts",
     "db:test:fresh": "node scripts/test-fresh-migrations.mjs",
     "check:s1": "npm run test:integration && npm run test:auth",
-    "db:migrate": "node scripts/local-stack.mjs migrate"
+    "db:migrate": "node scripts/local-stack.mjs migrate",
+    "db:validation:start": "node scripts/s1-validation-stack.mjs start",
+    "db:validation:stop": "node scripts/s1-validation-stack.mjs stop",
+    "test:validation:local": "playwright test --config playwright.validation.config.ts",
+    "test:validation:hosted": "NODE_USE_ENV_PROXY=1 GOOS_VALIDATION_TARGET=hosted playwright test --config playwright.validation.config.ts",
+    "test:backup-restore": "node scripts/test-backup-restore.mjs",
+    "test:a11y:orca": "node scripts/test-orca-a11y.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
