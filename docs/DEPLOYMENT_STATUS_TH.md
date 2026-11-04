@@ -1,50 +1,63 @@
-# สถานะการเผยแพร่ S1
+# สถานะ deployment และการแก้ 404
 
-วันที่ 2026-11-04 ตาม C-17 เจ้าของอนุญาตให้จัดการ Supabase และ push/deploy production แล้ว
-ชิ้นงานนี้ยังเป็น S1 พร้อมต้นแบบ 3 มุมมอง ไม่ใช่ผลส่งมอบ S2–S6 หรือการเปิด pilot ทุกฟังก์ชัน
+วันที่ 2026-11-04 ขอบเขตรอบนี้: แก้หน้าแรก 404 ของ `https://opp4all.vercel.app/`
+เป็นงานฐาน deployment ของ S1 ตาม C-17; ไม่เริ่ม S2 และไม่แก้ schema/ข้อมูล Supabase ในรอบนี้
+C-18 ให้สรุปงานที่เหลือใน Phase ปัจจุบัน/Phase ถัดไปทุกครั้ง
 
-## ทำแล้วในรอบนี้
+## สาเหตุที่ตรวจพบ
 
-- ตรวจ main ล่าสุด `b21613d` และยืนยันว่าอยู่ในประวัติ S1 ไม่มีงาน remote ใหม่ให้ทับ
-- push `feat/s1-email-google-auth` ที่ commit `a02bb26` และบันทึกอนุมัติ `adaea4a` ขึ้น GitHub สำเร็จ
-- push `main` สำเร็จแบบ fast-forward `b21613d` → `adaea4a` และตรวจ remote refs แล้ว; ไม่ force push
-- การ push main เปิดให้ Git integration ที่เจ้าของเชื่อมไว้เริ่ม production ตาม Project settings; ยังไม่ใช่หลักฐาน Vercel build/deploy สำเร็จ
-- ตรวจ runtime: ยังไม่เห็น URL/publishable key/APP_ORIGIN หรือ Supabase/Vercel management token
-- เจ้าของยืนยันว่าค่า 3 ตัวใส่ใน Cloud Environment ไม่ใช่ Vercel; ยังต้อง apply config ไป runtime ใหม่
-- เตรียม draft Secret names `SUPABASE_ACCESS_TOKEN`/`VERCEL_TOKEN` และ network domains
-  `api.github.com`, `api.supabase.com`, `api.vercel.com`; draft บันทึกแล้ว แต่ยังไม่ apply/publish
+Vercel Project เดิม `global-opportunity-os` ผูก GitHub repo และ Production Branch main ถูกต้อง
+โดเมน `opp4all.vercel.app` verified และชี้ production ถูกต้อง แต่ Framework เป็น `null` (Other)
+ค้างจากตอน repo เป็นเอกสาร จึงไม่ใช้ Next.js deployment adapter แม้ build command รัน next build ผ่าน
+สถานะ Ready ของ commit `0e7c957` จึงไม่ใช่หลักฐานว่ามีหน้าแอปให้เปิดใช้
+API details ของ deployment เก่าไม่มี routes ที่ใช้ยืนยันหน้าเว็บ; ไม่ใช้ builds array เพียงตัวเดียวตัดสินว่ามี/ไม่มี functions
 
-## ลำดับดำเนินการที่อนุญาตแล้ว
+Project ตั้ง Node 26.x ในขณะที่ package.json ใช้ 24.x ทำให้เกิด Node override warning
+warning นี้เป็นความไม่ตรงกันที่แก้พร้อมกัน ไม่ใช่สาเหตุหลักที่สรุปจากภาพอย่างเดียว
 
-1. push main แบบ fast-forward สำเร็จแล้ว; รอตรวจผล Vercel Git integration ของ Project เดิม
-2. เมื่อ management bindings พร้อม เลือก Supabase Project ตาม URL และ Vercel Project ตาม GitHub repo
-3. ตรวจ schema/roles/migration history/Auth config เดิมแบบอ่านก่อน ไม่ใช้ local fixture suites กับ hosted
-4. ใช้ S1 migrations ใน transaction หลังตรวจความเข้ากันได้ เก็บหลักฐาน migration/version/hash
-   ไม่ reset DB หรือแก้ schema ที่ไม่เกี่ยวข้องเพื่อให้ผ่าน
-5. ตั้ง env ฝั่ง Vercel ให้ตรง production domain; ตั้ง Supabase redirect allowlist โดยรักษาค่าเดิม
-   เปิด Email/Google flags หลัง schema/Provider พร้อม แล้ว deploy Project เดิม
-6. ตรวจ deployment URL, routes/headers/noindex, Auth failure paths, Google initiation และ session/permissions
-   การเข้าสู่ Google สำเร็จต้องเจ้าของเลือกบัญชีเอง; ไม่อ้างผ่านจากการสร้าง authorize URL อย่างเดียว
+## สิ่งที่แก้และ deploy แล้ว
 
-## สิ่งที่ยังไม่ยืนยัน
+- สาขา `fix/vercel-nextjs-production`; commit การแก้ `d6f0b5b`
+- เพิ่ม `vercel.json`: `framework: nextjs`, `installCommand: npm ci`, `buildCommand: npm run build`
+- เปลี่ยน Project เดิมผ่าน Vercel API: Framework `nextjs`, Node `24.x`; ไม่สร้าง Project/domain ซ้ำ
+- push สาขาและ main แบบ fast-forward โดยไม่ force push
+- production deployment ใหม่ `dpl_7s5EXDz4Lkhh2RRfrzMkZvpptAke`
+- Vercel API ยืนยัน `READY`, `aliasAssigned: true` และ Project production target เป็น deployment ใหม่นี้
+- alias มี `opp4all.vercel.app`; deployment URL คือ `global-opportunity-iq3rd1553-geeravut-lab.vercel.app`
+- build logs ยืนยัน `Detected Next.js version: 16.4.5`, แสดง App Router routes และ `Deployment completed`
 
-- ผล production deployment และ URL ยังไม่มีหลักฐานจาก Vercel
-- schema/Auth settings และ migration บน Project จริงยังไม่รัน
-- `gh` อ่าน API ยังถูก network policy ปฏิเสธที่ `api.github.com`; Git HTTPS fetch/push ใช้ได้
-- ยังไม่มีการสร้าง hosted fixture หรือล้างข้อมูลจริง; แผน cleanup อยู่ AUTH_SETUP_TH.md
+## ผลตรวจที่รันจริงในรอบนี้
 
-ผลเดิมก่อนรอบเผยแพร่: 138 test cases ผ่าน, build และ fresh local migrations ผ่าน
-ดู [รายงาน S1](S1_REPORT_TH.md) สำหรับรายละเอียดและข้อจำกัด ไม่ได้รันซ้ำโดยไม่มีการเปลี่ยน runtime code
+| การตรวจ | ผล |
+| --- | --- |
+| `npm run build` | ผ่าน มี root และ routes ของแอป |
+| `npm run test:e2e` | 20 ผ่าน ครอบคลุม directory/สามมุมมอง/ไทย–อังกฤษ/มือถือ |
+| production server ในเครื่อง `/` | 307 → `/th` |
+| production server ในเครื่อง `/th`, `/en`, `/th/auth/login`, `/th/demo/partner`, `/th/demo/admin` | ทุกหน้า 200 และมี main content; X-Frame-Options DENY |
+| Vercel Project settings | framework nextjs / Node 24.x |
+| Vercel deployment/alias | READY และ opp4all.vercel.app ผูกกับรุ่นแก้แล้ว |
+| HTTP/หน้าเว็บจริงจาก workspace | ยังตรวจไม่ได้ เพราะ proxy network policy ปฏิเสธ hostname นี้ ไม่ใช่หลักฐานว่าเว็บยังตอบ 404 |
 
+ไม่มีการนำผล 138 tests เดิมมาอ้างว่ารันซ้ำในรอบแก้ configuration นี้
+ผล DB/Auth เดิมอยู่ [S1_REPORT_TH.md](S1_REPORT_TH.md)
+คำเตือน NO_COLOR/FORCE_COLOR ของ runner ไม่ทำให้ tests ล้มเหลว
 
-## เมนูนำ token มาใส่ใน environment
+## Network สำหรับตรวจเว็บสด
 
-1. [Supabase Account → Access Tokens](https://supabase.com/dashboard/account/tokens) → Generate new token
-   ตั้งชื่อแยกสำหรับโครงการนี้ → ใส่ใน Secret `SUPABASE_ACCESS_TOKEN`
-2. [Vercel Account → Tokens](https://vercel.com/account/tokens) → Create Token
-   เลือก Scope บัญชี/ทีมที่มี Project นี้และวันหมดอายุ → ใส่ใน Secret `VERCEL_TOKEN`
-3. ใช้ Review/Save และ Publish environment ตาม UI เพื่อ apply variables/network/secret bindings
-   ที่บันทึกใน draft แล้ว ไม่ใช่การขออนุญาต deployment ใหม่
+API domains เดิมใช้งานได้แล้ว และ URL/key/origin/management token พร้อมใน runtime ล่าสุด
+การเรียก `opp4all.vercel.app` ผ่าน proxy ถูกปฏิเสธก่อนถึงเว็บ
+เพิ่มเฉพาะ hostname นี้ใน draft ของ Cloud Environment แล้ว รักษา API domains และ secret bindings เดิม
+successful draft save ไม่ apply network ให้ runtime เดิม และ agent ไม่ publish environment
+หากให้ agent ตรวจเว็บสดต่อ ใช้ Review/Save/Publish environment ตาม UI เพื่อ apply hostname นี้
+เจ้าของเปิดเว็บจาก browser ของตนได้ตามปกติ; รอผลยืนยันการเปิดเว็บจากเจ้าของด้วย
 
-Supabase token นี้คือ Personal Access Token สำหรับ Management API ไม่ใช่ publishable/service_role key
-ไม่ส่งค่า token ในแชตหรือใส่ใน Git/Vercel NEXT_PUBLIC_*
+## งานที่ยังเหลือใน S1 และ Phase ถัดไป
+
+Vercel API คืน `envs: []` คือ Project ยังไม่มี Environment Variables ของแอป
+Cloud Environment และ Vercel เป็นคนละ settings จึงยังไม่เปิด Email/Google ให้ใช้งานจริงบนเว็บในรอบนี้
+Supabase preflight/migrations/hosted Auth tests ยังไม่รัน ห้ามนับการแก้ 404 เป็นผลผ่าน login/RLS บน hosted
+
+แนะนำปิด S1 hosted ก่อน: ตรวจ Project เดิม → migrations ที่ปลอดภัย → Vercel env/callback →
+ทดสอบ Email/Google/MFA/session/permissions ด้วยข้อมูลสมมติ และระบุ operational gaps
+จากนั้น S2 จึงทำ verified organization/catalog backend, public search, assessment/bookmarks/rule matching
+รายละเอียด functions/features และคำสั่งต่อที่แนะนำอยู่ [NEXT_STEPS.md](NEXT_STEPS.md)

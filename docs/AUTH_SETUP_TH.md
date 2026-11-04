@@ -23,12 +23,13 @@ C-17 อนุญาตให้ agent จัดการ Supabase และ pus
 | `AUTH_ENABLED` | `true` หลังใช้ migrations และตั้ง Auth ครบ | ถ้าไม่พร้อมให้คง `false` เพื่อปิด Auth โดยปริยาย |
 | `AUTH_GOOGLE_ENABLED` | `true` หลัง Provider/redirect พร้อม | ตั้ง Provider อย่างเดียวไม่เปิดปุ่มฝั่งแอป |
 
-ใน cloud runtime ที่ตรวจล่าสุดยังไม่พบ bindings ของตัวแปรเหล่านี้
-มี draft รายชื่อตัวแปรสำหรับทบทวนแล้ว การบันทึก draft ไม่ได้ apply/publish ให้เอง
+หลัง publish environment รอบล่าสุด bindings ของ 5 ตัวแปรและ management tokens พร้อมแล้วใน Cloud Environment
+แต่ Vercel Project ยังไม่มี Environment Variables (API คืน envs: []) ต้องตั้งแยกหลังตรวจ schema/Auth
+การบันทึก draft ไม่ได้ apply/publish ให้เอง
 หากใส่ค่าใน draft ให้ใช้ขั้นตอน Review/Save/Publish ของ Environment Settings แล้วเริ่ม environment ตาม UI
 การ publish environment คนละเรื่องกับ git push หรือ deployment; รอบนี้ agent ไม่ publish ให้
 เพิ่มโดเมน `<project-ref>.supabase.co` ที่ตรง Project จริงใน Network allowed hosts หากจะเชื่อมจาก workspace
-นโยบายปัจจุบันอนุญาต package managers ยังไม่มีโดเมน Project นี้ ห้ามเปลี่ยน proxy/TLS เพื่อหลบ policy
+นโยบายปัจจุบันอนุญาต API GitHub/Supabase/Vercel และ package managers แต่ยังไม่มีโดเมน Supabase Project นี้ ห้ามเปลี่ยน proxy/TLS เพื่อหลบ policy
 
 ไฟล์ `.env.local` ที่ `db:start` สร้างเป็นของ local stack เท่านั้น มีเครื่องหมาย Generated และถูก ignore
 อย่านำ anon key ในไฟล์นั้นไปใช้กับ hosted Project หรือแทนค่าที่ใส่ใน Settings โดยไม่ตั้งใจ
@@ -58,7 +59,8 @@ Migrations ใน `supabase/migrations/` ทั้ง 3 ไฟล์ผ่าน
 ให้ผู้ดูแลทบทวน migrations/สิทธิ์ตาม ADR-002 และกระบวนการ backup ของ Project ก่อนใช้
 การตรวจ preflight ต้องใช้ SQL Editor หรือสิทธิ์ migration operator ผ่านช่องทางปลอดภัย
 Project URL/publishable key ใช้ Auth/BFF ได้ แต่ไม่ใช่สิทธิ์ DDL/migration
-ใน runtime ยังไม่มี URL/key/DB operator ที่ใช้เชื่อม Project นี้ได้ จึงยังไม่รัน preflight หรือ migrations ระยะไกล
+ปัจจุบัน runtime มี URL/key และ SUPABASE_ACCESS_TOKEN พร้อมแล้ว แต่รอบแก้ Vercel 404 ยังไม่รัน
+preflight หรือ migrations ระยะไกล; งานนี้ยังเหลือใน S1 ตาม NEXT_STEPS.md
 ไม่ต้องส่ง DB password/access token ในแชต; ใช้ Settings/secret binding ของเครื่องมือที่เจ้าของเลือก
 ถ้าเปิด Auth ก่อน migrations ครบ แอปจะไม่ให้ข้าม bootstrap/permission checks
 
@@ -123,7 +125,7 @@ service และการเชื่อมต่อภายนอกยัง
   ทบทวนสิทธิ์ auth metadata predicate ไม่แก้โดยให้ service_role CRUD ทั้งแอป
 
 รายงานผลในเครื่องและช่องว่าง [S1_REPORT_TH.md](S1_REPORT_TH.md)
-การทดสอบ hosted/Preview ใช้ Project เดิมได้ตาม C-15; ยังต้องมีค่าที่ apply แล้ว, migration operator/domain
+การทดสอบ hosted/Preview ใช้ Project เดิมได้ตาม C-15; ยังต้องตั้งค่าฝั่ง Vercel, ตรวจ schema และ callback domain
 และขอบเขตการส่ง Email/ผู้ทดสอบให้ชัด
 C-17 เป็นหลักฐานอนุญาต production deployment แล้ว; Provider พร้อมไม่ได้เป็นหลักฐานว่าทดสอบ flow จริงผ่าน
 

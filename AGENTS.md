@@ -28,6 +28,12 @@ Read README.md, docs/DECISIONS.md, docs/PROJECT_VISION.md, docs/PRODUCT_REQUIREM
 
 ## Working method
 
+### การสื่อสารกับเจ้าของ
+
+- ใช้ภาษาไทยในแชตและเอกสาร Markdown ที่เขียนใหม่ตาม C-07
+- เมื่อจบงานแต่ละ prompt ให้บอกงานที่ยังเหลือใน Phase ปัจจุบันและขั้นถัดไปที่เกี่ยวข้อง พร้อม functions/features ที่เจ้าของใช้เลือกสั่งดำเนินการได้ ตาม C-18
+- แยกงานที่ผ่านการตรวจจริง งานที่ยังไม่รัน และสิ่งที่ต้องตัดสินใจ ไม่ถือว่าการเสนอขั้นถัดไปเป็นการอนุมัติให้เริ่ม Phase ใหม่
+
 Work in small feature branches and reviewable PRs. Inspect existing files and preserve unrelated work. Do not add a second framework or unnecessary services. Verify current vendor docs before selecting versions; pin dependencies and commit the lockfile when code exists.
 
 Before a change, state its goal and linked REQ/AC IDs. Afterward report changed behavior, checks actually run and remaining gaps. Keep docs and decision status aligned. Add meaningful tests for permissions, consent, eligibility filtering, transitions and AI grounding. Never mark planned tests as passed. Add CI only when the actual project/toolchain exists.
