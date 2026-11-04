@@ -36,7 +36,8 @@ trigger ที่เพิ่ม live revision/ส่ง private ping ทำง�
 
 ## Live sync และ browser token
 
-ส่ง private topics `goos:u:<current UUID>` และ `goos:settings`; payload ว่าง `{}` ไม่มี record/PII
+ส่ง private topics `goos:u:<current UUID>` และ `goos:settings`; application ส่ง payload `{}` ไม่มี record/PII
+Realtime รุ่นที่ตรวจเติม UUID `id` ของข้อความอัตโนมัติได้ เป็น transport metadata ไม่ใช่ account/subject ID; tests อนุญาตเฉพาะ generated ID นี้และปฏิเสธ field ข้อมูลอื่น
 RLS อนุญาต topic ส่วนตัวเฉพาะ active current actor และ settings เฉพาะ active account
 restrictive namespace guard ป้องกัน permissive policy เดิมเปิด `goos:` โดยไม่ตั้งใจ
 fingerprint API ตรวจ getUser+DB session/context ใหม่และ no-store เสมอ; realtime เป็นสัญญาณให้ revalidate เท่านั้น
