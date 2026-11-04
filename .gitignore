@@ -15,3 +15,4 @@ test-results/
 Thumbs.db
 supabase/.temp/
 supabase/.branches/
+.local/

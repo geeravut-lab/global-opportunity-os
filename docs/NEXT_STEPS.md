@@ -1,40 +1,48 @@
-# สิ่งที่เจ้าของต้องทำต่อหลังปรับตาม Blueprint
+# สิ่งที่ทำต่อหลัง S1 ในเครื่อง
 
-วันที่ 2026-11-04 งานรอบนี้คือ “ปรับต้นแบบ 3 มุมมองและแผนทุก Phase ก่อน” ตาม C-10
-ไม่ต้องเลือกขอบเขตเดิมซ้ำ ไม่ใช้จำนวน Phase เดิม 0–5 อ้างเป็น roadmap ปัจจุบัน
+วันที่ 2026-11-04 C-11 อนุมัติให้ทำขั้นที่ 1–4 และ Email/Google แล้ว ไม่ต้องอนุมัติเริ่ม S1 ซ้ำ
+เจ้าของแจ้งว่ามี Supabase และตั้ง Provider ใน Supabase/Google Cloud แล้วตาม C-12/13; C-14 ระบุว่าเป็น Project ระบบจริง และ C-15 อนุญาตใช้ทดสอบได้
+พร้อมเคลียร์ข้อมูลทดสอบก่อนเปิด production
+ผลชิ้นงานและข้อจำกัดดู [รายงาน S1](S1_REPORT_TH.md)
 
-## ทบทวนตอนนี้
+## ลำดับถัดไป
 
-1. ดูต้นแบบผู้ใช้ `/th`, NGO `/th/demo/partner`, admin `/th/demo/admin` และสลับอังกฤษ
-2. ดู [ภาพหน้าจอและผลตรวจ](PROTOTYPE_REPORT_TH.md) เทียบกับภาพ Showcase
-3. อ่าน [ผลเทียบและส่วนที่ยังต่าง](BLUEPRINT_ALIGNMENT_TH.md) และ [แผน S0–S6](PHASE_PLAN_TH.md)
-4. ทบทวนฟังก์ชัน/หน้าจอที่ต้องการแก้ใน prototype ก่อนขยับสู่ระบบจริง
+1. ใช้ local stack ทบทวนได้ทันที; สำหรับ hosted test ใช้ Project เดิมที่อนุมัติแล้วได้
+   ใส่ Project URL/publishable key/APP_ORIGIN ใน Environment Settings ตาม
+   [คู่มือ Auth](AUTH_SETUP_TH.md) ไม่ส่ง secret ในแชต; workspace และ Vercel เป็นคนละชุด settings
+2. ใช้ read-only preflight ตรวจ schema/roles/history ของ Project เดิมผ่าน SQL Editor หรือ migration operator
+   จาก Settings ที่ปลอดภัย; เตรียม manifest ข้อมูลสมมติก่อนทดสอบ hosted แล้วค่อยเปิด Auth flags
+   URL/publishable key ไม่ให้สิทธิ์ migration และตอนนี้ runtime ยังไม่มีการเชื่อมต่อที่ใช้งานได้
+3. ตรวจ Google↔Supabase callback กับ app redirect allowlist แล้วทดสอบ hosted round-trip/Email/HTTPS session
+   รอบนี้ยังไม่มีการ push/deploy/ส่ง Email จริง; เมื่อจะทำ Preview ต้องตกลงขอบเขต deployment/ผู้ทดสอบก่อน
+4. ทบทวน [หน้าจอ S1](S1_REPORT_TH.md) และส่วน assisted/MFA recovery ที่ยังเหลือ
+   จากนั้นค่อยกำหนดชิ้นงาน S2 verified organization/catalog/search backend ตาม [แผน S0–S6](PHASE_PLAN_TH.md)
 
-## ก่อนให้เริ่ม S1 ของระบบจริง
+สิ่งที่ยังต้องตัดสินใจก่อนข้อมูลจริง: pilot/country, privacy/safety/ops owners, legal basis/notice/retention,
+region/PITR/budget, assisted authority/ownership recovery และ abuse protection
+ไม่ต้องเลือก AI vendor ราคา หรือประเทศที่สองเพื่อทดสอบ S1 ต่อ
 
-ต้องมีขอบเขต pilot/country/adult boundary และเจ้าของ safety/privacy ตาม BP-D-01/03/04
-ระบุงบ/คน/region/database plan กับ BP-D-02 และทำ auth-to-DB/RLS spike/ADR
-เลือก disposition Tailwind/monorepo และ OpenAPI/data constraints ตามแผน
-ไม่ต้องเลือกประเทศที่สอง ราคา หรือ AI vendor เพื่อปิดงานต้นแบบปัจจุบัน
+## เปิดทบทวนในเครื่อง
 
-Vercel เลือกแล้วตาม C-09 และเจ้าของแจ้งว่าเชื่อม GitHub; ยังไม่ได้ตรวจ integration หรือแก้ Project
-หากจะส่งสาขาหรือให้ Preview deploy ต้องอนุญาตขั้นที่ต้องการก่อน เพราะ push อาจกระตุ้น deployment
-ยังไม่อนุญาต production deployment หรือใช้ข้อมูลผู้รับประโยชน์จริง
+ต้นแบบ: `/th`, `/th/demo/partner`, `/th/demo/admin`, `/th/opportunities`
+บัญชี S1: `/th/auth/login`, `/th/auth/signup`, `/th/auth/recover`, `/th/account`
+ทุกเส้นทางมีภาษาอังกฤษ `/en`; demo role switch ไม่ใช่สิทธิ์ของบัญชี
+คำสั่ง local อยู่ README และคู่มือ Auth ใช้ข้อมูลสมมติเท่านั้น
 
 ## ส่งต่อไป Project เดิม
 
-หากแชตใน ChatGPT มีเมนู `⋯` → Move to project ให้เลือก Project เดิมแล้วตรวจว่าบทสนทนาปรากฏจริง
-หากเป็น Codex/ไม่มีเมนู ให้แนบ README, docs/INDEX และไฟล์อ้างอิงที่เชื่อมจากนั้นใน Project ปลายทาง
-การเลือก repo เดียวกันไม่ย้ายประวัติแชต และการ publish cloud environment ไม่ใช่ git push
+หากแชตมีเมนู `⋯` → Move to project ให้เลือก Project เดิมแล้วตรวจว่าบทสนทนาปรากฏจริง
+หากเป็น Codex/ไม่มีเมนู ให้ส่ง README, docs/INDEX และไฟล์ที่อ้างอิงไป Project ปลายทาง
+การเลือก repo เดียวกันไม่ย้ายประวัติแชต และ publish cloud environment ไม่ใช่ git push
 
-รอบนี้เก็บ snapshot งานก่อนแก้ไว้ใน local commit `3906306` และรวม main ผ่าน local merge `60de51e`
-ชิ้นงานปรับ UX ต่อจากนั้นอยู่ในสาขา `feat/blueprint-ux-alignment`; ยังไม่มีการ push
-ก่อนเปิดงานใหม่จาก GitHub ต้องส่งไฟล์หรือ push สาขาที่ได้รับอนุญาตก่อน อย่าสมมติว่าไฟล์ local ไปถึงปลายทางเอง
+งาน S1 อยู่สาขา local `feat/s1-email-google-auth` ต่อจาก snapshot ต้นแบบ `5585012`
+ยังไม่ push; ต้องส่งไฟล์หรือ push ที่ได้รับอนุญาตก่อนจึงจะเห็นบน GitHub/Vercel
 
 ข้อความส่งต่อ:
 
 > Global Opportunity OS ใช้ภาษาไทยในแชต/เอกสาร อ่าน AGENTS.md, README.md และ docs/INDEX.md
-> ใช้ Product Blueprint TH v1.0 และภาพ UX Showcase เป็นฐาน อนุมัติรอบนี้เฉพาะต้นแบบ 3 มุมมองและแผนทุก Phase
-> แผนใหม่คือ S0–S6 ตาม docs/PHASE_PLAN_TH.md; ชิ้นงานไม่ใช่ backend/full MVP หรือระบบสิทธิ์จริง
-> ตรวจ docs/DECISIONS.md, BLUEPRINT_ALIGNMENT_TH.md และ PROTOTYPE_REPORT_TH.md ก่อนเปลี่ยน
-> รักษาพันธกิจทั่วโลกทุกกลุ่มและธุรกิจยั่งยืน ใช้ข้อมูลสมมติ ห้าม deploy/paid provisioning/external messages/real-data/minor workflows โดยไม่มีอนุมัติ
+> ใช้ Blueprint TH v1.0/ภาพ UX Showcase เป็นฐาน C-11 อนุมัติ S0/local spike/S1 Email+Google
+> อ่าน S1_REPORT_TH, AUTH_SETUP_TH และ ADR-002 ก่อนทำต่อ มี local Auth/DB/RLS จริงและต้นแบบ 3 บทบาท
+> Google Provider เจ้าของแจ้งว่าตั้งแล้วใน Project ระบบจริง; C-15 อนุญาตทดสอบใน Project เดิมและล้าง fixture ก่อนเปิดจริง
+> hosted round-trip/remote preflight/migrations ยังไม่รัน เพราะ runtime ยังไม่มีค่าการเชื่อมต่อ/สิทธิ์ operator
+> รักษาพันธกิจทั่วโลกทุกกลุ่มและธุรกิจยั่งยืน ใช้ข้อมูลสมมติ ไม่ deploy production/paid provisioning/ส่งข้อความ/ข้อมูลจริง/minor workflows

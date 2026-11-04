@@ -1,20 +1,22 @@
 # Global Opportunity OS
 
 โครงการมีพันธกิจทั่วโลก ครอบคลุมผู้รับประโยชน์ทุกกลุ่ม พร้อมเป้าหมายธุรกิจยั่งยืน
-ชิ้นงานปัจจุบันคือ **ต้นแบบ UX สามมุมมอง: ผู้ใช้ / พันธมิตร NGO / ผู้ดูแลระบบ**
+ชิ้นงานปัจจุบันมี **ต้นแบบ UX สามมุมมอง และฐาน S1 สำหรับบัญชีสมมติ Email/Google**
 ปรับตาม [Product Blueprint TH v1.0](docs/Global-Opportunity-OS-Product-Blueprint-TH.md) และภาพ UX Showcase ที่เจ้าของแนบ
-พร้อมไดเรกทอรีไทย–อังกฤษและข้อมูลสมมติทั้งหมด ไม่มีบัญชี ฐานข้อมูล AI จริง หรือการส่งต่อจริง
-การสลับ role เป็น demo navigation ทุกคนเปิดได้ ไม่ใช่ระบบสิทธิ์/ยืนยันตัวตน
+ไดเรกทอรีและ dashboard สามบทบาทยังใช้ข้อมูลสมมติ การสลับ role เป็น demo navigation
+บัญชี S1 อยู่ `/th/auth/login` และ `/th/account` แยกจาก demo และใช้ Auth/DB จริงเฉพาะ local stack
+ยังไม่มี AI หรือการส่งต่อจริง Google ผ่านการทดสอบเริ่ม PKCE เท่านั้น ยังไม่ยืนยัน hosted OAuth round-trip
 
 [ดูแผน S0–S6 พร้อม functions/features](docs/PHASE_PLAN_TH.md) ·
 [ดูผลเทียบ Blueprint/ภาพ](docs/BLUEPRINT_ALIGNMENT_TH.md) ·
-[ดูผลตรวจรอบปัจจุบัน](docs/PROTOTYPE_REPORT_TH.md)
+[ผลตรวจ S1](docs/S1_REPORT_TH.md) · [ตั้งค่า Email/Google](docs/AUTH_SETUP_TH.md)
 
 ## เริ่มพัฒนา
 
 ใช้ Node.js **24.22.1** และ npm **11.9.0** รุ่น dependency ล็อกใน package.json และ package-lock.json
 รันทุกคำสั่งจากราก repository (`/workspace/global-opportunity-os` ในเซสชันนี้)
-ถ้ามี nvm ให้ใช้ `nvm install && nvm use` ตาม .nvmrc; ไม่ต้องมี secret หรือไฟล์ .env
+ถ้ามี nvm ให้ใช้ `nvm install && nvm use` ตาม .nvmrc; การเปิดต้นแบบสาธารณะไม่ต้องมีไฟล์ .env
+ถ้าไม่ตั้งค่า Auth หน้าบัญชีจะแจ้งว่ายังไม่พร้อม ไม่เปิดสิทธิ์โดยปริยาย
 
 ```sh
 npm ci
@@ -70,14 +72,50 @@ npx --no-install playwright install --with-deps chromium
 `/usr/bin/chromium` เมื่อมี หรือเบราว์เซอร์ที่ Playwright ติดตั้ง เซสชันนี้ทดสอบด้วย Chromium ของ Debian
 เพราะโดเมนดาวน์โหลด Playwright ถูกนโยบายเครือข่ายปฏิเสธ ไม่ได้ปิด TLS หรือหลบนโยบาย
 เมื่อใช้เบราว์เซอร์คนละรุ่นต้องตรวจผลในสภาพแวดล้อมนั้นอีกครั้ง
-ผลทดสอบที่รันจริงและข้อจำกัดอยู่ใน [รายงานต้นแบบรอบปัจจุบัน](docs/PROTOTYPE_REPORT_TH.md)
+ผลตรวจต้นแบบเดิมอยู่ใน [รายงานต้นแบบ](docs/PROTOTYPE_REPORT_TH.md)
+ผลตรวจ Auth/DB และสถานะล่าสุดอยู่ใน [รายงาน S1](docs/S1_REPORT_TH.md)
+
+## พัฒนาและทดสอบ S1 ในเครื่อง
+
+ต้องมี Docker daemon และพอร์ต 54320–54324 ว่าง คำสั่งนี้สร้าง Supabase เฉพาะ local project
+พร้อมใช้ migrations กับ DB ในเครื่อง; ไม่ link กับ Project ของเจ้าของ ไม่ส่ง Email ออกภายนอก
+
+```sh
+npm run db:start
+npm run dev -- --hostname 127.0.0.1 --port 3000
+```
+
+`db:start` เก็บ status/keys ใน `.local/` และสร้าง `.env.local` เฉพาะ local (ignored, mode 600)
+จะไม่เขียนทับ `.env.local` ที่ผู้ใช้สร้างเอง เปิดบัญชีสมมติที่ `/th/auth/signup` และยืนยันอีเมลผ่าน
+Mailpit `http://127.0.0.1:54324` ใช้เบราว์เซอร์เดิม Google ของ local stack ปิดตามค่าเริ่มต้น
+
+```sh
+npm run build
+npm run test:integration
+npm run test:auth
+npm run db:test:fresh
+npm run db:stop
+```
+
+`test:integration` สร้าง fixture ใหม่และทดสอบ Auth/PostgREST/RLS จริง;
+`test:auth` เปิด/ปิดเว็บพอร์ต 3000 เองและบังคับใช้ local runtime แม้มี hosted environment variables
+`db:test:fresh` สร้าง stack แยกพอร์ต 55320–55324 ทดสอบ migrations ทั้งชุดแล้วหยุด stack นั้น
+ข้อมูล fixture และ Docker volumes ยังเก็บอยู่ตาม CLI default; ไม่มีคำสั่ง reset/destructive cleanup ใน workflow นี้
+`npm run check:s1` รวม integration + auth browser ต้องเริ่ม local DB และ build ก่อน
+`npm run db:migrate` ใช้ `migration up --local` เท่านั้น
+
+การตั้ง Supabase/Google ที่คุณมีอยู่แล้ว ดู [คู่มือ Auth](docs/AUTH_SETUP_TH.md)
+และ [สถาปัตยกรรม/ข้อจำกัดสิทธิ์](docs/adr/ADR-002-S1-AUTH-TH.md) ก่อนใช้ Project ระยะไกล
+C-15 อนุญาตใช้ Project เดิมทดสอบได้; ยังไม่เชื่อม remote และต้องตรวจของเดิม/ระบุ fixture ก่อนเขียนข้อมูล
+อย่าคัดลอก service_role หรือ Google Client Secret มาใส่ในแอป
 
 ## โครงสร้าง
 
 - `app/` หน้าเว็บตามภาษา รายละเอียด 404 และ CSS
 - `components/` ตัวกรองและปุ่มเปลี่ยนภาษา
 - `lib/` คำแปล ข้อมูลสมมติ กฎสถานะ และการเลือกฟิลด์สาธารณะ
-- `tests/` unit, browser และ accessibility
+- `tests/` unit, browser, accessibility และ local DB integration
+- `supabase/migrations/` ฐาน identity/permissions S1; `api/s1.openapi.json` สัญญา BFF ที่มีแล้ว
 - `.github/workflows/check.yml` ขั้นตรวจ CI ที่เตรียมไว้ ยังไม่เคยรันบน GitHub ในงานนี้
 
 ## Vercel

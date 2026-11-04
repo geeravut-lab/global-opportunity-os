@@ -18,7 +18,15 @@ C คือหลักฐานการตัดสินใจ P คือข
 | C-07 | แชตและเอกสารที่เขียนใหม่เป็นภาษาไทย คง technical terms/commands ที่จำเป็น | คำสั่งเจ้าของวันที่ 2026-11-04 |
 | C-08 | ก่อนหน้าอนุมัติไดเรกทอรีไทย–อังกฤษ Next.js/React/TypeScript/npm ข้อมูลสมมติ และฐาน S0 ชั่วคราว | เจ้าของ: “ผมเลือกตามที่คุณแนะนำทั้ง 4 เรื่องเลยครับ”; ใช้เป็นประวัติ ไม่ถือว่า S0 ครอบคลุม Blueprint |
 | C-09 | เลือก Vercel และแจ้งว่าเชื่อม GitHub repository แล้ว | เจ้าของ: “ผมจะใช้ Vercel ในการ deploy โดยผมได้ link กับ Github repo เดียวกันไว้แล้ว”; ไม่ได้อนุญาต push/deploy production |
-| C-10 | ใช้ Blueprint TH v1.0 บน main และภาพ UX Showcase เป็นฐานเทียบ; รอบนี้ปรับต้นแบบ 3 มุมมองและแผนทุก Phase ก่อน | คำสั่งล่าสุดและคำตอบ: “ปรับต้นแบบ 3 มุมมองและแผนทุก Phase ก่อน (แนะนำ)” |
+| C-10 | ใช้ Blueprint TH v1.0 บน main และภาพ UX Showcase เป็นฐานเทียบ; รอบก่อนปรับต้นแบบ 3 มุมมองและแผนทุก Phase | คำสั่งล่าสุดและคำตอบ: “ปรับต้นแบบ 3 มุมมองและแผนทุก Phase ก่อน (แนะนำ)” |
+| C-11 | อนุมัติดำเนินขั้นที่ 1–4: ตรวจ/ปรับต้นแบบ ปิดรายละเอียด S0 ที่ทำได้ ทดลองฐาน Auth/server/DB/RLS และพัฒนา S1; login ด้วย Email และ Google Account | เจ้าของวันที่ 2026-11-04: “ขอให้ดำเนินการตาม ขั้นที่ 1-4 ได้เลย, โดยการ login ให้เป็นแบบ Email และ Google Account”; Email ใช้รหัสผ่านเป็นค่าเริ่มต้นในการพัฒนา ไม่เปลี่ยนไป OTP-only โดยปริยาย |
+| C-12 | เจ้าของมี Supabase Project อยู่แล้ว และจะใส่ URL/keys ผ่าน Environment Settings | คำตอบเจ้าของ: “มีแล้ว จะตั้งค่า URL/keys ผ่าน Environment Settings”; ไม่อนุญาตให้รัน migration กับ Project ระยะไกลโดยไม่ทราบว่าเป็น dev/staging/prod |
+
+| C-13 | เจ้าของแจ้งว่าตั้ง Google Provider ใน Supabase/Google Cloud แล้ว | ข้อความเจ้าของ: “ผมตั้ง provider ใน Supabase/Google Cloud แล้วครับ”; ยังไม่ได้ยืนยัน remote settings หรือ OAuth round-trip จากแอป |
+
+| C-14 | Supabase Project ที่ตั้ง Provider เป็น Project ใช้งานจริงหรือมีข้อมูลจริง | คำตอบเจ้าของ “ใช้งานจริงหรือมีข้อมูลจริงอยู่แล้ว”; เป็นข้อมูลสถานะ Project; ข้อจำกัดให้ใช้ local ที่บันทึกตอนนั้นถูกปรับโดย C-15 ด้านล่าง |
+
+| C-15 | เจ้าของอนุญาตใช้ Supabase Project เดิมทดสอบได้ และให้เคลียร์ข้อมูลทดสอบก่อนขึ้น production | ข้อความล่าสุด “ใช้งานจริง แต่สามารถใช้ได้เลย โดยไว้เราค่อยเคลียร์ข้อมูลทดสอบออกก่อนขึ้น production”; ใช้เป็นอนุญาตทดสอบและเตรียม S1 บน Project นี้หลังตรวจของเดิม ไม่ใช่อนุญาตล้างข้อมูลเดิม/production deployment; การเชื่อมต่อและ migration operator ยังไม่พร้อมใน runtime |
 
 ## ข้อเสนอหลักจาก main และสถานะปัจจุบัน
 
@@ -27,12 +35,12 @@ C คือหลักฐานการตัดสินใจ P คือข
 | P-01 | ผู้รับประโยชน์เข้าถึงพื้นฐานฟรี รายได้ B2B ไม่ขายข้อมูลส่วนบุคคล | หลักออกแบบของต้นแบบ ไม่ใช่โมเดลราคาหรือสัญญาที่รับรองแล้ว |
 | P-02 | Navigator + directory + partner cases + basic impact ก่อน | ใช้เป็นทิศทาง Blueprint; ต้นแบบไม่ใช่ full MVP |
 | P-03 | ไทย ไทย/อังกฤษ และ adult personalized pilot | ไทย/อังกฤษยืนยันใน C-08; ประเทศ pilot/การรับข้อมูลจริงยังต้อง D-01/D-03 |
-| P-04 | Next.js/TypeScript/Tailwind + Supabase/PostgreSQL แบบ modular monolith | Next/TypeScript อนุมัติแล้ว; ต้นแบบยังใช้ CSS เดิมพร้อม design tokens ไม่เพิ่ม Tailwind หรือ backend โดยพลการ; ADR-001 บันทึกความต่างนี้ |
+| P-04 | Next.js/TypeScript/Tailwind + Supabase/PostgreSQL แบบ modular monolith | Next/TypeScript อนุมัติแล้ว; ใช้ root app/CSS tokens เดิม; C-11 อนุมัติ Auth/backend S1 ในเครื่องแล้ว ตาม ADR-002; Tailwind/monorepo ยังไม่อนุมัติให้ย้าย |
 | P-05 | Vercel/Netlify, model และ region ยังไม่เลือก | เลือก Vercel ตาม C-09; database region/plan, AI vendor และเงื่อนไขข้อมูลยังไม่เลือก |
 | P-06 | pilot 90 วัน 3–5 พันธมิตร 100 รายการ | สมมติฐานทดลอง ไม่ใช่ผลจริง/กำหนดส่ง |
 | P-07 | ราคา B2B/ประมาณการรายได้เดิมเป็นการทดลอง | ยังไม่อนุมัติราคา/การเรียกเก็บ |
 | P-08 | โครงสร้างกิจการและ license | ยังต้องเจ้าของ/ที่ปรึกษาเลือกก่อนสัญญาหรือเปิดเป็นโอเพนซอร์ส |
-| P-09 | ปิด minor personalization จนผ่าน safety gate | ต้นแบบไม่มีบัญชีส่วนบุคคลหรือข้อมูลเด็ก; กระบวนการเด็กจริงยังไม่อนุมัติ |
+| P-09 | ปิด minor personalization จนผ่าน safety gate | S1 มีบัญชีทดสอบสมมติผู้ใหญ่เท่านั้น; API/DB ปฏิเสธ minor/unknown profile; กระบวนการเด็กจริงยังไม่อนุมัติ |
 | P-10 | ไม่รวม wallet, lending, diagnosis, donations ที่ควบคุมไม่ได้ หรือ open minor labor market | คงข้อจำกัด ไม่เพิ่มตามภาพ |
 | P-11 | ผู้รับผิดชอบ operations, เวลาตอบ และระยะเก็บ | ยังต้องระบุทีม/นโยบายก่อน pilot |
 | P-12 | AI optional, server-side, grounded; ไม่ตัดสินเดิมพันสูงอัตโนมัติ | แผน Phase 5; UI ต้นแบบเป็นตัวอย่างอธิบายกฎ ไม่มี model จริง |
@@ -42,9 +50,13 @@ C คือหลักฐานการตัดสินใจ P คือข
 ## สิ่งที่ต้องตัดสินใจก่อนระบบจริง
 
 ใช้ D-01 ถึง D-12 และ G0–G6 จาก Blueprint โดยอ้างเป็น BP-D-*/BP-G* ในแผน เพื่อไม่ชนรหัสของ starter pack
-C-10 อนุมัติการปรับต้นแบบและการวางแผนเท่านั้น ไม่อนุมัติราคา SLA retention สูตรคะแนน
+C-10 เดิมอนุมัติต้นแบบ; C-11 เพิ่ม S0/S1 สำหรับการพัฒนาและข้อมูลสมมติ แต่ยังไม่อนุมัติราคา SLA retention สูตรคะแนน
 vendor contract, real-data processing, minor workflow, paid provisioning, external messages หรือ production deployment
-D-02 ปิดเฉพาะ frontend/hosting choice; auth propagation/RLS spike, database region/PITR และต้นทุนยังเปิดอยู่
+D-02 มีผลทดลอง Auth→BFF→user JWT→RPC/RLS บน local stack แล้วตาม S1_REPORT_TH; ยังไม่ปิด region/PITR/ต้นทุน หรือรับรอง hosted execution
+
+การเลือกทางเทคนิคที่ย้อนกลับได้ภายใน C-11: Email+password, Google PKCE, HttpOnly cookies,
+user-JWT RPC และ role/RLS ตาม ADR-002; ค่า delegation 90 วัน/คำเชิญ 7 วันและ notice เป็น dev assumptions
+ไม่ใช่นโยบาย production ที่เจ้าของรับรอง และไม่อนุมัติ P-* ที่เหลือแทนเจ้าของ
 
 ## กติกาอ้างอิงไม่ให้รหัสชนกัน
 

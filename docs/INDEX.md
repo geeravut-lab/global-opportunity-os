@@ -5,6 +5,11 @@
 
 ## เอกสารรอบปัจจุบัน
 
+- [รายงาน S1 และผลทดสอบล่าสุด](S1_REPORT_TH.md)
+- [ตั้งค่า Email/Google และ local development](AUTH_SETUP_TH.md)
+- [ADR ฐาน Auth/DB/สิทธิ์ S1](adr/ADR-002-S1-AUTH-TH.md)
+- [OpenAPI ของ BFF S1 ที่มีโค้ดแล้ว](../api/s1.openapi.json)
+
 - [ผลเทียบ Blueprint และภาพ UX](BLUEPRINT_ALIGNMENT_TH.md)
 - [แผนทุก Phase พร้อม functions/features](PHASE_PLAN_TH.md)
 - [ข้อกำหนดต้นแบบและ UX ที่อิงภาพ](UX_SPEC_TH.md)

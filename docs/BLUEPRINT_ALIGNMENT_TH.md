@@ -1,5 +1,7 @@
 # ผลตรวจเทียบ Blueprint, main และภาพ UX
 
+> ผลเทียบนี้บันทึกรอบ prototype C-10; C-11 เพิ่ม S0/local spike/S1 ดู [รายงาน S1](S1_REPORT_TH.md)
+
 วันที่ 2026-11-04 แหล่งหลักคือ docs/Global-Opportunity-OS-Product-Blueprint-TH.md v1.0
 จาก origin/main commit `b21613dd7b29f9856828f81dd86ca5755d2091a0` ดึงด้วย git fetch แบบไม่ checkout ทับงานเดิม
 ไฟล์ Blueprint ใน checkout ตรง byte กับต้นฉบับ commit นี้ ไม่แก้เนื้อหาต้นทางเพื่อให้ดูว่าชิ้นงานผ่านแล้ว

@@ -4,7 +4,8 @@
 **ก่อน pilot มี 7 ระยะ S0–S6**; งานหลัง MVP แยกอีก 5 กลุ่ม ไม่ใช่สิ่งที่ต้องสร้างก่อนเริ่มทั้งหมด
 แผนนี้แทนลำดับ 6 ระยะของเซสชันก่อนหน้า สำหรับการพัฒนาต่อไป ไม่แก้ประวัติว่าอนุมัติ production แล้ว
 
-**อนุมัติรอบนี้:** ต้นแบบ 3 มุมมองและแผนครบตาม C-10 เท่านั้น
+**อนุมัติรอบนี้:** C-11 เพิ่มการตรวจต้นแบบ/รายละเอียด S0/ทดลอง Auth→DB และพัฒนา S1 ต่อจาก C-10
+ผลทำจริงและส่วน S1 ที่ยังเหลืออยู่ใน [รายงาน S1](S1_REPORT_TH.md) ไม่ขยายไป S2–S6 โดยปริยาย
 **ยังไม่อนุมัติ:** real-data onboarding, vendor contracts, paid provisioning, external messages, minor workflows และ production deployment
 P/D ใน Blueprint ยังต้อง disposition ตามเรื่อง ไม่ใช่อ่านเอกสารแล้วทุกตัวเลขกลายเป็น approved
 
@@ -12,7 +13,7 @@ P/D ใน Blueprint ยังต้อง disposition ตามเรื่อ�
 
 | Phase / เป้าหมาย | Functions & features ที่จะทำจริงในระยะนั้น | ผู้ใช้/หน้าจอ | Dependency / exit evidence |
 | --- | --- | --- | --- |
-| **S0 ฐานผลิตภัณฑ์และต้นแบบ** | เทียบ main/Blueprint/ภาพ, prototype 3 roles desktop/mobile; UX J1/J2; taxonomy/eligibility schema; data classification; OpenAPI เริ่มต้น; ADR stack/region/auth-to-DB spike; scope adult/pilot, cost, privacy/safety/SOP/partner requirements | beneficiary home/search/profile/needs/plan; partner dashboard/queue/catalog; admin overview/review/security | BP-B-001–004; BP-D-01–04 owners, design review, auth/RLS spike evidence ก่อนเริ่มของจริง; **รอบนี้ทำเฉพาะ audit/prototype/plan ไม่ใช่ S0 ทั้งหมด** |
+| **S0 ฐานผลิตภัณฑ์และต้นแบบ** | เทียบ main/Blueprint/ภาพ, prototype 3 roles desktop/mobile; UX J1/J2; taxonomy/eligibility schema; data classification; OpenAPI เริ่มต้น; ADR stack/region/auth-to-DB spike; scope adult/pilot, cost, privacy/safety/SOP/partner requirements | beneficiary home/search/profile/needs/plan; partner dashboard/queue/catalog; admin overview/review/security | BP-B-001–004; BP-D-01–04 owners, design review, auth/RLS spike evidence ก่อนเริ่มของจริง; **ทำ audit/prototype/plan และ local auth/RLS spike แล้ว; owner/region/budget/legal ยังไม่ครบ** |
 | **S1 ตัวตนและฐานสิทธิ์** | เวอร์ชันเครื่องมือ/CI/environments แยก; identity/org/membership/role migrations ใน local disposable DB; signup/email verify/login/recovery; staff MFA/session revoke; minimal account/subject; safe contact; age gate; consent notice versions; delegation แยก read/write/prepare/submit; assisted read-back/revoke; BFF authorization และ DB claims transaction | สมัคร/โปรไฟล์/privacy/delegation, staff sign-in และ org context | BP-B-101–103; ขึ้นกับ S0; BP-AC-02/03/08/17/18 subset; direct API/DB negative tests, no service_role CRUD default |
 | **S2 โอกาสที่ตรวจสอบแล้วและการจับคู่** | organization onboarding/independent verification/expiry/suspend/appeal; private upload intent/quarantine/MIME/scan; members/admin; catalog revision/draft/review/publish/material-edit re-review/expiry; public search/filter/detail/country/coverage/language/cost/accessibility/capacity/source; needs assessment ข้ามข้อมูล sensitive ได้; preferences/bookmarks; deterministic matching พร้อม eligible/ineligible/unknown และเหตุผล; adult-job terms/education links | ผู้ใช้ค้นหา/ประเมิน/บันทึก; partner listing editor; admin verification/moderation | BP-B-201–203; ต้อง S1, BP-D-07; BP-AC-01/06/15/17/18 subset; stale source/partner suspension blocks serving, Thai search fixtures |
 | **S3 สมัคร → คิวเคส → ติดตาม** | application preview แสดง recipient/exact fields/purpose/notice/hash; explicit confirmation; atomic application+share+event+outbox; idempotency/retry/concurrency/capacity; withdraw/stale preview/version conflict; case queues/assign/reassign; beneficiary-shared vs internal notes; next actions/due dates; adult recruiter human review/interview/offer/decline; generic in-app/email settings, outbox backoff/dedup/dead-letter | ใบสมัคร/preview/consent/progress; partner assigned case detail; employer funnel; notifications | BP-B-301–303; ต้อง S1/S2; BP-AC-04/05/06/08/09/19 และ J1/J5; ยังไม่มีการส่งต่อข้ามองค์กรจน S4 |
@@ -92,6 +93,21 @@ pilot ที่เสนอ 90 วันเริ่มหลัง readiness �
 
 ## จุดตรวจให้เจ้าของทบทวนต่อ
 
-รอบนี้ทบทวน UI 3 roles และ functions/features ว่าครบตามเจตนา ก่อนเลือกเริ่ม S1 ของจริง
-หากจะเริ่ม backend ต้องปิด BP-D-01/02/03/04 ส่วนที่เกี่ยวข้อง ระบุผู้รับผิดชอบ/region/budget
+S1 local foundation ดำเนินการแล้วตาม C-11 ไม่ต้องอนุมัติเริ่ม S1 ซ้ำ
+C-15 อนุญาตใช้ Project เดิมทดสอบได้; ก่อนเชื่อม hosted ต้องมีค่าที่ apply และตรวจของเดิม/read-only preflight
+พร้อม manifest fixture สำหรับ cleanup; ก่อน real pilot ยังต้องปิด
+BP-D-01/02/03/04 ส่วนที่เกี่ยวข้อง ระบุผู้รับผิดชอบ/region/budget
 ไม่ต้องเลือก AI vendor/ราคา/ประเทศที่สองเพื่อให้ต้นแบบรอบนี้เสร็จ
+
+
+## สถานะชิ้นงานหลัง C-11
+
+| ระยะ | ทำแล้ว | งานถัดไป/สิ่งที่ยังไม่ยืนยัน |
+| --- | --- | --- |
+| S0 | prototype/แผน, ADR-002, schema/permissions, OpenAPI S1, local user-JWT/RLS spike | pilot scope/ops/privacy sign-off, hosted region/PITR/budget; ไม่อ้างว่าปิด S0 ทั้งระยะ |
+| S1 | Email/password/confirm/recovery, Google PKCE initiation, MFA, session revoke, own adult profile, notice/consent, scoped delegation/read-back/revoke, draft org/member invitation/revoke, local migrations/tests | hosted Google round-trip, SMTP/refresh on hosting, distributed abuse controls, MFA recovery, assisted/no-email ownership SOP; prepare/submit scopes รอ domain S3 |
+| S2 | public directory และหน้าจอ demo จาก fixtures เท่านั้น | verified partner/catalog backend, storage quarantine, assessment/bookmarks/matching จริง |
+| S3 | หน้าตัวอย่าง applications/plan/case เท่านั้น | consent preview/atomic apply/cases/notifications จริง |
+| S4 | ยังไม่มี backend ของระยะนี้ | warm referral/outcomes/safety/privacy lifecycle |
+| S5 | มีหน้าตัวอย่าง AI/impact เท่านั้น | RAG/AI gateway/evaluation และ aggregate privacy จริง |
+| S6 | ยังไม่เริ่ม pilot readiness | manual a11y/UAT/restore/incident/load/release gates |
