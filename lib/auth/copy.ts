@@ -33,6 +33,8 @@ export const authText = {
     search: "ค้นหาโอกาสสาธารณะ",
     or: "หรือ",
     sent: "หากบัญชีนี้ดำเนินการได้ ระบบจะส่งขั้นตอนให้ทางอีเมล โปรดตรวจกล่องจดหมาย",
+    signupAccepted:
+      "รับคำขอสมัครแล้ว หากต้องยืนยันอีเมล โปรดตรวจกล่องจดหมาย หากมีบัญชีอยู่แล้วให้เข้าสู่ระบบ",
     error: "ดำเนินการไม่สำเร็จ โปรดตรวจข้อมูลหรือลองใหม่",
     credentials: "Email หรือรหัสผ่านไม่ถูกต้อง หรือยังยืนยันบัญชีไม่ครบ",
     callbackError:
@@ -60,7 +62,7 @@ export const authText = {
     region: "พื้นที่โดยประมาณ (ไม่ใส่ที่อยู่ละเอียด)",
     safeContact: "ช่องทางติดต่อที่ปลอดภัย",
     noContact: "ยังไม่รับการติดต่อ",
-    emailContact: "Email ที่ยืนยันแล้ว",
+    emailContact: "Email ของบัญชี",
     notice: "ประกาศสำหรับการพัฒนา",
     consent: "อ่านประกาศและยืนยันสร้างโปรไฟล์สมมติตามขอบเขตนี้",
     createProfile: "สร้างโปรไฟล์สมมติ",
@@ -163,6 +165,8 @@ export const authText = {
     search: "Browse public opportunities",
     or: "or",
     sent: "If this account can proceed, instructions will be sent by email. Please check your inbox.",
+    signupAccepted:
+      "Registration request received. If email confirmation is required, check your inbox. If you already have an account, sign in.",
     error: "Could not complete the request. Check your details or try again.",
     credentials:
       "Email or password is incorrect, or account verification is incomplete.",
@@ -192,7 +196,7 @@ export const authText = {
     region: "Coarse region (no precise address)",
     safeContact: "Safe contact preference",
     noContact: "No contact yet",
-    emailContact: "Verified email",
+    emailContact: "Account email",
     notice: "Development notice",
     consent:
       "I have read the notice and confirm creating a fictional profile within this scope.",

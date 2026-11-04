@@ -12,13 +12,15 @@
 - hosted migrations12 และ Auth/Vercel production env ตั้งแล้ว; ผล deploy/test ล่าสุดอยู่ในรายงาน
 - knowledge ทั้ง15เรื่องมี [mapping ใช้กับ Opp4All](KNOWLEDGE_ADOPTION_TH.md) AI/LINE/automation/reporting ที่ยังไม่มีระบุเป็นแผน
 
+Confirm email เป็น **Off ชั่วคราวตาม C-22**: Email/password signup/login ไม่ต้องรอ SMTP; recovery และการเปิด confirmation กลับยังต้องตั้ง/ทดสอบการส่งอีเมล
+
 ## S1 ที่ยังต้องปิดหลักฐาน
 
 | ขั้นถัดไป | สิ่งที่ต้องทำ | ผลที่ต้องได้ |
 | --- | --- | --- |
 | 1 เปิด network สำหรับ agent ตรวจเว็บจริง | Review/Save/Publish draft Cloud Environment ที่เพิ่ม `opp4all.vercel.app` และ `fxqgvqvthrdzmgnmqgom.supabase.co`; รักษา API domains/secret เดิม | HTTP/browser/provider/Realtime smoke ได้จาก workspace; ไม่มีการหลบ proxy/TLS |
 | 2 เจ้าของเข้าใช้งาน — ผ่านแล้ว | เจ้าของยืนยันล็อกอินและเปิดหน้าผู้ดูแลได้; ตรวจ owner claimed/verified/Google identity/TOTP เป็น true ทั้งหมด | ปิด Google happy path/owner bootstrap/MFA/admin access; upload/reset จริงยังไม่ยืนยัน |
-| 3 ทดสอบ hosted Auth | ตั้ง custom SMTP ของเจ้าของ (ตรวจแล้วยังว่าง), Google cancel/refresh, Email confirmation/recovery/delivery, HTTPS cookies/refresh, session revoke และสองหน้าต่าง | แยก actual hosted evidence จาก local Mailpit/PKCE; ถ้ามี synthetic fixture hosted ต้องมี manifest และลบเฉพาะ fixture |
+| 3 ทดสอบ hosted Auth | Email signup/login แบบ Confirm email Off ตาม C-22; ตั้ง custom SMTP สำหรับ recovery (และ confirmation เมื่อเปิดกลับ), Google cancel/refresh, HTTPS cookies/refresh, session revoke และสองหน้าต่าง | แยก actual hosted evidence จาก local Mailpit/PKCE; ถ้ามี synthetic fixture hosted ต้องมี manifest และลบเฉพาะ fixture |
 | 4 ปิด operational gaps ก่อนข้อมูลจริง | owner-transfer/MFA recovery/no-email assisted SOP, manual keyboard/NVDA/VoiceOver/UAT; privacy/retention/safety/ops owners และ backup/restore | เจ้าของรับรองนโยบายและผู้รับผิดชอบตาม BP-G0–G6 ที่เกี่ยวข้อง; technical deploy ไม่ใช่ real pilot readiness |
 
 ไม่ต้องสร้าง Supabase/Vercel Project หรือส่ง management token ใหม่เพียงเพราะ frontend host ถูก network policy ปฏิเสธ

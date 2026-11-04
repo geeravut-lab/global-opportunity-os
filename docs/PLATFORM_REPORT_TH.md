@@ -1,7 +1,7 @@
 # ผลรอบ Branding, Live sync, หน้าแรก และ hosted S1
 
 วันที่ 2026-11-04 สาขา `feat/s1-branding-live-sync` เริ่มจาก main `d109044`
-ขอบเขต C-17/C-19–C-21: S1, knowledge adoption และ UX ไม่เริ่ม domain backend S2–S6
+ขอบเขต C-17/C-19–C-22: S1, knowledge adoption และ UX ไม่เริ่ม domain backend S2–S6
 ใช้ [Blueprint](Global-Opportunity-OS-Product-Blueprint-TH.md) และ [mapping knowledge ทั้ง 15 เรื่อง](KNOWLEDGE_ADOPTION_TH.md)
 
 ## การใช้งานที่เพิ่ม
@@ -81,7 +81,7 @@ Realtime มีข้อยกเว้น access token ของตนเอง
 
 1. hosted HTTP/Auth/Realtime smoke จาก workspace: network policy ที่ใช้งานยังให้เฉพาะ API domains ไม่ให้ frontend/provider; เพิ่ม draft hosts `opp4all.vercel.app` และ `fxqgvqvthrdzmgnmqgom.supabase.co` แล้ว ต้อง Review/Save/Publish environment ใน UI เพื่อ apply ไม่มีการหลบนโยบายหรือปิด TLS
 2. **ผ่านแล้ว:** เจ้าของยืนยัน Google login/MFA และเปิดหน้าผู้ดูแลได้; Management API ตรวจ owner claimed/verified/Google identity/TOTP เป็น true ทั้งหมด ไม่ขอ credentials และไม่ถือว่าทดสอบ upload/reset จริงแล้ว
-3. ยืนยัน hosted Email confirmation/recovery delivery และ Google cancel/refresh/HTTPS-cookie; local Mailpit ไม่พิสูจน์ SMTP ภายนอก; ยังไม่กล่าวว่า S1 ทั้งหมดผ่าน
+3. ยืนยัน Email signup/login แบบ Confirm email Off ตาม C-22, SMTP/recovery และ confirmation เมื่อเปิดกลับ รวมถึง Google cancel/refresh/HTTPS-cookie; local Mailpit ไม่พิสูจน์ SMTP ภายนอก; ยังไม่กล่าวว่า S1 ทั้งหมดผ่าน
 4. operator recovery/owner-transfer/no-email assisted SOP, privacy/retention/ops owners และ manual assistive-tech/UAT ยังต้องปิดก่อนรับข้อมูลจริง; no-email/minor personalization ยังไม่เปิด
 
 **S2 ที่เสนอให้สั่งต่อ:** verified organization/expiry/suspend/appeal, catalog draft→review→publish/revision,
@@ -138,9 +138,9 @@ order by schemaname, tablename;
 
 ## Email delivery ที่ยังต้องตั้งค่า
 
-ตรวจ Auth config หลัง deploy: Email confirmation=true, Google enabled=true และ Site URL production ถูกต้อง แต่ **custom SMTP ยังไม่ได้ตั้ง** (`smtp_host` ว่าง; ไม่บันทึก credential/ผู้รับ)
+การตรวจครั้งแรกหลัง deploy พบ Email confirmation=true; ต่อมาเจ้าของตั้ง **Confirm email=Off ชั่วคราวตาม C-22** และตรวจอ่านได้ false ตรงกัน Google ยังเปิดและ Site URL production ถูกต้อง แต่ **custom SMTP ยังไม่ได้ตั้ง** (`smtp_host` ว่าง; ไม่บันทึก credential/ผู้รับ)
 Email/password BFF และ recovery ผ่าน local Mailpit แล้ว แต่ไม่ถือว่า Project ส่งถึงผู้ใช้ทั่วไปได้
-ต้องตั้ง SMTP ที่เจ้าของเลือกใน Supabase Authentication → Email/SMTP Settings และทดสอบ confirmation/recovery กับอีเมลที่เจ้าของควบคุมก่อนปิด hosted Email gate
+ต้องตั้ง SMTP ที่เจ้าของเลือกใน Supabase Authentication → Email/SMTP Settings สำหรับ recovery และ confirmation เมื่อเปิดกลับ; signup/login ของบัญชี Email ใหม่ในโหมด Off ไม่ต้องรออีเมล
 ไม่ provision บริการ Email แบบมีค่าใช้จ่ายหรือเลือก vendor แทนเจ้าของในรอบนี้ ไม่ส่ง SMTP password/key ในแชต
 
 ## ผลยืนยันเจ้าของหลัง deploy
@@ -151,5 +151,19 @@ Email/password BFF และ recovery ผ่าน local Mailpit แล้ว �
 ไม่อ้างว่าผ่าน Email delivery/recovery, Google cancel/token rotation, hosted Live sync/tenant tests หรืออัปโหลดโลโก้จริงจากคำตอบนี้
 ไม่แก้ schema/ข้อมูล/สิทธิ์เพิ่มในรอบบันทึกผล; ไม่มีการอ่านหรือแสดงอีเมล OTP session token หรือ MFA secret
 
-S1 ยังเหลือ custom SMTP และ hosted Email confirmation/recovery, hosted security/live smoke หลังเปิด network และ operational/manual gates ตาม NEXT_STEPS
+S1 ยังเหลือ hosted Email signup/login โหมด Off, SMTP/recovery และ confirmation เมื่อเปิดกลับ, hosted security/live smoke หลังเปิด network และ operational/manual gates ตาม NEXT_STEPS
 เมื่อปิดส่วนนี้จึงให้เจ้าของเลือกสั่ง S2: verified organizations/catalog lifecycle/search/assessment/bookmarks/deterministic matching
+
+## รองรับ Confirm email Off ชั่วคราวตามเจ้าของ
+
+เป้าหมาย BP-AC-02/03 และ C-22: รับ session จากการสมัคร Email แล้ว bootstrap บัญชีผ่าน RPC/JWT/RLS แบบเดียวกับ login ก่อน redirect
+ถ้า Confirm email On หรือ provider ไม่คืน session ยังใช้คำตอบ accepted แบบทั่วไป และรอ flow ยืนยันเดิม
+bootstrap ล้มเหลวต้อง sign out session ที่เพิ่งได้รับ ไม่พาเข้าบัญชี ไม่คืน access/refresh token ใน DTO
+ข้อความสมัครสองภาษาไม่สัญญาว่ามีอีเมลถูกส่งเสมอ; contact label ใช้ “Email ของบัญชี” ไม่อ้างว่าพิสูจน์ mailbox แล้ว
+helper ตั้งค่า hosted Auth รักษา `mailer_autoconfirm` ของเจ้าของ ไม่เปิด Confirm email กลับเอง
+ไม่มี migration ใหม่ ไม่ลด RLS/owner/MFA และไม่เปลี่ยน setting ของ Supabase จริงในรอบนี้
+SMTP ยังต้องใช้ recovery/เพิ่มรหัสผ่านให้บัญชี Google ผ่าน recovery ตาม flow เดิม และเมื่อเลือกเปิด confirmation กลับ
+
+ผลตรวจรอบ C-22 ที่รันจริง: TypeScript/lint/build ผ่าน, unit59 ผ่าน (เพิ่ม7 contract cases ของ provider Confirm On/Off/duplicate/error/bootstrap failure), Auth/browser28 ผ่านบน local stack ที่ยังเปิด confirmation
+7 cases ใหม่จำลองผล provider ไม่ใช่หลักฐาน signup บน hosted Off; hosted Email signup/login ยังรอการทดสอบจริง ไม่ส่งอีเมลภายนอกหรือสร้าง hosted fixture ในรอบนี้
+ตรวจลิงก์เอกสาร/OpenAPI JSON และ git diff --check ผ่าน ไม่รัน migrations/RLS suites ซ้ำเพราะ schema/RPC ไม่เปลี่ยน

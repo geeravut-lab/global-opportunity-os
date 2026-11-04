@@ -53,7 +53,7 @@ export async function POST(
       const pass = password(data.password, action === "login" ? 1 : 12);
       if (action === "signup") {
         confirmed(data.adultConfirmed);
-        const { error } = await auth.client.auth.signUp({
+        const { data: signed, error } = await auth.client.auth.signUp({
           email: address,
           password: pass,
           options: {
@@ -62,6 +62,20 @@ export async function POST(
         });
         if (error && error.status && error.status >= 500)
           return done(problem(503, "SERVICE_UNAVAILABLE"));
+        // Confirm email=Off returns a session. Bootstrap through the same JWT/RLS path as login.
+        // Confirmation-on and duplicate-email responses remain existence-neutral.
+        if (!error && signed.session && signed.user?.email_confirmed_at) {
+          const result = await auth.client.rpc("goos_bootstrap_account", {
+            p_locale: lang,
+          });
+          if (result.error) {
+            await auth.client.auth.signOut({ scope: "local" });
+            return done(dbProblem(result.error));
+          }
+          return done(
+            success({ accepted: true, redirect: `/${lang}/account` }),
+          );
+        }
         // ไม่เปิดเผยว่ามี email นี้แล้วหรือไม่
         return done(success({ accepted: true }));
       }

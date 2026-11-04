@@ -66,10 +66,14 @@ preflight หรือ migrations ระยะไกล; งานนี้ย�
 ไม่ต้องส่ง DB password/access token ในแชต; ใช้ Settings/secret binding ของเครื่องมือที่เจ้าของเลือก
 ถ้าเปิด Auth ก่อน migrations ครบ แอปจะไม่ให้ข้าม bootstrap/permission checks
 
-เปิด Email provider, Confirm email, minimum password 12 ตัวอักษร, refresh rotation และ TOTP enroll/verify
+เปิด Email provider, minimum password 12 ตัวอักษร, refresh rotation และ TOTP enroll/verify
+**ค่าปัจจุบันตาม C-22: เจ้าของปิด Confirm email ชั่วคราวแล้ว** สมัครสำเร็จที่มี session จะ bootstrap ผ่าน JWT/RLS และเข้าหน้าบัญชีทันที ไม่ต้องรออีเมล
+เมื่อเปิด Confirm email กลับ ใช้ PKCE/อีเมลยืนยันตาม flow ด้านล่าง; helper ตั้ง hosted Auth รักษาค่า confirmation เดิม ไม่เปิดกลับเอง
 ตรวจ secure password change/recent authentication ตาม Supabase plan และความสามารถจริง
 ทดสอบ SMTP/sender/domain/อัตราส่งกับระบบ staging ที่อนุมัติแยก; Mailpit ผ่านไม่ได้ยืนยันส่ง Email จริงสำเร็จ
-ไม่ปิด email confirmation เพื่อให้ทดสอบผ่าน และไม่ใช้ local test rate limits เป็นค่าของ production
+การปิด Confirm email ครั้งนี้เป็นคำเลือกของเจ้าของ ไม่ใช่การปิดเพื่อให้ tests ผ่าน; local stack ยังเปิด confirmation เพื่อทดสอบอีกโหมด
+GoTrue auto-confirm ไม่ใช่หลักฐานว่า mailbox นั้นเป็นของผู้สมัคร; platform owner ที่ยืนยันด้วย Google แล้วคงผูก UUID เดิมและต้องใช้ MFA
+SMTP ยังต้องตั้งสำหรับกู้รหัสผ่านและเมื่อเปิด confirmation กลับ ไม่ใช้ local test rate limits เป็นค่าของ production
 
 Email confirmation และ recovery ใช้ PKCE ต้องเปิดลิงก์จากเบราว์เซอร์ที่เริ่มรายการ
 ใช้ลิงก์ล่าสุด หากเริ่มรายการ PKCE ใหม่ใน browser เดียว verifier เดิมอาจถูกแทนที่

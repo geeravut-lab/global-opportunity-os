@@ -50,7 +50,7 @@ export function SignInForm({
         window.location.assign(result.data.redirect);
       } else {
         setPass("");
-        setMessage(t.sent);
+        setMessage(mode === "signup" ? t.signupAccepted : t.sent);
       }
     } catch {
       setError(true);

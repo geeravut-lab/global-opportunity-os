@@ -149,6 +149,11 @@
                       "properties": {
                         "accepted": {
                           "const": true
+                        },
+                        "redirect": {
+                          "type": "string",
+                          "pattern": "^/(th|en)/account$",
+                          "description": "มีเฉพาะเมื่อ provider ส่ง session และ bootstrap สำเร็จ ไม่คืน token"
                         }
                       },
                       "required": [
@@ -229,7 +234,8 @@
               }
             }
           }
-        }
+        },
+        "description": "รองรับ Confirm email ทั้ง On/Off ตามการตั้ง Supabase: ถ้าได้ session และผ่าน bootstrap จะ redirect; otherwise accepted แบบไม่บอกว่าบัญชีมีอยู่แล้วหรือไม่"
       }
     },
     "/api/auth/recover": {

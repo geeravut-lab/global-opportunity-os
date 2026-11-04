@@ -40,6 +40,7 @@ C คือหลักฐานการตัดสินใจ P คือข
 | C-19 | นำ knowledge ทั้งสารบัญมาออกแบบใช้กับ Opp4All และลงมือฐาน branding/live/ส่วน S1 ที่ค้าง | เจ้าของคำสั่งข้อ 1–4; defaults ใช้ไฟล์โลโก้/favicon ใน docs ของ main; ความสามารถ AI/LINE/automation/domain S2–S6 แสดงเป็นแผน ไม่ถือว่าต้องสร้างทุก Phase ใน S1 หรืออนุมัติ vendor/ข้อความภายนอก |
 | C-20 | กำหนดอีเมลที่เจ้าของแจ้งในแชตเป็น protected platform owner คนแรก | เก็บ designation แบบ salted hash ใน private DB ไม่ commit อีเมล/สร้าง fake verified account; เจ้าของต้อง verified login ด้วยบัญชีที่ระบุแล้วทำ MFA ก่อนใช้สิทธิ์ผู้ดูแล |
 | C-21 | ปรับหน้าแรกทุก role ตามภาพ RooSuk ด้วยการ์ดขนาดต่างกันและภาพประกอบใหม่ | คำสั่งข้อ 5; คงธีม Opp4All และ mobile bottom bar; ใช้กับ demo สามมุมมองและหน้าบัญชี/ผู้ดูแลจริง ไม่เพิ่มฟังก์ชันสุขภาพ/ร้านค้าในภาพ |
+| C-22 | เจ้าของตั้ง Confirm email เป็น Off ไว้ชั่วคราว | เจ้าของแจ้งว่า “การ login ด้วย email ผมตั้งค่า Confirm email เป็น off ไว้ก่อน”; ตรวจ Management API ตรงกัน; คงค่าที่เจ้าของเลือก ไม่เปิดกลับอัตโนมัติ สมัครที่ provider ส่ง session กลับมาให้ bootstrap/เข้าใช้ได้ทันที ไม่ถือว่าได้พิสูจน์การครอบครอง mailbox; SMTP ยังจำเป็นสำหรับ recovery และ confirmation เมื่อเปิดกลับ |
 
 ดู [mapping knowledge](KNOWLEDGE_ADOPTION_TH.md) และ [ADR-003](adr/ADR-003-PLATFORM-TH.md)
 คำสั่ง C-17 ครอบคลุมการนำชิ้นงานนี้ขึ้น production แต่ไม่ใช่การรับรอง real pilot หรือ BP-G0–G6

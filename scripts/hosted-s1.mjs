@@ -139,7 +139,8 @@ if (action === "preflight") {
         ...callbacks,
       ]),
     ].join(","),
-    mailer_autoconfirm: false,
+    // C-22: preserve the owner's temporary Confirm email choice; do not turn it back on implicitly.
+    mailer_autoconfirm: old.mailer_autoconfirm,
     password_min_length: 12,
     security_update_password_require_reauthentication: true,
     refresh_token_rotation_enabled: true,
@@ -151,7 +152,7 @@ if (action === "preflight") {
   for (const [k, v] of Object.entries(settings))
     if (result[k] !== v) throw Error("Auth setting verification failed: " + k);
   console.log(
-    "Auth verified: production Site URL + exact callbacks, confirmed email, Google preserved, password12, secure change, rotation and TOTP",
+    "Auth verified: production Site URL + exact callbacks, email confirmation choice and Google preserved, password12, secure change, rotation and TOTP",
   );
 } else if (action === "vercel-env") {
   const path = `/v9/projects/${project}`,
