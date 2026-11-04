@@ -80,8 +80,8 @@ Realtime มีข้อยกเว้น access token ของตนเอง
 ## งานที่เหลือก่อนปิด S1 และสิ่งที่ให้เจ้าของเลือกต่อ
 
 1. hosted HTTP/Auth/Realtime smoke จาก workspace: network policy ที่ใช้งานยังให้เฉพาะ API domains ไม่ให้ frontend/provider; เพิ่ม draft hosts `opp4all.vercel.app` และ `fxqgvqvthrdzmgnmqgom.supabase.co` แล้ว ต้อง Review/Save/Publish environment ใน UI เพื่อ apply ไม่มีการหลบนโยบายหรือปิด TLS
-2. เจ้าของ login ด้วย Google/Email ของบัญชีที่ระบุ แล้วตั้ง MFA ที่ `/th/account/security`; ตรวจว่าเปิด `/th/admin/branding` ได้; ไม่ต้องส่ง password/OTP/QR/secret ให้ agent
-3. ยืนยัน hosted Email confirmation/recovery delivery และ Google success/cancel/refresh/HTTPS-cookie; local Mailpit ไม่พิสูจน์ SMTP ภายนอก; ยังไม่กล่าวว่า S1 ทั้งหมดผ่าน
+2. **ผ่านแล้ว:** เจ้าของยืนยัน Google login/MFA และเปิดหน้าผู้ดูแลได้; Management API ตรวจ owner claimed/verified/Google identity/TOTP เป็น true ทั้งหมด ไม่ขอ credentials และไม่ถือว่าทดสอบ upload/reset จริงแล้ว
+3. ยืนยัน hosted Email confirmation/recovery delivery และ Google cancel/refresh/HTTPS-cookie; local Mailpit ไม่พิสูจน์ SMTP ภายนอก; ยังไม่กล่าวว่า S1 ทั้งหมดผ่าน
 4. operator recovery/owner-transfer/no-email assisted SOP, privacy/retention/ops owners และ manual assistive-tech/UAT ยังต้องปิดก่อนรับข้อมูลจริง; no-email/minor personalization ยังไม่เปิด
 
 **S2 ที่เสนอให้สั่งต่อ:** verified organization/expiry/suspend/appeal, catalog draft→review→publish/revision,
@@ -130,7 +130,7 @@ order by schemaname, tablename;
 - Vercel deployment `dpl_4vaQ27ioV1JvVQtxgTEoitmerzJa` เป็น `READY`, `aliasAssigned:true`, alias มี `opp4all.vercel.app`
 - logs ยืนยัน Next.js16.4.5, compiled/static generation, Route(app), Build Completed และ Deployment completed
 - GitHub workflow ของ code commit เริ่มแล้ว: [run41853602993](https://github.com/geeravut-lab/global-opportunity-os/actions/runs/41853602993); ตรวจผลแล้ว `success` ทั้ง `check` และ `s1-local`
-- ส่งขั้นตอนให้เจ้าของทดสอบ verified Google login/MFA/admin branding แล้ว รอผล actual human round-trip; ไม่ขอให้ส่ง credentials
+- เจ้าของยืนยัน verified Google login/MFA และเปิดหน้าผู้ดูแลได้แล้ว; ตรวจ booleans ของ owner/Google identity/verified/TOTP เป็น true ทั้งหมด ไม่ขอให้ส่ง credentials
 - workspace probe ไป frontend/provider ยัง network unavailable และ network allowlist ยังมีเฉพาะ management APIs; Ready ไม่ถูกนำมาแทน hosted browser tests
 
 หน้าให้ทบทวน: https://opp4all.vercel.app/th, `/th/demo/partner`, `/th/demo/admin`, `/th/auth/login`, `/th/account`, `/th/admin/branding`
@@ -142,3 +142,14 @@ order by schemaname, tablename;
 Email/password BFF และ recovery ผ่าน local Mailpit แล้ว แต่ไม่ถือว่า Project ส่งถึงผู้ใช้ทั่วไปได้
 ต้องตั้ง SMTP ที่เจ้าของเลือกใน Supabase Authentication → Email/SMTP Settings และทดสอบ confirmation/recovery กับอีเมลที่เจ้าของควบคุมก่อนปิด hosted Email gate
 ไม่ provision บริการ Email แบบมีค่าใช้จ่ายหรือเลือก vendor แทนเจ้าของในรอบนี้ ไม่ส่ง SMTP password/key ในแชต
+
+## ผลยืนยันเจ้าของหลัง deploy
+
+เจ้าของตอบในแชตว่า “ล็อกอินและเปิดหน้าผู้ดูแลได้แล้ว” หลังได้รับขั้นตอน Google → MFA → `/th/admin/branding`
+ตรวจ Supabase ผ่าน Management API แบบ read-only เฉพาะ booleans: `owner_claimed=true`, `owner_mfa_ready=true`, `owner_google_identity=true`, `owner_verified=true`
+จึงปิดหลักฐาน owner Google happy path, owner bootstrap, TOTP enrollment และการเข้าหน้าผู้ดูแลตามคำยืนยันเจ้าของได้
+ไม่อ้างว่าผ่าน Email delivery/recovery, Google cancel/token rotation, hosted Live sync/tenant tests หรืออัปโหลดโลโก้จริงจากคำตอบนี้
+ไม่แก้ schema/ข้อมูล/สิทธิ์เพิ่มในรอบบันทึกผล; ไม่มีการอ่านหรือแสดงอีเมล OTP session token หรือ MFA secret
+
+S1 ยังเหลือ custom SMTP และ hosted Email confirmation/recovery, hosted security/live smoke หลังเปิด network และ operational/manual gates ตาม NEXT_STEPS
+เมื่อปิดส่วนนี้จึงให้เจ้าของเลือกสั่ง S2: verified organizations/catalog lifecycle/search/assessment/bookmarks/deterministic matching

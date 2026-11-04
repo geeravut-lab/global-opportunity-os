@@ -6,7 +6,8 @@
 ไดเรกทอรีและ dashboard สามบทบาทยังใช้ข้อมูลสมมติ การสลับ role เป็น demo navigation
 บัญชี S1 อยู่ `/th/auth/login` และ `/th/account` แยกจาก demo; ผู้ดูแลจริงอยู่ `/th/admin` และต้องผ่าน MFA
 ใช้ migrations ทั้ง 12 ไฟล์กับ Supabase ที่เจ้าของอนุญาตแล้ว พร้อมตั้ง Auth callback/production env ใน Vercel
-ยังไม่มี AI หรือการส่งต่อจริง; hosted Google round-trip/Email delivery ยังต้องยืนยัน แยกจากผลทดสอบในเครื่อง
+ยังไม่มี AI หรือการส่งต่อจริง; เจ้าของยืนยัน Google login/MFA และเปิดหน้าผู้ดูแลได้แล้ว
+Email delivery/recovery และ hosted security/live smoke ยังต้องยืนยัน แยกจากผลทดสอบในเครื่อง
 
 [ดูแผน S0–S6 พร้อม functions/features](docs/PHASE_PLAN_TH.md) ·
 [ดูผลเทียบ Blueprint/ภาพ](docs/BLUEPRINT_ALIGNMENT_TH.md) ·
