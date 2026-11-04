@@ -1,0 +1,32 @@
+import { describe, expect, it } from "vitest";
+import { entries } from "../../lib/fixtures";
+import { defaults, effectiveStatus, filterEntries, filterPublicEntries, filterQuery, normalizeFilters, publicEntry, validateEntries } from "../../lib/directory";
+const now = new Date("2026-11-04T00:00:00Z");
+const clone = () => structuredClone(entries[0]);
+describe("กฎสถานะและข้อมูลสมมติ", () => {
+  it("ข้อมูลปกติครบสองภาษาและไม่มีรหัสซ้ำ", () => expect(() => validateEntries(entries)).not.toThrow());
+  it("ปัจจุบันเมื่อหลักฐานครบและอยู่ในช่วงเวลา", () => expect(effectiveStatus(entries[0], now)).toBe("current"));
+  it("หมดอายุเมื่อถึงเวลาพอดี", () => { const e = clone(); e.expiresAt = now.toISOString(); expect(effectiveStatus(e, now)).toBe("expired"); });
+  it("ตรวจในอนาคตไม่ใช่ปัจจุบัน", () => { const e = clone(); e.verifiedAt = "2098-01-01T00:00:00Z"; expect(effectiveStatus(e, now)).toBe("expired"); });
+  it("ระงับมีผลแม้ยังไม่หมดอายุ", () => expect(effectiveStatus(entries[3], now)).toBe("suspended"));
+  it("สถานะหมดอายุไม่กลับเป็นปัจจุบันเอง", () => { const e = clone(); e.status = "expired"; expect(effectiveStatus(e, now)).toBe("expired"); });
+  it("หลักฐานขาดไม่เป็นปัจจุบัน", () => { const e = clone(); e.evidence.label.th = ""; expect(effectiveStatus(e, now)).toBe("expired"); });
+  it("เวลาอ่านไม่ได้ไม่เป็นปัจจุบัน", () => { const e = clone(); e.expiresAt = "invalid"; expect(effectiveStatus(e, now)).toBe("expired"); });
+  it("คำแปลขาดตรวจไม่ผ่าน", () => { const e = clone(); e.description.en = ""; expect(() => validateEntries([e])).toThrow("คำแปล"); });
+  it("รหัสซ้ำตรวจไม่ผ่าน", () => expect(() => validateEntries([entries[0], entries[0]])).toThrow());
+  it.each(["javascript:alert(1)", "https://real-example.com/", "http://example.invalid/"])("ไม่รับแหล่งอ้างอิง %s", (url) => { const e = clone(); e.evidence.url = url; expect(() => validateEntries([e])).toThrow(); });
+  it("วันหมดอายุก่อนตรวจไม่ผ่าน", () => { const e = clone(); e.expiresAt = "2020-01-01T00:00:00Z"; expect(() => validateEntries([e])).toThrow(); });
+});
+describe("ค้นหาและการเลือกฟิลด์สาธารณะ", () => {
+  it("เริ่มแสดงเฉพาะปัจจุบันสองรายการ", () => expect(filterEntries(entries, defaults, "th", now)).toHaveLength(2));
+  it("ดูสถานะหมดอายุได้", () => expect(filterEntries(entries, { ...defaults, status: "expired" }, "en", now).map((e) => e.slug)).toEqual(["community-resource-circle"]));
+  it("กรองหมวดและพื้นที่ร่วมกัน", () => expect(filterEntries(entries, { ...defaults, category: "access", region: "asia" }, "th", now).map((e) => e.slug)).toEqual(["bridge-access"]));
+  it("ค้นหาอังกฤษไม่สนตัวพิมพ์และช่องว่าง", () => expect(filterEntries(entries, { ...defaults, q: "  OPEN PATH  " }, "en", now)).toHaveLength(1));
+  it("ค้นหาภาษาไทย", () => expect(filterEntries(entries, { ...defaults, q: "เข้าถึง" }, "th", now)).toHaveLength(1));
+  it("ค้นหา Unicode แบบเต็มความกว้างได้", () => expect(filterEntries(entries, { ...defaults, q: "ＯＰＥＮ" }, "en", now)).toHaveLength(1));
+  it("ไม่พบผลและข้อมูลว่างไม่ล่ม", () => { expect(filterEntries(entries, { ...defaults, q: "no-such-entry" }, "en", now)).toEqual([]); expect(filterPublicEntries([], defaults, "th")).toEqual([]); });
+  it("ไม่ตีความสคริปต์เป็นคำสั่ง", () => expect(filterEntries(entries, { ...defaults, q: "<script>alert(1)</script>" }, "en", now)).toEqual([]));
+  it("รับเฉพาะตัวกรองที่อนุญาต ไม่รับ prototype หรือ URL", () => expect(normalizeFilters({ status: "https://bad.invalid", category: "__proto__", region: "constructor", q: "x".repeat(200) })).toEqual({ ...defaults, q: "x".repeat(120) }));
+  it("คำค้นใน URL ถูก encode", () => { const q = filterQuery({ ...defaults, q: "<img src=x>" }); expect(q).not.toContain("<"); expect(new URLSearchParams(q).get("q")).toBe("<img src=x>"); });
+  it("ข้อมูล client ไม่มี tenant/หลักฐานส่วนตัว", () => { const item = publicEntry(entries[0], now); expect(Object.keys(item).sort()).toEqual(["slug", "title", "description", "groups", "category", "region", "status"].sort()); });
+});

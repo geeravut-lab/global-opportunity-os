@@ -1,0 +1,20 @@
+name: ตรวจคุณภาพไดเรกทอรี
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm install --global npm@11.9.0
+      - run: npm ci
+      - run: npx --no-install playwright install --with-deps chromium
+      - run: npm run check
