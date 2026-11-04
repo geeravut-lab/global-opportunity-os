@@ -1,0 +1,13 @@
+# Future application outputs and local credentials
+node_modules/
+.next/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+supabase/.temp/
+supabase/.branches/
