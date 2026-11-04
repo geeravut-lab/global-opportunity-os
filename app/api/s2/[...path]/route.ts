@@ -53,7 +53,10 @@ async function handle(
     if (req.method === "GET") {
       if (route === "organizations") {
         fn = "goos_s2_orgs";
-        args = { p_review: req.nextUrl.searchParams.get("review") === "true" };
+        args = {
+          p_review: req.nextUrl.searchParams.get("review") === "true",
+          p_page: Number(req.nextUrl.searchParams.get("page") ?? 1),
+        };
       } else if (route === "listings") {
         fn = "goos_s2_listings";
         args = {
@@ -61,6 +64,7 @@ async function handle(
             ? uuid(req.nextUrl.searchParams.get("org"))
             : null,
           p_review: req.nextUrl.searchParams.get("review") === "true",
+          p_page: Number(req.nextUrl.searchParams.get("page") ?? 1),
         };
       } else if (
         path.length === 3 &&

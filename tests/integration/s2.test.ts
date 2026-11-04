@@ -1,4 +1,4 @@
-import { beforeAll, describe, it, expect } from "vitest";
+import { beforeAll, afterAll, describe, it, expect } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { randomUUID, randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -109,6 +109,13 @@ beforeAll(async () => {
     );
   subject = await profile(clients[0], "Synthetic S2 adult");
   await profile(clients[4], "Synthetic other adult");
+});
+afterAll(async () => {
+  if (ids.length < 4) return;
+  await sql(
+    "update private.platform_role_grants g set revoked_at=coalesce(g.revoked_at,now()) where g.account_id=any($1::uuid[]) and g.granted_by=g.account_id and not exists(select 1 from private.platform_owner p where p.account_id=g.account_id) and exists(select 1 from auth.users u where u.id=g.account_id and u.raw_app_meta_data->>'goos_s2_fixture_run'=$2)",
+    [ids.slice(2, 4), run],
+  );
 });
 describe("S2 lifecycle, private evidence and matching", () => {
   it("staff writes require real MFA; metadata cannot confer review authority", async () => {
@@ -418,6 +425,32 @@ describe("S2 lifecycle, private evidence and matching", () => {
       "update app.organizations set verification_expires_at=$2 where id=$1",
       [org, current()],
     );
+  });
+  it("review queues are paged and evidence batches cannot cross permissions or expose bytes", async () => {
+    const rows = await rpc(clients[0], "goos_s2_evidence_batch", {
+      p_orgs: [org, orgB],
+    });
+    expect(Object.keys(rows)).toEqual([org]);
+    expect(JSON.stringify(rows)).not.toMatch(
+      /original_body|safe_body|uploaded_by/,
+    );
+    expect(
+      await rpc(clients[0], "goos_s2_orgs", { p_review: false, p_page: 2 }),
+    ).toEqual([]);
+    expect(
+      (await clients[0].rpc("goos_s2_orgs", { p_page: 101 })).error?.code,
+    ).toBe("22023");
+    expect(
+      (
+        await clients[0].rpc("goos_s2_evidence_batch", {
+          p_orgs: Array(21).fill(org),
+        })
+      ).error?.code,
+    ).toBe("22023");
+    expect(
+      (await clients[4].rpc("goos_s2_evidence_batch", { p_orgs: [org] })).error
+        ?.message,
+    ).toBe("mfa_required");
   });
   it("private drafts do not change another user's fingerprint but public pause does", async () => {
     const before = (await rpc(clients[4], "goos_live_fingerprint")).fingerprint;

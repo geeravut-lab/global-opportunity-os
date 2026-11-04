@@ -30,7 +30,11 @@
     "test:validation:local": "playwright test --config playwright.validation.config.ts",
     "test:validation:hosted": "NODE_USE_ENV_PROXY=1 GOOS_VALIDATION_TARGET=hosted playwright test --config playwright.validation.config.ts",
     "test:backup-restore": "node scripts/test-backup-restore.mjs",
-    "test:a11y:orca": "node scripts/test-orca-a11y.mjs"
+    "test:a11y:orca": "node scripts/test-orca-a11y.mjs",
+    "db:prepare-s2": "node scripts/seed-s2-fixtures.mjs",
+    "db:process-evidence": "node scripts/process-evidence.mjs",
+    "test:s2": "npm run db:prepare-s2 && playwright test --config playwright.s2.config.ts",
+    "dev:s2": "node scripts/s2-app.mjs dev"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",

@@ -208,6 +208,16 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "description": "20 รายการต่อหน้า เรียงข้อมูลล่าสุด"
           }
         ],
         "operationId": "get__organizations"
@@ -583,6 +593,16 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "description": "20 รายการต่อหน้า เรียงข้อมูลล่าสุด"
           }
         ],
         "operationId": "get__listings"

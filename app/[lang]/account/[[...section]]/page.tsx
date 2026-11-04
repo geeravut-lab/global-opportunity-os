@@ -5,6 +5,7 @@ import { serverClient } from "@/lib/supabase/server";
 import { loadAccount } from "@/lib/auth/account";
 import { accountSections, authText } from "@/lib/auth/copy";
 import { AccountPanel } from "@/components/account-panel";
+import {s2Enabled} from "@/lib/s2/model";
 export const dynamic = "force-dynamic";
 export default async function AccountPage({
   params,
@@ -54,6 +55,7 @@ export default async function AccountPage({
       lang={lang}
       section={section as (typeof accountSections)[number]}
       initial={result.data}
+      s2={s2Enabled()}
     />
   );
 }

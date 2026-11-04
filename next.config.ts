@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
+  agentRules: false,
   poweredByHeader: false,
   experimental: { cpus: 2 },
   async headers() {

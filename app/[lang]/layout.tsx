@@ -6,6 +6,8 @@ import { notFound } from "next/navigation";
 import { copy, isLocale } from "@/lib/i18n";
 import { publicSettings } from "@/lib/platform/server";
 import { imageUrl } from "@/lib/platform/settings";
+import { s2Enabled } from "@/lib/s2/model";
+import { serverClient } from "@/lib/supabase/server";
 import "../globals.css";
 export async function generateMetadata({
   params,
@@ -43,6 +45,10 @@ export default async function LocaleLayout({
   const hasSessionCookie = jar
     .getAll()
     .some((c) => c.name.startsWith("sb-") && c.name.includes("auth-token"));
+  const context =
+    s2Enabled() && hasSessionCookie
+      ? await (await serverClient())?.rpc("goos_context")
+      : null;
   return (
     <html lang={lang}>
       <body>
@@ -54,6 +60,8 @@ export default async function LocaleLayout({
           lang={lang}
           branding={branding}
           hasSessionCookie={hasSessionCookie}
+          s2={s2Enabled()}
+          canReview={!!context?.data?.has_platform_role}
         >
           {children}
         </AppShell>

@@ -6,6 +6,7 @@ import { serverClient } from "@/lib/supabase/server";
 import { platformCopy, platformSections } from "@/lib/platform/copy";
 import { parseSettings } from "@/lib/platform/settings";
 import { PlatformPanel } from "@/components/platform-panel";
+import {s2Enabled} from "@/lib/s2/model";
 export const dynamic = "force-dynamic";
 export default async function AdminPage({
   params,
@@ -44,7 +45,7 @@ export default async function AdminPage({
             <p>{t.authOnly}</p>
           </div>
         </div>
-        <AdminHomeMenus lang={lang} />
+        <AdminHomeMenus lang={lang} s2={s2Enabled()} />
       </main>
     );
   const [settings, admins, audit] = await Promise.all([

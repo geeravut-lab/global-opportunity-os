@@ -54,25 +54,38 @@ function ShellContent({
   children,
   branding = defaultSettings,
   hasSessionCookie = false,
+  s2 = false,
+  canReview = false,
 }: {
   lang: "th" | "en";
   children: React.ReactNode;
   branding?: PlatformSettings;
   hasSessionCookie?: boolean;
+  s2?: boolean;
+  canReview?: boolean;
 }) {
   const pathname = usePathname(),
     params = useSearchParams(),
     router = useRouter(),
     pt = platformCopy[lang],
     t = demoText[lang];
-  const accountMode = /^\/(th|en)\/(account|auth|admin)(\/|$)/.test(pathname),
+  const accountMode = /^\/(th|en)\/(account|auth|admin|workspace)(\/|$)/.test(
+      pathname,
+    ),
     adminMode = /^\/(th|en)\/admin(\/|$)/.test(pathname);
   const role: DemoRole = pathname.includes("/demo/partner")
     ? "partner"
     : pathname.includes("/demo/admin")
       ? "admin"
       : "beneficiary";
-  const items = navigationFor(lang, role, pathname, params.get("section"));
+  const items = navigationFor(
+    lang,
+    role,
+    pathname,
+    params.get("section"),
+    s2,
+    canReview,
+  );
   const title = adminMode
       ? pt.platform
       : accountMode
@@ -410,6 +423,8 @@ export function AppShell(props: {
   children: React.ReactNode;
   branding?: PlatformSettings;
   hasSessionCookie?: boolean;
+  s2?: boolean;
+  canReview?: boolean;
 }) {
   return <ShellContent {...props} />;
 }

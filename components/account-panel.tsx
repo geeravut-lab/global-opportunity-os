@@ -17,10 +17,12 @@ export function AccountPanel({
   lang,
   section,
   initial,
+  s2 = false,
 }: {
   lang: Locale;
   section: (typeof accountSections)[number];
   initial: AccountData;
+  s2?: boolean;
 }) {
   const t = authText[lang],
     router = useRouter();
@@ -192,7 +194,7 @@ export function AccountPanel({
               )}
             </div>
           </section>
-          <AccountHomeMenus lang={lang} />
+          <AccountHomeMenus lang={lang} s2={s2} />
           <section className="panel">
             <h2>{t.delegations}</h2>
             <p>{t.manualAssistOff}</p>
