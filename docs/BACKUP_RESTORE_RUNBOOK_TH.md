@@ -30,7 +30,8 @@ node scripts/test-backup-restore.mjs
 
 สคริปต์รับเฉพาะ source local API54321/DB54322 และ target ใหม่แบบสุ่มที่ API57321/DB57322
 ตรวจว่าต้นทางมีเฉพาะ email fixture `@example.test` ไม่ export ข้อมูลผู้ใช้จริงหรือ link ไป hosted
-ใช้ PostgreSQL image/CLI ที่มีใน repo; migrations สร้าง global app roles ใน cluster เป้าหมายก่อน restore แล้วตรวจ attributes/ownership/policies อีกครั้ง
+ใช้ PostgreSQL image/CLI ที่มีใน repo; เตรียมเฉพาะ global app roles แบบ NOBYPASSRLS ใน cluster เป้าหมายก่อน restore แล้วตรวจ attributes/ownership/policies อีกครั้ง
+ไม่ apply app migrations ใหม่กว่าจุด snapshot ก่อน restore เพื่อไม่ให้ FK/trigger ของรุ่นใหม่ขัดกับ archive; ตรวจ fresh migrations เป็นอีกชุดทดสอบ
 snapshot ใช้ exported repeatable-read transaction เดียวกันกับ `pg_dump --snapshot` จึงเทียบ data fingerprints กับจุดเวลาเดียวกัน
 archive/manifest/MFA fixture/ledger เก็บ `.local/restore-*/` mode600 ไม่ commit/share log ที่มี credentials
 สคริปต์หยุด target stack ที่สร้างเองและ cleanup fixture ต้นทางแบบ allowlist; audit ID-only ของกิจกรรมจริงคงไว้ตาม append-only guard

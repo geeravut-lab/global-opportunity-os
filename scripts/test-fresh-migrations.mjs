@@ -123,6 +123,9 @@ try {
     p_confirmed: true,
   });
   if (profile.error) throw Error("fresh profile/consent failed");
+  const s2=await client.rpc("goos_s2_catalog",{p_filter:{}});
+  if(s2.error||!Array.isArray(s2.data?.items))throw Error("fresh S2 public catalog failed");
+  if((await client.rpc("goos_s2_assessment")).error)throw Error("fresh S2 assessment policy failed");
   console.log(
     "Fresh migrations: all applied; real Auth → bootstrap → profile/consent passed",
   );

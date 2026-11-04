@@ -78,10 +78,14 @@ if (action === "preflight") {
     if (!migrations.some((f) => f.version === m.version && f.hash === m.sha256))
       throw Error("Unknown migration or checksum drift");
   const pending = migrations.filter(
-    (m) => !applied.some((a) => a.version === m.version),
+    (m) =>
+      !applied.some((a) => a.version === m.version) &&
+      (process.argv.includes("--include-s2") || m.version <= "202611040013"),
   );
   if (!pending.length) {
-    console.log("No pending hosted migrations");
+    console.log(
+      "No pending hosted migrations in selected scope; S2 requires explicit --include-s2",
+    );
     process.exit(0);
   }
   const guard = before.ledger
