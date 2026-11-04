@@ -1,13 +1,63 @@
+import { PwaRegister } from "@/components/pwa-register";
 import { AppShell } from "@/components/app-shell";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { copy, isLocale } from "@/lib/i18n";
+import { publicSettings } from "@/lib/platform/server";
+import { imageUrl } from "@/lib/platform/settings";
 import "../globals.css";
-export const metadata: Metadata = { title: { default: "Global Opportunity OS · Demo", template: "%s · Global Opportunity OS" },
-  description: "ไดเรกทอรีตัวอย่างไทย–อังกฤษ ใช้ข้อมูลสมมติเท่านั้น · Fictional bilingual directory demo", robots: { index: false, follow: false } };
-export default async function LocaleLayout({ children, params }: { children: React.ReactNode; params: Promise<{ lang: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const s = await publicSettings(),
+    name = lang === "en" ? s.name_en : s.name_th;
+  return {
+    title: { default: `${name} · Demo`, template: `%s · ${name}` },
+    applicationName: name,
+    description:
+      "ไดเรกทอรีตัวอย่างไทย–อังกฤษ ใช้ข้อมูลสมมติเท่านั้น · Fictional bilingual directory demo",
+    robots: { index: false, follow: false },
+    manifest: "/manifest.webmanifest",
+    icons: {
+      icon: { url: imageUrl(s, "favicon"), type: "image/png" },
+      apple: { url: imageUrl(s, "favicon"), type: "image/png" },
+    },
+  };
+}
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ lang: string }>;
+}) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
-  const t = copy[lang];
-  return <html lang={lang}><body><a className="skip-link" href="#main">{t.skip}</a><AppShell lang={lang}>{children}</AppShell></body></html>;
+  const t = copy[lang],
+    branding = await publicSettings(),
+    jar = await cookies();
+  const hasSessionCookie = jar
+    .getAll()
+    .some((c) => c.name.startsWith("sb-") && c.name.includes("auth-token"));
+  return (
+    <html lang={lang}>
+      <body>
+        <a className="skip-link" href="#main">
+          {t.skip}
+        </a>
+        <PwaRegister />
+        <AppShell
+          lang={lang}
+          branding={branding}
+          hasSessionCookie={hasSessionCookie}
+        >
+          {children}
+        </AppShell>
+      </body>
+    </html>
+  );
 }

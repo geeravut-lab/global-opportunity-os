@@ -27,7 +27,12 @@ export function email(value: unknown): string {
   return result;
 }
 export function password(value: unknown, min = 12): string {
-  if (typeof value !== "string" || value.length < min || value.length > 128)
+  if (
+    typeof value !== "string" ||
+    value.length < min ||
+    value.length > (min === 1 ? 128 : 72) ||
+    (min !== 1 && new TextEncoder().encode(value).byteLength > 72)
+  )
     throw new InputError("invalid_input");
   return value;
 }

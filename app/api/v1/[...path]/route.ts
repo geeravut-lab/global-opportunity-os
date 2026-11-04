@@ -30,6 +30,10 @@ async function handle(
       request.nextUrl.searchParams.get("locale") === "en" ? "en" : "th";
     let result: { data: unknown; error: PostgrestError | null };
     if (request.method === "GET") {
+      if (route === "notifications")
+        return done(
+          success((await auth.client.rpc("goos_notifications")).data),
+        );
       if (route === "me") {
         const loaded = await loadAccount(auth.client, lang);
         return done(
@@ -69,7 +73,17 @@ async function handle(
       else return done(problem(404, "NOT_FOUND"));
     } else {
       const input = await readBody(request, auth.config.origin);
-      if (request.method === "POST" && route === "subjects") {
+      if (
+        request.method === "POST" &&
+        path.length === 3 &&
+        path[0] === "notifications" &&
+        path[2] === "read"
+      ) {
+        object(input, []);
+        result = await auth.client.rpc("goos_read_notice", {
+          p_id: uuid(path[1]),
+        });
+      } else if (request.method === "POST" && route === "subjects") {
         const data = object(input, [
           "displayAlias",
           "country",

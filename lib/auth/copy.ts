@@ -6,9 +6,15 @@ export const accountSections = [
   "delegations",
   "invitations",
   "privacy",
+  "notifications",
 ] as const;
 export const authText = {
   th: {
+    notifications: "การแจ้งเตือน",
+    passwordCurrent: "รหัสผ่านปัจจุบัน",
+    passwordMfa: "รหัส MFA สำหรับยืนยันเปลี่ยนรหัสผ่าน",
+    passwordUnavailable:
+      "บัญชี Google ใช้จัดการรหัสผ่านผ่าน Google หากต้องการเพิ่ม Email login ให้เริ่มจากกู้คืนรหัสผ่านทางอีเมล",
     development: "บัญชี S1 สำหรับทดสอบ · ใช้ข้อมูลสมมติ · ยังไม่เปิดบริการจริง",
     account: "บัญชีของฉัน",
     signIn: "เข้าสู่ระบบ",
@@ -132,6 +138,11 @@ export const authText = {
     resume: "ไปยังบัญชีของฉัน",
   },
   en: {
+    notifications: "Notifications",
+    passwordCurrent: "Current password",
+    passwordMfa: "MFA code to confirm password change",
+    passwordUnavailable:
+      "Manage a Google account password through Google. To add email login, start email password recovery.",
     development:
       "S1 development accounts · Synthetic data only · Not a live service",
     account: "My account",

@@ -115,17 +115,52 @@ export async function POST(
       return done(success({ signed_out: true }));
     }
     if (action === "password") {
-      const data = object(input, ["password"]);
-      const { error } = await auth.client.auth.updateUser({
-        password: password(data.password),
-      });
-      if (error) return done(problem(422, "PASSWORD_CHANGE_REJECTED"));
+      const d = object(input, [
+        "password",
+        "currentPassword",
+        "factorId",
+        "code",
+      ]);
+      const next = password(d.password);
+      const before = await auth.client.rpc("goos_context");
+      if (before.error) return done(dbProblem(before.error));
+      if (!before.data.can_reset_password) {
+        if (!before.data.has_password || !verified.data.user.email)
+          return done(problem(422, "PASSWORD_CHANGE_REJECTED"));
+        const current = password(d.currentPassword, 1);
+        if (current === next) return done(problem(422, "INVALID_INPUT"));
+        if (rateLimited("password", verified.data.user.id))
+          return done(problem(429, "TRY_LATER"));
+        const proof = await auth.client.auth.signInWithPassword({
+          email: verified.data.user.email,
+          password: current,
+        });
+        if (proof.error || proof.data.user?.id !== verified.data.user.id)
+          return done(problem(401, "CREDENTIALS_REJECTED"));
+      }
+      const factors = await auth.client.auth.mfa.listFactors();
+      if (factors.error) return done(problem(503, "SERVICE_UNAVAILABLE"));
+      if (factors.data.totp.length) {
+        const factorId = uuid(d.factorId),
+          code = text(d.code, 6, 6);
+        if (
+          !factors.data.totp.some((f) => f.id === factorId) ||
+          !/^\d{6}$/.test(code)
+        )
+          return done(problem(422, "INVALID_INPUT"));
+        const mfa = await auth.client.auth.mfa.challengeAndVerify({
+          factorId,
+          code,
+        });
+        if (mfa.error) return done(problem(401, "MFA_CODE_REJECTED"));
+      }
+      const changed = await auth.client.auth.updateUser({ password: next });
+      if (changed.error) return done(problem(422, "PASSWORD_CHANGE_REJECTED"));
+      await auth.client.rpc("goos_security_notice");
       await auth.client.rpc("goos_revoke_current_session");
-      const { error: signedOut } = await auth.client.auth.signOut({
-        scope: "global",
-      });
+      const out = await auth.client.auth.signOut({ scope: "global" });
       return done(
-        signedOut
+        out.error
           ? problem(503, "SIGN_OUT_INCOMPLETE")
           : success({ signed_out: true }),
       );

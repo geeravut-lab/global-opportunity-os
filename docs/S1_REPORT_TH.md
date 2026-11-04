@@ -1,5 +1,7 @@
 # ผลงาน S0/S1 สำหรับทบทวน
 
+> สถานะล่าสุดรอบ branding/live/หน้าแรกและ hosted S1 อยู่ [PLATFORM_REPORT_TH.md](PLATFORM_REPORT_TH.md) ข้อความสถานะก่อนหน้านี้เป็นประวัติ ไม่ใช้แทนผลรอบใหม่
+
 > รายงานนี้เป็นหลักฐานฐาน S1 ก่อนรอบแก้ Vercel 404; ผล deployment/การเชื่อมต่อล่าสุดดู [DEPLOYMENT_STATUS_TH.md](DEPLOYMENT_STATUS_TH.md)
 
 วันที่ 2026-11-04 สาขา local `feat/s1-email-google-auth` ต่อจากต้นแบบ `5585012`

@@ -31,7 +31,7 @@ for (const lang of ["th", "en"])
     const data = await r.json();
     expect(data.data.context.account_id === user.id).toBe(true);
     expect(
-      /access_token|refresh_token|service_role|password/.test(
+      /"(access_token|refresh_token|service_role|password)"\s*:/.test(
         JSON.stringify(data),
       ),
     ).toBe(false);

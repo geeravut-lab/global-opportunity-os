@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
+import { AccountHomeMenus } from "./home-menu-cards";
 import Image from "next/image";
-import { useState, type FormEvent } from "react";
+import { useState, useRef, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { accountSections, authErrorText, authText } from "@/lib/auth/copy";
+import { platformCopy } from "@/lib/platform/copy";
 import type { Locale } from "@/lib/i18n";
 import type {
   AccountData,
@@ -22,6 +24,12 @@ export function AccountPanel({
 }) {
   const t = authText[lang],
     router = useRouter();
+  const root = useRef<HTMLElement>(null),
+    submitted = useRef<HTMLFormElement | null>(null),
+    mutated = useRef(false);
+  const pt = platformCopy[lang];
+  const [currentPass, setCurrentPass] = useState(""),
+    [passwordCode, setPasswordCode] = useState("");
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [failed, setFailed] = useState(false);
@@ -70,6 +78,7 @@ export function AccountPanel({
     });
     const json = await result.json();
     if (!result.ok) throw Error(json.code ?? "SERVICE_UNAVAILABLE");
+    if (method !== "GET") mutated.current = true;
     return json.data as T;
   }
   async function run(
@@ -82,7 +91,11 @@ export function AccountPanel({
     try {
       await task();
       setMessage(successMessage);
-      router.refresh();
+      if (mutated.current && submitted.current)
+        delete submitted.current.dataset.liveDirty;
+      if (!root.current?.querySelector('form[data-live-dirty="true"]'))
+        router.refresh();
+      window.dispatchEvent(new Event("goos:saved"));
     } catch (error) {
       setFailed(true);
       setMessage(
@@ -90,6 +103,8 @@ export function AccountPanel({
       );
     } finally {
       setBusy(false);
+      submitted.current = null;
+      mutated.current = false;
     }
   }
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
@@ -119,7 +134,19 @@ export function AccountPanel({
   }
   const title = t[section];
   return (
-    <main id="main" className="account-page">
+    <main
+      id="main"
+      ref={root}
+      className="account-page"
+      data-live-busy={busy}
+      onSubmitCapture={(e) => {
+        submitted.current = e.target as HTMLFormElement;
+      }}
+      onChangeCapture={(e) => {
+        const form = (e.target as HTMLElement).closest("form");
+        if (form) form.dataset.liveDirty = "true";
+      }}
+    >
       <div className="page-heading">
         <p className="eyebrow">S1 · Global Opportunity OS</p>
         <h1>{title}</h1>
@@ -158,8 +185,14 @@ export function AccountPanel({
                 {t.security}
               </Link>
               <Link href={`/${lang}/opportunities`}>{t.search}</Link>
+              {context.has_platform_role && (
+                <Link className="button secondary" href={`/${lang}/admin`}>
+                  {pt.platform}
+                </Link>
+              )}
             </div>
           </section>
+          <AccountHomeMenus lang={lang} />
           <section className="panel">
             <h2>{t.delegations}</h2>
             <p>{t.manualAssistOff}</p>
@@ -365,53 +398,110 @@ export function AccountPanel({
                 </button>
               ))}
           </section>
-          <section className="panel account-form-panel">
-            <h2>{t.changePassword}</h2>
-            <form
-              method="post"
-              action="/api/auth/password"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (newPass !== repeatPass) {
-                  setFailed(true);
-                  setMessage(t.passwordMismatch);
-                  return;
-                }
-                run(async () => {
-                  await api("/api/auth/password", { password: newPass });
-                  setNewPass("");
-                  setRepeatPass("");
-                  window.location.assign(`/${lang}/auth/login`);
-                });
-              }}
-            >
-              <label htmlFor="new-password">{t.passwordNew}</label>
-              <input
-                id="new-password"
-                type="password"
-                autoComplete="new-password"
-                minLength={12}
-                maxLength={128}
-                value={newPass}
-                onChange={(e) => setNewPass(e.target.value)}
-                required
-              />
-              <label htmlFor="repeat-password">{t.passwordRepeat}</label>
-              <input
-                id="repeat-password"
-                type="password"
-                autoComplete="new-password"
-                minLength={12}
-                maxLength={128}
-                value={repeatPass}
-                onChange={(e) => setRepeatPass(e.target.value)}
-                required
-              />
-              <button className="button primary" type="submit" disabled={busy}>
-                {t.changePassword}
-              </button>
-            </form>
-          </section>
+          {initial.can_change_password || context.can_reset_password ? (
+            <section className="panel account-form-panel">
+              <h2>{t.changePassword}</h2>
+              <form
+                method="post"
+                action="/api/auth/password"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (newPass !== repeatPass) {
+                    setFailed(true);
+                    setMessage(t.passwordMismatch);
+                    return;
+                  }
+                  run(async () => {
+                    await api("/api/auth/password", {
+                      password: newPass,
+                      ...(context.can_reset_password
+                        ? {}
+                        : { currentPassword: currentPass }),
+                      ...(initial.factors.some((f) => f.status === "verified")
+                        ? {
+                            factorId: initial.factors.find(
+                              (f) => f.status === "verified",
+                            )!.id,
+                            code: passwordCode,
+                          }
+                        : {}),
+                    });
+                    setNewPass("");
+                    setRepeatPass("");
+                    window.location.assign(`/${lang}/auth/login`);
+                  });
+                }}
+              >
+                {!context.can_reset_password && (
+                  <>
+                    <label htmlFor="current-password">
+                      {t.passwordCurrent}
+                    </label>
+                    <input
+                      id="current-password"
+                      type="password"
+                      autoComplete="current-password"
+                      value={currentPass}
+                      onChange={(e) => setCurrentPass(e.target.value)}
+                      required
+                      maxLength={128}
+                    />
+                  </>
+                )}
+                {initial.factors.some((f) => f.status === "verified") && (
+                  <>
+                    <label htmlFor="password-mfa">{t.passwordMfa}</label>
+                    <input
+                      id="password-mfa"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      value={passwordCode}
+                      onChange={(e) => setPasswordCode(e.target.value)}
+                      minLength={6}
+                      maxLength={6}
+                      pattern="[0-9]{6}"
+                      required
+                    />
+                  </>
+                )}
+                <label htmlFor="new-password">{t.passwordNew}</label>
+                <input
+                  id="new-password"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={12}
+                  maxLength={72}
+                  value={newPass}
+                  onChange={(e) => setNewPass(e.target.value)}
+                  required
+                />
+                <label htmlFor="repeat-password">{t.passwordRepeat}</label>
+                <input
+                  id="repeat-password"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={12}
+                  maxLength={72}
+                  value={repeatPass}
+                  onChange={(e) => setRepeatPass(e.target.value)}
+                  required
+                />
+                <button
+                  className="button primary"
+                  type="submit"
+                  disabled={busy}
+                >
+                  {t.changePassword}
+                </button>
+              </form>
+            </section>
+          ) : (
+            <section className="panel">
+              <h2>{t.changePassword}</h2>
+              <p>{t.passwordUnavailable}</p>
+              <Link href={`/${lang}/auth/recover`}>{t.recover}</Link>
+            </section>
+          )}
         </>
       ) : section === "delegations" ? (
         <>
@@ -860,6 +950,49 @@ export function AccountPanel({
                   <Link href={`/${lang}/account/security`}>
                     {t.mfaRequired}
                   </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : section === "notifications" ? (
+        <section className="panel">
+          <h2>{pt.notifications}</h2>
+          {!initial.notifications.length && <p>{pt.none}</p>}
+          <ul className="account-records">
+            {initial.notifications.map((n) => (
+              <li key={n.id}>
+                <p>
+                  {n.kind === "admin.granted"
+                    ? pt.adminGranted
+                    : n.kind === "admin.revoked"
+                      ? pt.adminRevoked
+                      : n.kind === "admin.changed"
+                        ? pt.admins
+                        : n.kind === "invitation.created"
+                          ? pt.invitationCreated
+                          : n.kind === "membership.revoked"
+                            ? pt.membershipRevoked
+                            : pt.passwordChanged}
+                </p>
+                <time dateTime={n.created_at}>
+                  {new Date(n.created_at).toLocaleString(lang, {
+                    timeZone: "Asia/Bangkok",
+                  })}
+                </time>
+                {!n.read_at && (
+                  <button
+                    className="button secondary"
+                    type="button"
+                    disabled={busy}
+                    onClick={() =>
+                      run(async () => {
+                        await api(`/api/v1/notifications/${n.id}/read`, {});
+                      })
+                    }
+                  >
+                    {pt.markRead}
+                  </button>
                 )}
               </li>
             ))}

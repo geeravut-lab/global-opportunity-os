@@ -23,6 +23,9 @@ for (const name of [
   "staleMfa",
   "logout",
   "webMfa",
+  "platformOwner",
+  "platformOther",
+  "platformUser",
 ]) {
   const email = `goos-s1-test-${name.toLowerCase()}-${suffix}@example.test`,
     password = randomBytes(24).toString("base64url");
@@ -62,5 +65,5 @@ writeFileSync(
 );
 chmodSync(".local/auth-fixtures.json", 0o600);
 console.log(
-  "สร้างบัญชีสมมติ 10 บัญชีใน local Auth และ bootstrap ผ่าน user JWT แล้ว; credentials เก็บใน .local ที่ ignored",
+  "สร้างบัญชีสมมติสำหรับ S1ใน local Auth และ bootstrap ผ่าน user JWT แล้ว; credentials เก็บใน .local ที่ ignored",
 );

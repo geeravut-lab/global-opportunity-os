@@ -1,56 +1,42 @@
-# งานถัดไปหลังแก้ Vercel 404
+# งานถัดไปหลัง Branding / Live sync / หน้าแรก
 
-วันที่ 2026-11-04 ตาม C-18 ทุกครั้งที่สรุปงานจะแสดงผลที่ทำแล้ว งานค้างใน Phase ปัจจุบัน
-และทางเลือกใน Phase ถัดไป เพื่อให้เจ้าของตัดสินใจสั่งต่อ ไม่ถือว่าข้อเสนอคืออนุมัติ Phase ใหม่
-C-17 อนุญาตให้จัดการ Supabase และ push/deploy production แล้ว ไม่ต้องขอสิทธิ์เดิมซ้ำ
+วันที่ 2026-11-04 ตาม C-18 แยกสิ่งที่ทำแล้วและสิ่งที่ยังรอหลักฐาน ไม่ถือว่าขั้นถัดไปอนุมัติอัตโนมัติ
+ดู [รายงานรอบล่าสุด](PLATFORM_REPORT_TH.md) และ [functions/features ทุก Phase](PHASE_PLAN_TH.md)
 
-## งานรอบนี้: ฐาน deployment ของ S1
+## สิ่งที่พร้อมให้ทบทวน
 
-พบว่า Project ใช้ Framework Other (`null`) ค้างจากตอนเป็น repo เอกสาร แม้ Next build ผ่าน
-แต่ deployment เดิมไม่มี Next.js routes จึงขึ้น Ready พร้อม 404
-แก้ Project เป็น Next.js/Node 24 และเพิ่ม `vercel.json` แล้ว รายละเอียดผล deploy อยู่
-[DEPLOYMENT_STATUS_TH.md](DEPLOYMENT_STATUS_TH.md)
+- หน้าแรกผู้ใช้/NGO/admin เปลี่ยนเป็นการ์ดหลายขนาดพร้อมภาพประกอบใหม่ คงธีม Opp4All และ bottom menu
+- `/th/account`: Email/Google, profile/consent/delegation/org invitation/security/in-app inbox
+- `/th/admin`: ผู้ดูแลจริงที่ผ่าน MFA เปลี่ยนโลโก้/favicon/ชื่อสองภาษา, feature switches, admins, audit/CSV
+- private Live sync+polling ไม่ต้อง refresh เองและไม่ทับ dirty form; demo cards ยังระบุข้อมูลสมมติ
+- hosted migrations12 และ Auth/Vercel production env ตั้งแล้ว; ผล deploy/test ล่าสุดอยู่ในรายงาน
+- knowledge ทั้ง15เรื่องมี [mapping ใช้กับ Opp4All](KNOWLEDGE_ADOPTION_TH.md) AI/LINE/automation/reporting ที่ยังไม่มีระบุเป็นแผน
 
-URL สำหรับทบทวนคือ `https://opp4all.vercel.app/` ซึ่งควรเปลี่ยนไป `/th`
-มี `/en`, `/th/demo/partner`, `/th/demo/admin`, `/th/opportunities` และ `/th/auth/login`
-หน้าต้นแบบยังใช้ข้อมูลสมมติ บัญชีจริงยังต้องทำงาน S1 ด้านล่างให้ครบ
+## S1 ที่ยังต้องปิดหลักฐาน
 
-## งานที่ยังเหลือใน S1 — แนะนำทำก่อน S2
-
-| ลำดับ | Functions/features | ผลตรวจรับที่ต้องได้ |
+| ขั้นถัดไป | สิ่งที่ต้องทำ | ผลที่ต้องได้ |
 | --- | --- | --- |
-| 1 ตรวจเว็บ production | หน้าแรก/ภาษา/สามมุมมอง/ค้นหา/มือถือ/security headers และ 404 เฉพาะเส้นทางที่ไม่มี | HTTP จริงของ `/` เป็น redirect ไป `/th`, `/th`/`/en` เป็น 200 ไม่ใช่ดู Ready อย่างเดียว |
-| 2 เชื่อม Supabase Project เดิม | read-only preflight schema/roles/history/Auth settings; ใช้ migrations แบบไม่ทับของเดิม; ผูก test-run manifest ก่อนสร้าง fixture | remote role/RLS/ACL ผ่าน และไม่มีการแก้หรือลบข้อมูลเดิมที่ไม่เกี่ยวข้อง |
-| 3 เปิด Email/Google บน Vercel | ตั้ง Project URL/publishable key/APP_ORIGIN/flags ใน Vercel โดยตรง; callback allowlist; confirmation/recovery; ไม่ใส่ management tokens ในเว็บ | บัญชีของตนเองเข้าได้, คำขอข้ามผู้ใช้/tenant ถูกปฏิเสธ, HTTPS cookies/refresh/no-store ถูกต้อง |
-| 4 ปิดช่องว่าง S1 | ทดสอบ Google success/cancel/ลิงก์เก่า, SMTP จริงในขอบเขตที่ตกลง, MFA recovery/owner transfer และ assisted SOP; manual keyboard/screen reader | แยกผลผ่าน/ไม่รัน/ข้อกำหนดปฏิบัติงานที่ยังไม่รับรอง ไม่กล่าวว่า S1 ทั้งระยะผ่านจาก login ครั้งเดียว |
+| 1 เปิด network สำหรับ agent ตรวจเว็บจริง | Review/Save/Publish draft Cloud Environment ที่เพิ่ม `opp4all.vercel.app` และ `fxqgvqvthrdzmgnmqgom.supabase.co`; รักษา API domains/secret เดิม | HTTP/browser/provider/Realtime smoke ได้จาก workspace; ไม่มีการหลบ proxy/TLS |
+| 2 เจ้าของเข้าใช้งาน | เปิด `/th/auth/login` ใช้บัญชีที่ระบุเป็น owner แล้วตั้ง TOTP ที่ `/th/account/security` | verified owner claim ครั้งเดียว, MFA แล้วเปิด `/th/admin/branding` ได้; ไม่ส่งรหัสผ่าน/OTP/secret ในแชต |
+| 3 ทดสอบ hosted Auth | Google success/cancel, Email confirmation/recovery/delivery, HTTPS cookies/refresh, session revoke และสองหน้าต่าง | แยก actual hosted evidence จาก local Mailpit/PKCE; ถ้ามี synthetic fixture hosted ต้องมี manifest และลบเฉพาะ fixture |
+| 4 ปิด operational gaps ก่อนข้อมูลจริง | owner-transfer/MFA recovery/no-email assisted SOP, manual keyboard/NVDA/VoiceOver/UAT; privacy/retention/safety/ops owners และ backup/restore | เจ้าของรับรองนโยบายและผู้รับผิดชอบตาม BP-G0–G6 ที่เกี่ยวข้อง; technical deploy ไม่ใช่ real pilot readiness |
 
-ตอนตรวจรอบนี้ Cloud Environment มี URL/key/origin และ management token พร้อมแล้ว
-แต่ Vercel API คืน `envs: []` คือ Project ยังไม่มี Environment Variables
-การตั้ง Cloud Environment ไม่ส่งค่าต่อไป Vercel อัตโนมัติ; ไม่ต้องสร้าง token ใหม่จากเหตุนี้
-รอบแก้ 404 ไม่เปลี่ยน schema หรือข้อมูล Supabase และไม่เปิด Auth ก่อนตรวจ migrations
+ไม่ต้องสร้าง Supabase/Vercel Project หรือส่ง management token ใหม่เพียงเพราะ frontend host ถูก network policy ปฏิเสธ
+C-17 อนุญาตจัดการ Supabase/push/deploy อยู่แล้ว ไม่มีการขออนุญาตเดิมซ้ำ
 
-การเรียกเว็บสดจาก workspace ถูก network policy ปฏิเสธ เพราะยังไม่อนุญาต `opp4all.vercel.app`
-เพิ่ม hostname นี้ใน draft แล้ว โดยคง API domains เดิมทั้งหมดและไม่ publish ให้
-ถ้าต้องการให้ agent ตรวจหน้าเว็บสดต่อ ให้ Review/Save/Publish environment ตาม UI เพื่อ apply network change
-เจ้าของเปิดเว็บจาก browser ของตนได้ตามปกติ; ข้อจำกัดนี้ไม่ใช่ 404 ของ Vercel
+## Phase S2 ที่เสนอให้เลือกสั่งต่อ
 
-ตัวอย่างคำสั่งต่อที่แนะนำ:
+1. **Verified organizations**: onboarding, independent review, หลักฐาน/วันหมดอายุ, suspend/appeal และ server/RLS isolation
+2. **Catalog backend**: draft→review→publish/revision, source/freshness/coverage/cost/accessibility, หยุดเผยแพร่เมื่อหมดอายุหรือองค์กรถูกระงับ
+3. **ผู้ใช้**: public search/filter/detail จาก backend, needs assessment ที่ข้าม sensitive fields ได้, bookmarks และ deterministic matching พร้อมเหตุผล/unknown
+4. **Knowledge ที่เพิ่มใน S2**: versioned flags/audit สำหรับ lifecycle, expiry rules และ privacy-safe usage event design ไม่มี paid ranking หรือ external partner messages
 
-> ปิด S1 ส่วน hosted ต่อ: ตรวจ Supabase เดิม ใช้ migrations อย่างปลอดภัย ตั้งค่า Vercel และทดสอบ Email/Google/สิทธิ์ด้วยข้อมูลสมมติ พร้อมรายงานช่องว่างที่ยังเหลือ
-
-## Phase ถัดไป S2 — เมื่อฐาน S1 พร้อม
-
-- องค์กร: onboarding, independent verification, หลักฐาน/วันหมดอายุ, suspend/appeal และสิทธิ์สมาชิก
-- รายการโอกาส: draft/review/publish/revision, แหล่งข้อมูล/ความสด/coverage/cost/accessibility และหยุดเผยแพร่เมื่อหมดอายุหรือองค์กรถูกระงับ
-- ผู้ใช้: public search/filter/detail จาก backend, needs assessment ที่ข้าม sensitive fields ได้, bookmarks และ rule-based matching พร้อมเหตุผล/unknown
-- ใช้ synthetic fixtures และ allow/deny tests ต่อ ไม่เติมคำกล่าวอ้างพันธมิตรจริงหรือ AI ที่ยังไม่มี
-
-ไม่เริ่ม S2 โดยอัตโนมัติจากการแก้ deployment ดู [แผน functions/features S0–S6](PHASE_PLAN_TH.md)
-S0 ยังมี pilot scope/ops/privacy/safety/region/PITR/budget ที่ต้องได้ข้อสรุปก่อนใช้ข้อมูลผู้รับประโยชน์จริง
+ใช้ข้อมูลสมมติและ allow/deny tests ต่อ ไม่เริ่ม S2 อัตโนมัติจากการปิดงาน UI
+S3 เพิ่มใบสมัคร/คิวเคส/outbox; S4 ส่งต่อ/ผลลัพธ์/privacy lifecycle; S5 AI Navigator/impact; S6 operational drills และ UAT
+พันธกิจยังทั่วโลกทุกกลุ่มและธุรกิจยั่งยืน แต่ไม่เปิด no-email/minor personalization/real beneficiary workflows จากคำสั่งนี้
 
 ## ส่งต่อบริบท
 
-อ่าน AGENTS.md, README.md, docs/INDEX.md, DECISIONS.md, DEPLOYMENT_STATUS_TH.md และ S1_REPORT_TH.md
-ใช้ภาษาไทย รักษาพันธกิจทั่วโลกทุกกลุ่มและธุรกิจยั่งยืน
-ต้นแบบ/ฐาน S1 ไม่ใช่ full MVP; no-email/minor/real beneficiary workflows ยังไม่เปิด
-C-17 อนุญาต Supabase/push/deploy แล้ว ส่วน paid provisioning/partner messages ไม่รวมในคำสั่งนี้
+อ่าน AGENTS.md, README.md, INDEX.md, DECISIONS.md, PLATFORM_REPORT_TH.md และ ADR-003
+รักษาต้นฉบับ Blueprint/knowledge ไม่เปลี่ยน P/G เป็น accepted โดยไม่มีหลักฐานเจ้าของ
+ใช้ภาษาไทย รายงาน checks ที่รันจริง และแสดงงานค้างปัจจุบัน/Phase ถัดไปทุกครั้ง

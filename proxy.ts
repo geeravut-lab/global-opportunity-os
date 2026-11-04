@@ -9,5 +9,9 @@ export async function proxy(request: NextRequest) {
   return auth.apply(NextResponse.next({ request }));
 }
 export const config = {
-  matcher: ["/:lang/account/:path*", "/:lang/auth/:path*"],
+  matcher: [
+    "/:lang/account/:path*",
+    "/:lang/auth/:path*",
+    "/:lang/admin/:path*",
+  ],
 };

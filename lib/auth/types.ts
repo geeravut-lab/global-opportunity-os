@@ -5,6 +5,9 @@ export interface AccountContext {
   aal: string;
   staff_assured: boolean;
   has_membership: boolean;
+  has_platform_role: boolean;
+  can_reset_password: boolean;
+  has_password: boolean;
 }
 export interface Profile {
   id: string;
@@ -78,6 +81,8 @@ export interface AccountData {
   invitations: Invitation[];
   consents: ConsentEvent[];
   factors: FactorInfo[];
+  notifications: NotificationInfo[];
+  can_change_password: boolean;
 }
 
 export interface OutgoingInvitation {
@@ -86,4 +91,11 @@ export interface OutgoingInvitation {
   role: string;
   status: string;
   expires_at: string;
+}
+
+export interface NotificationInfo {
+  id: string;
+  kind: string;
+  read_at: string | null;
+  created_at: string;
 }

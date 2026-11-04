@@ -20,6 +20,7 @@ export async function loadAccount(
     client.rpc("goos_my_invitations"),
     client.rpc("goos_consents"),
     client.auth.mfa.listFactors(),
+    client.rpc("goos_notifications"),
   ]);
   const error = results.find((r) => r.error)?.error;
   if (error) return { data: null, error };
@@ -31,6 +32,7 @@ export async function loadAccount(
     invitations,
     consents,
     factors,
+    notifications,
   ] = results;
   return {
     data: {
@@ -41,6 +43,8 @@ export async function loadAccount(
       organizations: organizations.data,
       invitations: invitations.data,
       consents: consents.data,
+      notifications: notifications.data ?? [],
+      can_change_password: context.has_password,
       factors: (factors.data?.all ?? [])
         .filter((f) => f.factor_type === "totp")
         .map((f) => ({

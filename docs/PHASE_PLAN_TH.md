@@ -6,10 +6,16 @@
 
 **อนุมัติรอบนี้:** C-11 เพิ่มการตรวจต้นแบบ/รายละเอียด S0/ทดลอง Auth→DB และพัฒนา S1 ต่อจาก C-10
 ผลทำจริงและส่วน S1 ที่ยังเหลืออยู่ใน [รายงาน S1](S1_REPORT_TH.md) ไม่ขยายไป S2–S6 โดยปริยาย
-**ยังไม่อนุมัติ:** real-data onboarding, vendor contracts, paid provisioning, external messages, minor workflows และ production deployment
+**อนุมัติเพิ่ม:** C-17 จัดการ Supabase/push/deploy ชิ้นงาน S1; C-19–C-21 เพิ่ม branding/live/knowledge adoption และหน้าแรกการ์ดภาพประกอบ
+**ยังไม่อนุมัติ:** real-data onboarding, vendor contracts, paid provisioning, external messages และ minor workflows
 P/D ใน Blueprint ยังต้อง disposition ตามเรื่อง ไม่ใช่อ่านเอกสารแล้วทุกตัวเลขกลายเป็น approved
 
 ## แผนทุก Phase: functions และ features
+
+รายละเอียดความสามารถ RooSuk ทั้ง 15 เรื่องและสิ่งที่ทำจริง/เสนอในแต่ละ Phase อยู่ [KNOWLEDGE_ADOPTION_TH.md](KNOWLEDGE_ADOPTION_TH.md)
+S1 เพิ่ม real platform admin/MFA, protected owner, โลโก้/favicon upload/reset, feature switches, audit/CSV,
+in-app notifications, private Live sync+polling, password hardening, PWA offline shell และเมนูการ์ดทุก role
+S2–S6 ในตารางยังเป็นแผน ไม่ขยายเป็นการอนุมัติอัตโนมัติ
 
 | Phase / เป้าหมาย | Functions & features ที่จะทำจริงในระยะนั้น | ผู้ใช้/หน้าจอ | Dependency / exit evidence |
 | --- | --- | --- | --- |

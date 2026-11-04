@@ -2,6 +2,7 @@ import {
   mkdtempSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   writeFileSync,
   cpSync,
   chmodSync,
@@ -84,7 +85,11 @@ try {
       "select version from supabase_migrations.schema_migrations order by version",
     )
   ).rows;
-  if (rows.length !== 3) throw Error("expected exactly three S1 migrations");
+  if (
+    rows.length !==
+    readdirSync("supabase/migrations").filter((n) => n.endsWith(".sql")).length
+  )
+    throw Error("S1 migration count mismatch");
   const admin = createClient(raw.API_URL, raw.SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
@@ -96,6 +101,10 @@ try {
     email_confirm: true,
   });
   if (u.error) throw Error("fresh fixture creation failed");
+  await c.query(
+    "insert into private.platform_bootstrap(singleton,salt,email_hash) values(true,'fresh-fixture',encode(sha256(convert_to('fresh-fixture'||lower($1),'UTF8')),'hex'))",
+    [email],
+  );
   const client = createClient(raw.API_URL, raw.ANON_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
@@ -103,6 +112,9 @@ try {
     throw Error("fresh login failed");
   if ((await client.rpc("goos_bootstrap_account", { p_locale: "th" })).error)
     throw Error("fresh bootstrap failed");
+  const ownerCheck = await client.rpc("goos_context");
+  if (!ownerCheck.data?.has_platform_role)
+    throw Error("fresh designated-owner bootstrap failed");
   const profile = await client.rpc("goos_create_profile", {
     p_display_alias: "ข้อมูลสมมติติดตั้งใหม่",
     p_country_code: "TH",
@@ -112,7 +124,7 @@ try {
   });
   if (profile.error) throw Error("fresh profile/consent failed");
   console.log(
-    "Fresh migrations: 3 applied; real Auth → bootstrap → profile/consent passed",
+    "Fresh migrations: all applied; real Auth → bootstrap → profile/consent passed",
   );
 } finally {
   if (c) await c.end();

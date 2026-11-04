@@ -1,15 +1,24 @@
 # Global Opportunity OS
 
 โครงการมีพันธกิจทั่วโลก ครอบคลุมผู้รับประโยชน์ทุกกลุ่ม พร้อมเป้าหมายธุรกิจยั่งยืน
-ชิ้นงานปัจจุบันมี **ต้นแบบ UX สามมุมมอง และฐาน S1 สำหรับบัญชีสมมติ Email/Google**
+ชิ้นงานปัจจุบันมี **หน้าแรกการ์ดภาพประกอบสามมุมมอง, ฐาน S1 Email/Google, ผู้ดูแล branding และ Live sync**
 ปรับตาม [Product Blueprint TH v1.0](docs/Global-Opportunity-OS-Product-Blueprint-TH.md) และภาพ UX Showcase ที่เจ้าของแนบ
 ไดเรกทอรีและ dashboard สามบทบาทยังใช้ข้อมูลสมมติ การสลับ role เป็น demo navigation
-บัญชี S1 อยู่ `/th/auth/login` และ `/th/account` แยกจาก demo และใช้ Auth/DB จริงเฉพาะ local stack
-ยังไม่มี AI หรือการส่งต่อจริง Google ผ่านการทดสอบเริ่ม PKCE เท่านั้น ยังไม่ยืนยัน hosted OAuth round-trip
+บัญชี S1 อยู่ `/th/auth/login` และ `/th/account` แยกจาก demo; ผู้ดูแลจริงอยู่ `/th/admin` และต้องผ่าน MFA
+ใช้ migrations ทั้ง 12 ไฟล์กับ Supabase ที่เจ้าของอนุญาตแล้ว พร้อมตั้ง Auth callback/production env ใน Vercel
+ยังไม่มี AI หรือการส่งต่อจริง; hosted Google round-trip/Email delivery ยังต้องยืนยัน แยกจากผลทดสอบในเครื่อง
 
 [ดูแผน S0–S6 พร้อม functions/features](docs/PHASE_PLAN_TH.md) ·
 [ดูผลเทียบ Blueprint/ภาพ](docs/BLUEPRINT_ALIGNMENT_TH.md) ·
 [ผลตรวจ S1](docs/S1_REPORT_TH.md) · [ตั้งค่า Email/Google](docs/AUTH_SETUP_TH.md)
+
+[ผลรอบ branding/live/หน้าแรก](docs/PLATFORM_REPORT_TH.md) ·
+[นำ knowledge ทั้ง 15 เรื่องมาใช้อย่างไร](docs/KNOWLEDGE_ADOPTION_TH.md)
+
+โลโก้/favicon เริ่มต้นคัดลอกจากสองไฟล์ Opp4All ใน docs; ผู้ดูแลที่ผ่าน MFA เปลี่ยนภาพ PNG หรือคืนค่าเดิมได้
+หน้าแรกทุก role ใช้ภาพประกอบใหม่และการ์ดขนาดต่างกัน คง mobile bottom bar + เพิ่มเติม
+สถานะบัญชี/โปรไฟล์/คำเชิญ/สิทธิ์/branding อัปเดตด้วย private Realtime พร้อม polling fallback โดยไม่ทับฟอร์มที่ยังไม่บันทึก
+แผงผู้ดูแลมีชื่อสองภาษา feature switches, registered admins และ audit/CSV; demo role switch ไม่ให้สิทธิ์จริง
 
 ## เริ่มพัฒนา
 
@@ -106,7 +115,7 @@ npm run db:stop
 
 การตั้ง Supabase/Google ที่คุณมีอยู่แล้ว ดู [คู่มือ Auth](docs/AUTH_SETUP_TH.md)
 และ [สถาปัตยกรรม/ข้อจำกัดสิทธิ์](docs/adr/ADR-002-S1-AUTH-TH.md) ก่อนใช้ Project ระยะไกล
-C-15 อนุญาตใช้ Project เดิมทดสอบได้; ยังไม่เชื่อม remote และต้องตรวจของเดิม/ระบุ fixture ก่อนเขียนข้อมูล
+C-15/C-17 อนุญาต Project เดิม; ตรวจ preflight และใช้ migrations แบบ transaction/checksum แล้ว ไม่ reset ข้อมูลเดิม
 อย่าคัดลอก service_role หรือ Google Client Secret มาใส่ในแอป
 
 ## โครงสร้าง
@@ -122,7 +131,19 @@ C-15 อนุญาตใช้ Project เดิมทดสอบได้; �
 
 เจ้าของแจ้งว่าเชื่อม repository แล้ว ไม่ต้องสร้าง Project ซ้ำ รายละเอียดค่าที่ควรตรวจใน Project เดิม
 และข้อควรตรวจเรื่อง deployment อัตโนมัติอยู่ใน [คู่มือ Vercel](docs/VERCEL.md)
-ยังไม่ได้ตรวจการตั้งค่าระยะไกลหรือ deploy; การ build สำเร็จในเครื่องไม่รับรองว่า deploy สำเร็จแล้ว
+แก้ Framework เป็น Next.js/Node24 แล้ว เจ้าของยืนยันเปิดหน้าแอปได้หลังแก้ 404
+สถานะ deploy รุ่นรอบนี้และข้อจำกัด hosted tests ดู [PLATFORM_REPORT_TH](docs/PLATFORM_REPORT_TH.md)
+
+คำสั่ง operator ที่มีจริง (อ่านก่อนใช้ ไม่ใช่ส่วนของ web runtime):
+
+```sh
+NODE_USE_ENV_PROXY=1 node scripts/hosted-s1.mjs preflight
+NODE_USE_ENV_PROXY=1 node scripts/hosted-s1.mjs verify
+```
+
+ต้องมี Supabase URL/APP_ORIGIN และ operator token ใน Environment Settings; อย่าใส่ management token ใน Vercel
+คำสั่ง `migrate`, `auth`, `designate-owner`, `vercel-env` เปลี่ยนระบบระยะไกล ใช้ตาม [คู่มือ platform](docs/PLATFORM_REPORT_TH.md)
+Preview ไม่ใช้ production Auth env โดยปริยาย; local suites ป้องกันการชี้ไป Project จริง
 
 อ่าน [สารบัญ](docs/INDEX.md), [ทะเบียนการตัดสินใจ](docs/DECISIONS.md) และ
 [ขั้นตอนถัดไป](docs/NEXT_STEPS.md) ก่อนขยายขอบเขต แชตและเอกสารใช้ภาษาไทย

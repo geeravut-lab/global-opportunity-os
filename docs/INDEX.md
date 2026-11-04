@@ -5,6 +5,10 @@
 
 ## เอกสารรอบปัจจุบัน
 
+- [นำ knowledge ทั้ง 15 เรื่องมาใช้: ทำแล้ว/แผนตาม Phase](KNOWLEDGE_ADOPTION_TH.md)
+- [รายงาน branding/live/หน้าแรกและ hosted S1](PLATFORM_REPORT_TH.md)
+- [ADR ของ branding/admin/Realtime/PWA](adr/ADR-003-PLATFORM-TH.md)
+
 - [สถานะ push/deployment และการเชื่อม Supabase](DEPLOYMENT_STATUS_TH.md)
 
 - [รายงาน S1 และผลทดสอบล่าสุด](S1_REPORT_TH.md)

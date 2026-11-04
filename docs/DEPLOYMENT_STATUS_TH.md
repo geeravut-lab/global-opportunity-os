@@ -1,5 +1,7 @@
 # สถานะ deployment และการแก้ 404
 
+> สถานะล่าสุดรอบ branding/live/หน้าแรกและ hosted S1 อยู่ [PLATFORM_REPORT_TH.md](PLATFORM_REPORT_TH.md) ข้อความสถานะก่อนหน้านี้เป็นประวัติ ไม่ใช้แทนผลรอบใหม่
+
 วันที่ 2026-11-04 ขอบเขตรอบนี้: แก้หน้าแรก 404 ของ `https://opp4all.vercel.app/`
 เป็นงานฐาน deployment ของ S1 ตาม C-17; ไม่เริ่ม S2 และไม่แก้ schema/ข้อมูล Supabase ในรอบนี้
 C-18 ให้สรุปงานที่เหลือใน Phase ปัจจุบัน/Phase ถัดไปทุกครั้ง

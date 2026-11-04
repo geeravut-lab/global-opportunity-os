@@ -1,13 +1,16 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Global Opportunity OS — S1 ในเครื่อง",
-    "version": "0.1.0",
-    "description": "สัญญาเฉพาะเส้นทาง BFF ที่มีโค้ดแล้ว ไม่ครอบคลุม S2–S6; synthetic development only. Browser ใช้ HttpOnly cookie หลาย chunk ตาม SDK. Callback HTML redirect อยู่ในคู่มือ Auth แยกจาก JSON API."
+    "title": "Global Opportunity OS — S1 และ platform",
+    "version": "0.2.0",
+    "description": "สัญญาเฉพาะเส้นทาง BFF ที่มีโค้ดแล้ว ไม่ครอบคลุม S2–S6; synthetic development only. Browser ใช้ HttpOnly cookie หลาย chunk ตาม SDK. Callback HTML redirect อยู่ในคู่มือ Auth แยกจาก JSON API. /api/live/token เป็นข้อยกเว้น memory-only access token สำหรับ private Realtime ไม่คืน refresh token"
   },
   "servers": [
     {
       "url": "http://127.0.0.1:3000"
+    },
+    {
+      "url": "https://opp4all.vercel.app"
     }
   ],
   "paths": {
@@ -597,9 +600,17 @@
                   "password": {
                     "type": "string",
                     "minLength": 12,
+                    "maxLength": 72,
+                    "format": "password",
+                    "writeOnly": true,
+                    "description": "12–72 UTF-8 bytes; server validates byte length"
+                  },
+                  "currentPassword": {
+                    "type": "string",
                     "maxLength": 128,
                     "format": "password",
-                    "writeOnly": true
+                    "writeOnly": true,
+                    "description": "required unless recent verified recovery AMR"
                   }
                 },
                 "required": [
@@ -2455,6 +2466,526 @@
           }
         }
       }
+    },
+    "/api/live": {
+      "get": {
+        "summary": "fingerprint ของผู้ใช้ปัจจุบันเท่านั้น; no-store",
+        "security": [
+          {
+            "sessionCookies": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "session/DB ตรวจใหม่ทุกครั้ง",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fingerprint": {
+                          "type": "string"
+                        },
+                        "enabled": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "fingerprint",
+                        "enabled"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "ข้อผิดพลาดที่ไม่เปิดเผย SQL/ข้อมูลส่วนบุคคล: 401/403/404/409/422/429/503",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/live/token": {
+      "get": {
+        "summary": "access token ชั่วคราวใน memory เพื่อ private Realtime; ห้าม persist/log",
+        "security": [
+          {
+            "sessionCookies": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Goos-Live",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ไม่มี refresh token; อาจคืน enabled:false",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "key": {
+                          "type": "string"
+                        },
+                        "token": {
+                          "type": "string",
+                          "writeOnly": true
+                        },
+                        "expiresAt": {
+                          "type": "number"
+                        },
+                        "topics": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "enabled"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "ข้อผิดพลาดที่ไม่เปิดเผย SQL/ข้อมูลส่วนบุคคล: 401/403/404/409/422/429/503",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/platform": {
+      "post": {
+        "summary": "platform admin+MFA: names/flags, upload/reset PNG, grant/revoke registered admin",
+        "security": [
+          {
+            "sessionCookies": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "const": "settings"
+                      },
+                      "nameTh": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 60
+                      },
+                      "nameEn": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 60
+                      },
+                      "flags": {
+                        "type": "object",
+                        "properties": {
+                          "branding": {
+                            "const": false
+                          },
+                          "live_sync": {
+                            "const": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "nameTh",
+                      "nameEn",
+                      "flags",
+                      "expectedVersion"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "const": "reset-image"
+                      },
+                      "kind": {
+                        "enum": [
+                          "logo",
+                          "favicon"
+                        ]
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "kind",
+                      "expectedVersion"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "const": "admin"
+                      },
+                      "targetId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "grant": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "targetId",
+                      "grant"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "logo",
+                      "favicon"
+                    ]
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "file": {
+                    "type": "string",
+                    "contentMediaType": "image/png",
+                    "description": "logo<=1MB; square favicon192–1024px<=512KB; server decodes and scrubs metadata"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expectedVersion",
+                  "file"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "version conflict409; invalid PNG422; no permission404; MFA403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "ข้อผิดพลาดที่ไม่เปิดเผย SQL/ข้อมูลส่วนบุคคล: 401/403/404/409/422/429/503",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/platform/audit": {
+      "get": {
+        "summary": "admin+MFA CSV ล่าสุด100รายการ; no-store; export มี audit",
+        "security": [
+          {
+            "sessionCookies": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV ป้องกัน spreadsheet formula",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "ข้อผิดพลาดที่ไม่เปิดเผย SQL/ข้อมูลส่วนบุคคล: 401/403/404/409/422/429/503",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/brand/{kind}": {
+      "get": {
+        "summary": "PNG ปัจจุบันหรือ redirect ไปภาพ default; public-by-intent เท่านั้น",
+        "security": [],
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "logo",
+                "favicon"
+              ]
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "192",
+                "512"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG+ETag/nosniff",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "contentMediaType": "image/png"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "ETag ตรง"
+          },
+          "307": {
+            "description": "ใช้ default"
+          },
+          "404": {
+            "description": "unknown kind"
+          }
+        }
+      }
+    },
+    "/api/v1/notifications": {
+      "get": {
+        "summary": "inbox เฉพาะตนเอง ไม่มีรายละเอียดเคส",
+        "security": [
+          {
+            "sessionCookies": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no-store; unknown/other user404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": [
+                        "object",
+                        "array",
+                        "null"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "ข้อผิดพลาดที่ไม่เปิดเผย SQL/ข้อมูลส่วนบุคคล: 401/403/404/409/422/429/503",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{id}/read": {
+      "post": {
+        "summary": "mark read เฉพาะผู้รับ",
+        "security": [
+          {
+            "sessionCookies": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no-store; unknown/other user404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": [
+                        "object",
+                        "array",
+                        "null"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "ข้อผิดพลาดที่ไม่เปิดเผย SQL/ข้อมูลส่วนบุคคล: 401/403/404/409/422/429/503",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2576,6 +3107,12 @@
           },
           "has_platform_role": {
             "type": "boolean"
+          },
+          "can_reset_password": {
+            "type": "boolean"
+          },
+          "has_password": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -2585,7 +3122,9 @@
           "aal",
           "staff_assured",
           "has_membership",
-          "has_platform_role"
+          "has_platform_role",
+          "can_reset_password",
+          "has_password"
         ],
         "additionalProperties": false
       },

@@ -1,5 +1,7 @@
 # คู่มือเตรียมใช้ Vercel กับ repository เดิม
 
+> สถานะล่าสุดรอบ branding/live/หน้าแรกและ hosted S1 อยู่ [PLATFORM_REPORT_TH.md](PLATFORM_REPORT_TH.md) ข้อความสถานะก่อนหน้านี้เป็นประวัติ ไม่ใช้แทนผลรอบใหม่
+
 เจ้าของเลือก Vercel และแจ้งว่าเชื่อม GitHub repository เดียวกันไว้แล้ว ตาม C-09
 C-17 อนุญาต push/deploy production แล้ว ใช้ Vercel Project เดิมที่เชื่อม repo ไม่สร้างซ้ำ
 สถานะการทำจริงและสิ่งที่ติดอยู่ดู [สถานะ deployment](DEPLOYMENT_STATUS_TH.md)

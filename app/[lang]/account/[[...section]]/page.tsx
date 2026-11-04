@@ -43,7 +43,14 @@ export default async function AccountPage({
     );
   return (
     <AccountPanel
-      key={section}
+      key={JSON.stringify({
+        section,
+        profile: result.data.profile?.version,
+        ctx: result.data.context,
+        delegations: result.data.delegations,
+        invitations: result.data.invitations,
+        notifications: result.data.notifications,
+      })}
       lang={lang}
       section={section as (typeof accountSections)[number]}
       initial={result.data}

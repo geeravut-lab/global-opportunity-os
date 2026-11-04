@@ -1,5 +1,7 @@
 # การตั้งค่า Email + Google สำหรับ S1
 
+> สถานะล่าสุดรอบ branding/live/หน้าแรกและ hosted S1 อยู่ [PLATFORM_REPORT_TH.md](PLATFORM_REPORT_TH.md) ข้อความสถานะก่อนหน้านี้เป็นประวัติ ไม่ใช้แทนผลรอบใหม่
+
 วันที่ 2026-11-04 สำหรับการพัฒนาด้วยข้อมูลสมมติ ตาม C-11–17
 เจ้าของแจ้งว่ามี Supabase Project และตั้ง Google Provider แล้ว ไม่ต้องสร้าง Project/OAuth client ซ้ำ
 **C-15: เจ้าของอนุญาตใช้ Project เดิมทดสอบได้ และให้ล้างข้อมูลทดสอบก่อนขึ้น production**
