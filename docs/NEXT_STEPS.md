@@ -3,6 +3,7 @@
 วันที่ 2026-11-04 C-11 อนุมัติให้ทำขั้นที่ 1–4 และ Email/Google แล้ว ไม่ต้องอนุมัติเริ่ม S1 ซ้ำ
 เจ้าของแจ้งว่ามี Supabase และตั้ง Provider ใน Supabase/Google Cloud แล้วตาม C-12/13; C-14 ระบุว่าเป็น Project ระบบจริง และ C-15 อนุญาตใช้ทดสอบได้
 พร้อมเคลียร์ข้อมูลทดสอบก่อนเปิด production
+**C-17 อนุญาตจัดการ Supabase และ push/deploy production แล้ว** สถานะล่าสุดอยู่ [DEPLOYMENT_STATUS_TH.md](DEPLOYMENT_STATUS_TH.md)
 ผลชิ้นงานและข้อจำกัดดู [รายงาน S1](S1_REPORT_TH.md)
 
 ## ลำดับถัดไป
@@ -14,7 +15,7 @@
    จาก Settings ที่ปลอดภัย; เตรียม manifest ข้อมูลสมมติก่อนทดสอบ hosted แล้วค่อยเปิด Auth flags
    URL/publishable key ไม่ให้สิทธิ์ migration และตอนนี้ runtime ยังไม่มีการเชื่อมต่อที่ใช้งานได้
 3. ตรวจ Google↔Supabase callback กับ app redirect allowlist แล้วทดสอบ hosted round-trip/Email/HTTPS session
-   รอบนี้ยังไม่มีการ push/deploy/ส่ง Email จริง; เมื่อจะทำ Preview ต้องตกลงขอบเขต deployment/ผู้ทดสอบก่อน
+   รอบนี้ยังไม่มีการ push/deploy/ส่ง Email จริง; C-17 อนุญาต deployment แล้ว ไม่ต้องถามอนุมัติซ้ำ แต่ยังต้องมีการเชื่อมต่อที่ใช้ได้
 4. ทบทวน [หน้าจอ S1](S1_REPORT_TH.md) และส่วน assisted/MFA recovery ที่ยังเหลือ
    จากนั้นค่อยกำหนดชิ้นงาน S2 verified organization/catalog/search backend ตาม [แผน S0–S6](PHASE_PLAN_TH.md)
 
@@ -36,7 +37,7 @@ region/PITR/budget, assisted authority/ownership recovery และ abuse protec
 การเลือก repo เดียวกันไม่ย้ายประวัติแชต และ publish cloud environment ไม่ใช่ git push
 
 งาน S1 อยู่สาขา local `feat/s1-email-google-auth` ต่อจาก snapshot ต้นแบบ `5585012`
-ยังไม่ push; ต้องส่งไฟล์หรือ push ที่ได้รับอนุญาตก่อนจึงจะเห็นบน GitHub/Vercel
+push สาขา S1 ขึ้น GitHub แล้วตาม C-17; สถานะ main/production ดู DEPLOYMENT_STATUS_TH
 
 ข้อความส่งต่อ:
 

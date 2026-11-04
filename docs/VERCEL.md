@@ -1,10 +1,11 @@
 # คู่มือเตรียมใช้ Vercel กับ repository เดิม
 
 เจ้าของเลือก Vercel และแจ้งว่าเชื่อม GitHub repository เดียวกันไว้แล้ว ตาม C-09
-งานนี้เตรียมแอปและ production build ในเครื่องเท่านั้น ไม่สร้าง Vercel Project ซ้ำ
-ไม่ติดตั้ง Vercel CLI ไม่ขอ token ไม่ตรวจหรือเปลี่ยนการตั้งค่าระยะไกล ไม่ push/deploy
+C-17 อนุญาต push/deploy production แล้ว ใช้ Vercel Project เดิมที่เชื่อม repo ไม่สร้างซ้ำ
+สถานะการทำจริงและสิ่งที่ติดอยู่ดู [สถานะ deployment](DEPLOYMENT_STATUS_TH.md)
+เนื้อหาด้านล่างเป็นค่าตั้งต้นจากรอบก่อน การตรวจที่ยังไม่ทำไม่ถือว่าผ่าน
 
-## ค่าที่ควรตรวจใน Vercel Project เดิมก่อนอนุญาตเผยแพร่
+## ค่าที่ต้องตรวจใน Vercel Project เดิม
 
 | รายการ | ค่าที่โครงการนี้เตรียมไว้ |
 | --- | --- |
@@ -29,8 +30,8 @@ Vercel Git integration อาจสร้าง Preview เมื่อ push ส
 CI workflow ที่เพิ่มใน repository เป็นการตรวจคุณภาพ ไม่รับรองว่า Vercel จะรอผล CI อัตโนมัติ
 ถ้าต้องการบังคับให้รอ ต้องตั้งกฎและ branch protection ที่เหมาะสมแยกต่างหาก ซึ่งงานนี้ไม่ได้แก้
 
-ข้อห้าม deploy production ตามขอบเขต C-10 ยังอยู่ เจ้าของต้องอนุญาตขั้น push/deployment ที่ต้องการแยกจาก
-การเลือก Vercel เป็นโฮสต์ การเริ่มสร้างชิ้นงานไม่ได้อนุญาตทุก deployment ของ integration
+C-17 อนุญาต push และ production deployment ของ S1 แล้ว; C-10 เป็นขอบเขตในอดีต
+ยังไม่ใช้การเผยแพร่เว็บเป็นหลักฐานว่าผ่าน release gates หรือพร้อมรับข้อมูลผู้รับประโยชน์จริง
 ก่อนเผยแพร่ต้องทราบว่าข้อมูลทั้งหมดเป็นสมมติ มี noindex แต่ noindex ไม่ใช่การควบคุมการเข้าถึง
 ห้ามเพิ่มข้อมูลจริงหรืออ้างพันธมิตรจริงในตัวอย่างนี้
 
@@ -43,3 +44,16 @@ CI workflow ที่เพิ่มใน repository เป็นการต�
 5. ทดสอบ accessibility ใน deployment จริง พร้อมตรวจด้วยคนตาม LEG-G-03
 
 ผลตรวจในเครื่องอยู่ใน [รายงานต้นแบบ](PROTOTYPE_REPORT_TH.md) ยังไม่มี URL deployment หรือผลตรวจ Vercel จริง
+
+
+## สิทธิ์สำหรับ agent จัดการ Project เดิม
+
+สร้าง token ที่ [Vercel Account → Tokens](https://vercel.com/account/tokens) ด้วย Scope บัญชี/ทีมที่มี Project นี้
+ใส่ใน Secret Settings ชื่อ `VERCEL_TOKEN` ไม่ส่งค่าในแชต และต้องให้ runtime ที่รันเห็น binding แล้ว
+agent จะอ่านรายการ Projects และเลือกเฉพาะ Project ที่เชื่อม `geeravut-lab/global-opportunity-os`
+ก่อนเปลี่ยน env/deploy ตรวจ Production Branch และ domain จริง ไม่เดาชื่อ Project หรือ team
+Vercel environment variables แยกจาก Cloud Environment; ค่าที่ใส่ใน workspace ไม่ปรากฏบน Vercel อัตโนมัติ
+
+`SUPABASE_ACCESS_TOKEN` มาจาก [Supabase Account → Access Tokens](https://supabase.com/dashboard/account/tokens)
+เป็น Personal Access Token สำหรับ Management API ไม่ใช่ publishable key/service_role
+ใช้สำหรับตรวจ Project/schema และใช้ migrations ที่ผ่านการตรวจแล้ว ไม่ฝัง token ในเว็บหรือ commit

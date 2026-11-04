@@ -5,6 +5,8 @@
 
 ## เอกสารรอบปัจจุบัน
 
+- [สถานะ push/deployment และการเชื่อม Supabase](DEPLOYMENT_STATUS_TH.md)
+
 - [รายงาน S1 และผลทดสอบล่าสุด](S1_REPORT_TH.md)
 - [ตั้งค่า Email/Google และ local development](AUTH_SETUP_TH.md)
 - [ADR ฐาน Auth/DB/สิทธิ์ S1](adr/ADR-002-S1-AUTH-TH.md)

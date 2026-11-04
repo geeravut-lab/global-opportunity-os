@@ -1,13 +1,14 @@
 # การตั้งค่า Email + Google สำหรับ S1
 
-วันที่ 2026-11-04 สำหรับการพัฒนาด้วยข้อมูลสมมติ ตาม C-11–15
+วันที่ 2026-11-04 สำหรับการพัฒนาด้วยข้อมูลสมมติ ตาม C-11–17
 เจ้าของแจ้งว่ามี Supabase Project และตั้ง Google Provider แล้ว ไม่ต้องสร้าง Project/OAuth client ซ้ำ
 **C-15: เจ้าของอนุญาตใช้ Project เดิมทดสอบได้ และให้ล้างข้อมูลทดสอบก่อนขึ้น production**
 ข้อกำหนดให้แยก dev/staging ที่เคยแนะนำหลัง C-14 ไม่ใช่เงื่อนไขบังคับใหม่
 ก่อนเขียนกับ Project เดิมต้องตรวจ schema/roles/migration history ที่มีอยู่ และแยก test-run/รายการ fixture ให้ชัด
 ไม่ลบหรือแทนที่ข้อมูลเดิมเพื่อทำให้ migration ผ่าน; ไม่มีการให้ทดสอบกับข้อมูลผู้รับประโยชน์จริง
 
-รอบนี้ยังไม่ได้อ่านค่า remote Project, เปลี่ยน Google Cloud/Vercel, ส่งอีเมลจริง หรือ deploy
+C-17 อนุญาตให้ agent จัดการ Supabase และ push/deploy production แล้ว
+ผลที่ทำจริงและสิ่งที่ยังติดอยู่ดู [DEPLOYMENT_STATUS_TH.md](DEPLOYMENT_STATUS_TH.md)
 
 ## สิ่งที่ทำต่อใน Environment Settings
 
@@ -124,7 +125,7 @@ service และการเชื่อมต่อภายนอกยัง
 รายงานผลในเครื่องและช่องว่าง [S1_REPORT_TH.md](S1_REPORT_TH.md)
 การทดสอบ hosted/Preview ใช้ Project เดิมได้ตาม C-15; ยังต้องมีค่าที่ apply แล้ว, migration operator/domain
 และขอบเขตการส่ง Email/ผู้ทดสอบให้ชัด
-ไม่ถือว่าการแจ้งว่า Provider เสร็จแล้วเป็นอนุญาต production deployment
+C-17 เป็นหลักฐานอนุญาต production deployment แล้ว; Provider พร้อมไม่ได้เป็นหลักฐานว่าทดสอบ flow จริงผ่าน
 
 
 ## แผนล้างข้อมูลทดสอบก่อนเปิดจริงตาม C-15
@@ -139,3 +140,15 @@ service และการเชื่อมต่อภายนอกยัง
 บัญชี Google ของเจ้าของที่ใช้ทดสอบไม่เท่ากับ fixture ที่ลบได้อัตโนมัติ
 ต้องมีผล reconciliation ว่าเหลือเฉพาะข้อมูลที่ตั้งใจเก็บ และไม่มี test keys/notice/roles ค้างเป็นนโยบายเปิดจริง
 นี่เป็นแผน ยังไม่มี cleanup script ที่ผ่านการตรวจหรือหลักฐานล้าง hosted สำเร็จ ไม่ลบข้อมูลในรอบนี้
+
+
+## รับ token ให้ agent ทำงานแทน
+
+- Supabase: [Account → Access Tokens](https://supabase.com/dashboard/account/tokens) → Generate new token →
+  Secret ชื่อ `SUPABASE_ACCESS_TOKEN` ใช้ Management API สำหรับตรวจ schema/ใช้ migrations
+- Vercel: [Account → Tokens](https://vercel.com/account/tokens) → Create Token →
+  เลือก Scope บัญชี/ทีมที่มี Project นี้ → Secret ชื่อ `VERCEL_TOKEN`
+
+ไม่ส่ง token ในแชต ไม่ใส่ token ใน NEXT_PUBLIC_* และไม่ส่งให้เว็บ production
+หลังตั้งค่าใน draft ให้ Review/Save และ Publish environment ตาม UI แล้วเริ่ม runtime ที่ใช้ config รุ่นใหม่
+เพราะ successful draft save ไม่ได้ apply variables/network/secret bindings ให้ runtime เดิม

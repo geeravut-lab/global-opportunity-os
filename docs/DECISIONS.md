@@ -28,6 +28,9 @@ C คือหลักฐานการตัดสินใจ P คือข
 
 | C-15 | เจ้าของอนุญาตใช้ Supabase Project เดิมทดสอบได้ และให้เคลียร์ข้อมูลทดสอบก่อนขึ้น production | ข้อความล่าสุด “ใช้งานจริง แต่สามารถใช้ได้เลย โดยไว้เราค่อยเคลียร์ข้อมูลทดสอบออกก่อนขึ้น production”; ใช้เป็นอนุญาตทดสอบและเตรียม S1 บน Project นี้หลังตรวจของเดิม ไม่ใช่อนุญาตล้างข้อมูลเดิม/production deployment; การเชื่อมต่อและ migration operator ยังไม่พร้อมใน runtime |
 
+| C-16 | เจ้าของแจ้งว่าตั้ง URL/publishable key/APP_ORIGIN ใน Cloud Environment ของแชตนี้แล้ว | คำตอบล่าสุดระบุตำแหน่งแล้ว; runtime ที่ตรวจยังเป็น config รุ่นเดิมและยังไม่เห็น 3 ค่า ไม่อ้างว่าเชื่อม Project แล้ว |
+| C-17 | อนุญาตให้ agent สร้าง/ปรับโครงสร้างและข้อมูลใน Supabase เอง และ push/deploy production ของ S1 | คำสั่งล่าสุดข้อ 2–3: “สร้าง ปรับแก้ โครงสร้าง และ ข้อมูล ใน Supabase ได้เองเลย” และ “push และ deploy production เลย”; ไม่ต้องขออนุญาต push/deploy ซ้ำ ขอบเขตคือ S1/ข้อมูลทดสอบที่กำลังทำ ไม่ใช่ลบข้อมูลเดิมเหมารวมหรืออ้างว่า MVP ทุก Phase พร้อมแล้ว |
+
 ## ข้อเสนอหลักจาก main และสถานะปัจจุบัน
 
 | รหัส | ข้อเสนอเดิม | สถานะ/ขอบเขต |
@@ -51,7 +54,8 @@ C คือหลักฐานการตัดสินใจ P คือข
 
 ใช้ D-01 ถึง D-12 และ G0–G6 จาก Blueprint โดยอ้างเป็น BP-D-*/BP-G* ในแผน เพื่อไม่ชนรหัสของ starter pack
 C-10 เดิมอนุมัติต้นแบบ; C-11 เพิ่ม S0/S1 สำหรับการพัฒนาและข้อมูลสมมติ แต่ยังไม่อนุมัติราคา SLA retention สูตรคะแนน
-vendor contract, real-data processing, minor workflow, paid provisioning, external messages หรือ production deployment
+vendor contract, real beneficiary processing, minor workflow, paid provisioning หรือ external partner messages
+C-17 เพิ่มอนุญาตการจัดการ Supabase และ push/deploy production ของชิ้นงาน S1 แล้ว ไม่ต้องอนุมัติซ้ำ
 D-02 มีผลทดลอง Auth→BFF→user JWT→RPC/RLS บน local stack แล้วตาม S1_REPORT_TH; ยังไม่ปิด region/PITR/ต้นทุน หรือรับรอง hosted execution
 
 การเลือกทางเทคนิคที่ย้อนกลับได้ภายใน C-11: Email+password, Google PKCE, HttpOnly cookies,
