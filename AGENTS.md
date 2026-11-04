@@ -31,7 +31,9 @@ Read README.md, docs/DECISIONS.md, docs/PROJECT_VISION.md, docs/PRODUCT_REQUIREM
 ### การสื่อสารกับเจ้าของ
 
 - ใช้ภาษาไทยในแชตและเอกสาร Markdown ที่เขียนใหม่ตาม C-07
-- เมื่อจบงานแต่ละ prompt ให้บอกงานที่ยังเหลือใน Phase ปัจจุบันและขั้นถัดไปที่เกี่ยวข้อง พร้อม functions/features ที่เจ้าของใช้เลือกสั่งดำเนินการได้ ตาม C-18
+- ทุกคำตอบสุดท้ายหลังดำเนินงานแต่ละ prompt เสร็จ ต้องแสดงขั้นตอนถัดไปที่ยังเหลือใน Phase ปัจจุบันหรือ Phase ถัดไปในแชต ตาม C-18 รวมถึง prompt ที่ปรับกฎนี้ด้วย
+- เรียงขั้นตอนเป็นข้อ ระบุชื่อ Phase, functions/features และสิ่งที่จะทำให้ชัดเจน พร้อมข้อมูลหรือเงื่อนไขที่ยังรอเมื่อมี เพื่อให้เจ้าของเลือกสั่งงานต่อได้
+- หาก Phase ปัจจุบันปิดครบแล้ว ให้บอกว่าปิดแล้วและเสนอขั้นตอนของ Phase ถัดไป หากยังมีงานค้าง ห้ามกล่าวว่าปิดครบ ไม่จบด้วยเพียงคำว่าเสร็จแล้วหรือลิงก์เอกสารโดยไม่มีขั้นตอนถัดไปในแชต
 - แยกงานที่ผ่านการตรวจจริง งานที่ยังไม่รัน และสิ่งที่ต้องตัดสินใจ ไม่ถือว่าการเสนอขั้นถัดไปเป็นการอนุมัติให้เริ่ม Phase ใหม่
 
 Work in small feature branches and reviewable PRs. Inspect existing files and preserve unrelated work. Do not add a second framework or unnecessary services. Verify current vendor docs before selecting versions; pin dependencies and commit the lockfile when code exists.
