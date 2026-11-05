@@ -32,7 +32,7 @@ S4 มี implementation สำหรับทดสอบข้อมูลส�
 
 ## S4 — ส่งต่อ ผลลัพธ์ และสิทธิ์ข้อมูลตาม C-34
 
-ใช้ dependencies เดิมและ migrations 33–53; ไม่แก้ migrations 1–32 ที่เผยแพร่แล้ว
+ใช้ dependencies เดิมและ migrations 33–54; ไม่แก้ migrations 1–32 ที่เผยแพร่แล้ว
 ทั้ง `S4_ENABLED` และ `private.s4_release.enabled` ปิดโดยค่าเริ่มต้น ป้องกัน direct RPC bypass ด้วย
 ดู [ขอบเขต](docs/S4_SCOPE_TH.md), [วิธีพัฒนา](docs/S4_EXECUTION_TH.md), [ADR-006](docs/adr/ADR-006-S4-TH.md), [OpenAPI](api/s4.openapi.json) และ [ผลตรวจจริง](docs/S4_REPORT_TH.md)
 
@@ -47,6 +47,7 @@ npm run dev:s4
 เปิด `http://127.0.0.1:3000/th/coordination` ด้วยบัญชีสมมติใน `.local/s4-fixtures.json`
 ไฟล์นี้มีข้อมูลยืนยันตัวตนสำหรับ local เท่านั้น เก็บแบบ ignored/mode600 ห้ามส่งในแชตหรือใช้กับ hosted
 `dev:s4` เปิด flags เฉพาะ local และตัด operator/worker/SMTP secrets ออกจาก web process
+ชุด Auth ปิด S4 DB gate ชั่วคราวแล้วคืนค่าเดิม; S2/S3 seed ปิด gate และ S4 seed เปิดกลับเฉพาะ local
 seed จะสร้างบัญชี/องค์กร/รายการสมมติใหม่ และ pause published fixtures เก่าที่ติด metadata ทดสอบใน local โดยคงข้อมูล/ประวัติไว้ ห้ามรันขนานกับ suite ที่ใช้ fixtures ชุดเดียวกัน
 
 ```sh

@@ -62,6 +62,7 @@ test.beforeAll(async ({ browser }) => {
       });
       expect(r.status()).toBe(200);
     }
+    await p.goto("about:blank");
   }
 });
 test.afterAll(async () => {

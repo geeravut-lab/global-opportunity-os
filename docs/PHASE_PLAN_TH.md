@@ -105,7 +105,7 @@ AI: D-05 + B-202/B-203 → B-501 → B-502 → B-601; CSR: B-402 → B-503 → B
 | S1 | 12–20 | auth vendor/environment/region approval |
 | S2 | 15–25 | reviewer/partner verification และ content/translation |
 | S3 | 15–25 | case operation/consent notices/email agreement |
-| S4   | migrations33–53, warm referral exact-field consent/destination case, outcomes L0/L1/L2+evidence/dispute, privacy/export/holds/cessation/replay และ restricted anonymous reports/appeals บน feature branch         | review/rollout แยก; legal notices/retention/roster/abuse/SLA/hosted restore ก่อนข้อมูลจริง; ไม่มี physical purge                                                                              |
+| S4   | migrations33–54, warm referral exact-field consent/destination case, outcomes L0/L1/L2+evidence/dispute, privacy/export/holds/cessation/replay และ restricted anonymous reports/appeals บน feature branch         | review/rollout แยก; legal notices/retention/roster/abuse/SLA/hosted restore ก่อนข้อมูลจริง; ไม่มี physical purge                                                                              |
 | S5 | 15–25 | AI vendor contract, human eval labels, metric/privacy review |
 | S6 | 12–20 | independent QA/a11y/security, training/rota/UAT |
 

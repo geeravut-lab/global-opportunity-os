@@ -37,7 +37,7 @@ test.beforeAll(async ({ browser }) => {
     await p.locator("#auth-email").fill(a.email);
     await p.locator("#auth-password").fill(a.password);
     await p.locator("form button[type=submit]").click();
-    await expect(p).toHaveURL(/\/en\/account$/);
+    await expect(p).toHaveURL(/\/en\/account$/, { timeout: 20000 });
     if (a.factorId) {
       const r = await post(p, "/api/auth/mfa-verify", {
         factorId: a.factorId,
@@ -45,6 +45,7 @@ test.beforeAll(async ({ browser }) => {
       });
       expect(r.status()).toBe(200);
     }
+    await p.goto("about:blank");
   }
 });
 test.afterAll(async () => {
@@ -360,6 +361,7 @@ for (const lang of ["th", "en"] as const)
   test(`${lang}: public and role-specific S2 pages pass axe, keyboard and mobile reflow`, async ({
     page,
   }) => {
+    test.setTimeout(120000); // Ten pages with axe, keyboard and reflow; per-request bounds stay unchanged.
     const targets: [Page, string][] = [
       [page, ""],
       [page, "/opportunities?q=" + fixture.run],

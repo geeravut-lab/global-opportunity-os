@@ -205,6 +205,8 @@ test("cross-owner direct API access returns no personal fields", async ({
 test("MFA through UI gates draft organization and recipient-bound invitation cancellation", async ({
   page,
 }) => {
+  // The full MFA → organization → recipient invitation lifecycle includes several completed requests and refreshes.
+  test.setTimeout(90000);
   await signIn(page, await actor());
   await page.goto("/en/account/security");
   const enrolled = page.waitForResponse(
@@ -218,12 +220,18 @@ test("MFA through UI gates draft organization and recipient-bound invitation can
   await page
     .getByRole("button", { name: "Verify MFA code", exact: true })
     .click();
+  await expect(page.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect(page.getByText("MFA verified", { exact: true })).toBeVisible();
   await page.goto("/en/account/organizations");
   await page.locator("#organization-name").fill("องค์กรสมมติ Browser");
   await page
     .getByRole("button", { name: "Create draft organization", exact: true })
     .click();
+  await expect(page.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect(
     page.getByRole("heading", { name: "องค์กรสมมติ Browser" }),
   ).toBeVisible();
@@ -235,12 +243,18 @@ test("MFA through UI gates draft organization and recipient-bound invitation can
       exact: true,
     })
     .click();
+  await expect(page.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect(
     page.getByRole("button", { name: "Cancel invitation", exact: true }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Cancel invitation", exact: true })
     .click();
+  await expect(page.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect(
     page.getByRole("button", { name: "Cancel invitation", exact: true }),
   ).toHaveCount(0);

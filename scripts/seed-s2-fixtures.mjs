@@ -32,6 +32,7 @@ async function rpc(c, n, args = {}) {
 }
 const clients = {};
 try {
+  await db.query("update private.s4_release set enabled=false where singleton");
   // Rotate only earlier, explicitly tagged local synthetic publications; preserve rows/history and never touch hosted data.
   await db.query(
     "update app.opportunities p set state='paused' from app.opportunity_revisions r,auth.users u where r.id=p.approved_revision_id and u.id=r.created_by and p.state='published' and lower(u.email) like '%@example.test' and (u.raw_app_meta_data ? 'goos_s2_fixture_run' or u.raw_app_meta_data ? 'goos_s3_fixture_run')",
