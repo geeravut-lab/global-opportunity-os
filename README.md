@@ -1,17 +1,17 @@
-> อัปเดต C-32: PR #3–9 รวมแล้วและ S2/S3ขึ้นproductionพร้อมflags; ดู [รายงาน rollout](docs/PRODUCTION_ROLLOUT_TH.md) สำหรับ worker/SMTP/hosted readiness ที่ยังเหลือ ข้อความสถานะก่อนC-32ด้านล่างเป็นประวัติผลlocal/PR
+> อัปเดต C-34: เพิ่ม S4 บน feature branch โดยปิด release gates ไว้ ดู [ผลและข้อจำกัด S4](docs/S4_REPORT_TH.md) · production ยังเป็น S2/S3 จาก PR #3–10 ตาม [รายงาน rollout](docs/PRODUCTION_ROLLOUT_TH.md)
 
 # Global Opportunity OS
 
 โครงการมีพันธกิจทั่วโลก ครอบคลุมผู้รับประโยชน์ทุกกลุ่ม พร้อมเป้าหมายธุรกิจยั่งยืน
-ชิ้นงานปัจจุบันมี **หน้าแรกสามมุมมอง, S1 Email/Google/MFA/branding/Live sync, S2 directory และ S3 applications/cases**
+ชิ้นงานปัจจุบันมี **หน้าแรกสามมุมมอง, S1 Email/Google/MFA/branding/Live sync, S2 directory, S3 applications/cases และ S4 ส่งต่อ/ผลลัพธ์/สิทธิ์ข้อมูลบน feature branch**
 ปรับตาม [Product Blueprint TH v1.0](docs/Global-Opportunity-OS-Product-Blueprint-TH.md) และภาพ UX Showcase ที่เจ้าของแนบ
 หน้า `/th/demo/partner` และ `/th/demo/admin` เป็นตัวอย่างข้อมูลสมมติ; การสลับ role ใน demo ไม่ให้สิทธิ์จริง
 ระบบจริงใช้ `/th/auth/login`, `/th/account`, `/th/opportunities`, `/th/workflow` และหน้าจัดการที่ตรวจสิทธิ์ฝั่ง server/DB
 ผู้ดูแลจริงอยู่ `/th/admin` และต้องผ่าน MFA; เจ้าของยืนยัน Google login/MFA และเปิดหน้าผู้ดูแลได้แล้ว
-PR #3–9 รวม main แล้ว เปิด S2/S3 production flags และใช้ migrations 32 ไฟล์กับ Supabase ที่เจ้าของอนุญาต
+PR #3–10 รวม main แล้ว เปิด S2/S3 production flags และใช้ migrations 32 ไฟล์กับ Supabase ที่เจ้าของอนุญาต
 Confirm email ปิดชั่วคราวตามเจ้าของ: signup ที่ได้ session เข้าบัญชีทันที โดยคง JWT/RLS/MFA
 hosted Email/session/Live/สิทธิ์ ยังติด network ของ runtime แยกจากผล local/CI; SMTP/Recovery ยังไม่ปิด; production worker มี cron ทุกนาทีและผ่าน maintenance HTTP 200 หลังแก้ TLS
-ไม่มี AI หรือ S4 warm referral จริงจากรอบนี้; ขอบเขต S4 อยู่ในเอกสารสำหรับเริ่มงานภายหลัง
+S4 มี implementation สำหรับทดสอบข้อมูลสมมติที่ `/th/coordination` และ `/th/report` แล้ว แต่ยังไม่ rollout production; AI/aggregate impact จริงยังเป็น S5
 
 [ดูแผน S0–S6 พร้อม functions/features](docs/PHASE_PLAN_TH.md) ·
 [ดูผลเทียบ Blueprint/ภาพ](docs/BLUEPRINT_ALIGNMENT_TH.md) ·
@@ -29,6 +29,42 @@ hosted Email/session/Live/สิทธิ์ ยังติด network ขอ�
 หน้าแรกทุก role ใช้ภาพประกอบใหม่และการ์ดขนาดต่างกัน คง mobile bottom bar + เพิ่มเติม
 สถานะบัญชี/โปรไฟล์/คำเชิญ/สิทธิ์/branding อัปเดตด้วย private Realtime พร้อม polling fallback โดยไม่ทับฟอร์มที่ยังไม่บันทึก
 แผงผู้ดูแลมีชื่อสองภาษา feature switches, registered admins และ audit/CSV; demo role switch ไม่ให้สิทธิ์จริง
+
+## S4 — ส่งต่อ ผลลัพธ์ และสิทธิ์ข้อมูลตาม C-34
+
+ใช้ dependencies เดิมและ migrations 33–53; ไม่แก้ migrations 1–32 ที่เผยแพร่แล้ว
+ทั้ง `S4_ENABLED` และ `private.s4_release.enabled` ปิดโดยค่าเริ่มต้น ป้องกัน direct RPC bypass ด้วย
+ดู [ขอบเขต](docs/S4_SCOPE_TH.md), [วิธีพัฒนา](docs/S4_EXECUTION_TH.md), [ADR-006](docs/adr/ADR-006-S4-TH.md), [OpenAPI](api/s4.openapi.json) และ [ผลตรวจจริง](docs/S4_REPORT_TH.md)
+
+```sh
+npm ci
+npm run db:start
+npm run build
+npm run db:prepare-s4
+npm run dev:s4
+```
+
+เปิด `http://127.0.0.1:3000/th/coordination` ด้วยบัญชีสมมติใน `.local/s4-fixtures.json`
+ไฟล์นี้มีข้อมูลยืนยันตัวตนสำหรับ local เท่านั้น เก็บแบบ ignored/mode600 ห้ามส่งในแชตหรือใช้กับ hosted
+`dev:s4` เปิด flags เฉพาะ local และตัด operator/worker/SMTP secrets ออกจาก web process
+seed จะสร้างบัญชี/องค์กร/รายการสมมติใหม่ และ pause published fixtures เก่าที่ติด metadata ทดสอบใน local โดยคงข้อมูล/ประวัติไว้ ห้ามรันขนานกับ suite ที่ใช้ fixtures ชุดเดียวกัน
+
+```sh
+npm run test:s4
+npx --no-install vitest run --config vitest.integration.config.ts tests/integration/s4.test.ts
+npm run db:process-s4-evidence
+npm run db:test:fresh
+npm run test:backup-restore
+```
+
+`test:s4` seed และเปิด/ปิด server3400 เอง; integration ใช้ user JWT + DB/RLS จริงใน local
+ตัวตรวจหลักฐานใช้ worker role แบบจำกัดสิทธิ์ decode/re-encode PNG ไม่เกิน1MB ไม่ใช่การรับรองเนื้อหาเอกสาร
+restore ใช้ stack แยกและตรวจ withdrawal replay ของ S1/S3/S4 ตาม fixtures ที่มี ไม่ restore ทับ hosted
+รายการคำสั่งนี้เป็นคำสั่งที่มีอยู่จริง ผลการรันแต่ละรายการแยกบันทึกในรายงาน S4
+
+ไม่มี physical purge, การตัดสินด้วย AI, external S4 email หรือ personalized minor workflow
+คำขอลบอยู่ `awaiting_policy`/`on_hold`; ต้องรับรอง retention/holds/identity/notice/roster/abuse controls ก่อนรับข้อมูลจริง
+รอบนี้ไม่ได้รัน hosted S4 migrations, เปิด production flags หรือ deploy S4
 
 ## เริ่มพัฒนา
 
@@ -262,7 +298,7 @@ restore หลัง `test:s3` ตรวจ encrypted package+key และ repl
 
 ตอนนี้มี31 migration files ใน local; hosted S1 ยัง13 ไม่มีการใช้14–31กับระบบจริงในงานนี้
 operator `migrate` เลือก≤0013, `--include-s2` เลือก≤0018, `--include-s3` เลือก≤0031 อย่างชัดเจน
-คำสั่งเปลี่ยน hosted เหล่านี้ **ยังไม่รันสำหรับ S2/S3**; ตรวจ PR/checksum/rollout/worker/notices ก่อน
+คำสั่งด้านล่างเป็น runbook ของรอบ S3; ผล rollout ที่รันจริงดู PRODUCTION_ROLLOUT_TH ไม่รวม S4; ตรวจ PR/checksum/rollout/worker/notices ก่อน
 S1 hosted Network/Recovery ยังเป็นงานค้าง ไม่อ้างว่า S3 technical pass ทำให้ pilot พร้อม
 
 ## โครงสร้าง

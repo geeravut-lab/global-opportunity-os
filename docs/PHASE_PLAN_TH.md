@@ -1,3 +1,5 @@
+> สถานะ C-34: S4 มี implementation บน feature branch แล้ว ดู [รายงาน S4](S4_REPORT_TH.md); production ยังเป็น S2/S3, hosted S1/Recovery/SMTP และ gates ข้อมูลจริงยังไม่ปิด
+
 > สถานะล่าสุด C-32: รวมPR3–8และdeploy S2/S3 productionแล้ว ดู [รายงาน rollout](PRODUCTION_ROLLOUT_TH.md); ผล/ข้อความก่อนC-32ด้านล่างรักษาไว้เป็นหลักฐานตามวันที่ ไม่ใช่สถานะrolloutล่าสุด
 
 # แผนพัฒนาใหม่ตาม Product Blueprint v1.0
@@ -103,7 +105,7 @@ AI: D-05 + B-202/B-203 → B-501 → B-502 → B-601; CSR: B-402 → B-503 → B
 | S1 | 12–20 | auth vendor/environment/region approval |
 | S2 | 15–25 | reviewer/partner verification และ content/translation |
 | S3 | 15–25 | case operation/consent notices/email agreement |
-| S4 | 15–25 | legal/retention/safeguarding/evidence authority |
+| S4   | migrations33–53, warm referral exact-field consent/destination case, outcomes L0/L1/L2+evidence/dispute, privacy/export/holds/cessation/replay และ restricted anonymous reports/appeals บน feature branch         | review/rollout แยก; legal notices/retention/roster/abuse/SLA/hosted restore ก่อนข้อมูลจริง; ไม่มี physical purge                                                                              |
 | S5 | 15–25 | AI vendor contract, human eval labels, metric/privacy review |
 | S6 | 12–20 | independent QA/a11y/security, training/rota/UAT |
 

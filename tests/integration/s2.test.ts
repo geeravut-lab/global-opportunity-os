@@ -34,6 +34,7 @@ const admin = createClient(runtime.apiUrl, runtime.serviceRoleKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 const current = () => new Date(Date.now() + 86400000 * 30).toISOString();
+let previousCatalog: { id: string }[] = [];
 async function organization(c = clients[0], id = org, review = false) {
   return (await rpc(c, "goos_s2_orgs", { p_review: review })).find(
     (o: { id: string }) => o.id === id,
@@ -81,6 +82,19 @@ const input = () => ({
   ],
 });
 beforeAll(async () => {
+  if (new URL(runtime.dbUrl).port !== "54322")
+    throw Error(
+      "S2 synthetic catalog isolation requires the original local stack",
+    );
+  // Each run tests matching its own fixtures, without old published synthetic runs crowding the 100-result bound.
+  previousCatalog = await sql(
+    "select p.id from app.opportunities p join app.opportunity_revisions r on r.id=p.approved_revision_id join auth.users u on u.id=r.created_by where p.state='published' and lower(u.email) like '%@example.test' and (u.raw_app_meta_data ? 'goos_s2_fixture_run' or u.raw_app_meta_data ? 'goos_s3_fixture_run')",
+  );
+  if (previousCatalog.length)
+    await sql(
+      "update app.opportunities set state='paused' where id=any($1::uuid[]) and state='published'",
+      [previousCatalog.map((x) => x.id)],
+    );
   await sql("notify pgrst,'reload schema'");
   for (let i = 0; i < 5; i++) {
     const email = run + "-" + i + "@example.test",
@@ -111,6 +125,11 @@ beforeAll(async () => {
   await profile(clients[4], "Synthetic other adult");
 });
 afterAll(async () => {
+  if (previousCatalog.length)
+    await sql(
+      "update app.opportunities set state='published' where id=any($1::uuid[]) and state='paused'",
+      [previousCatalog.map((x) => x.id)],
+    );
   if (ids.length < 4) return;
   await sql(
     "update private.platform_role_grants g set revoked_at=coalesce(g.revoked_at,now()) where g.account_id=any($1::uuid[]) and g.granted_by=g.account_id and not exists(select 1 from private.platform_owner p where p.account_id=g.account_id) and exists(select 1 from auth.users u where u.id=g.account_id and u.raw_app_meta_data->>'goos_s2_fixture_run'=$2)",

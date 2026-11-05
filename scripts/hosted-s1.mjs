@@ -81,15 +81,17 @@ if (action === "preflight") {
     (m) =>
       !applied.some((a) => a.version === m.version) &&
       m.version <=
-        (process.argv.includes("--include-s3")
-          ? "202611050032"
-          : process.argv.includes("--include-s2")
-            ? "202611050018"
-            : "202611040013"),
+        (process.argv.includes("--include-s4")
+          ? "202611050053"
+          : process.argv.includes("--include-s3")
+            ? "202611050032"
+            : process.argv.includes("--include-s2")
+              ? "202611050018"
+              : "202611040013"),
   );
   if (!pending.length) {
     console.log(
-      "No pending hosted migrations in selected scope; use explicit --include-s2 or --include-s3 for that phase",
+      "No pending hosted migrations in selected scope; use explicit --include-s2, --include-s3 or --include-s4 for that phase",
     );
     process.exit(0);
   }
@@ -253,7 +255,15 @@ if (action === "preflight") {
     `select 'migrations' as check,(select count(*) from private.deployment_migrations)::text as result union all select 'unsafe_roles',count(*)::text from pg_roles where rolname in ('goos_api','goos_authz') and(rolsuper or rolbypassrls or rolcanlogin or rolinherit) union all select 'tables_without_rls',count(*)::text from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('app','private') and c.relkind='r' and not c.relrowsecurity union all select 'owner_designation',count(*)::text from private.platform_bootstrap union all select 'public_settings',(select version::text from app.platform_settings where singleton) union all select 'realtime_guard',count(*)::text from pg_policies where schemaname='realtime' and policyname='goos_live_namespace_guard' union all select 'audit_immutable',count(*)::text from pg_trigger where tgname='goos_audit_immutable';`,
   );
   const expected = {
-    migrations: String(migrations.length),
+    migrations: String(
+      migrations.filter(
+        (m) =>
+          m.version <=
+          (process.argv.includes("--include-s4")
+            ? "202611050053"
+            : "202611050032"),
+      ).length,
+    ),
     unsafe_roles: "0",
     tables_without_rls: "0",
     owner_designation: "1",

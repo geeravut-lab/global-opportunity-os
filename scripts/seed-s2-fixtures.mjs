@@ -32,6 +32,10 @@ async function rpc(c, n, args = {}) {
 }
 const clients = {};
 try {
+  // Rotate only earlier, explicitly tagged local synthetic publications; preserve rows/history and never touch hosted data.
+  await db.query(
+    "update app.opportunities p set state='paused' from app.opportunity_revisions r,auth.users u where r.id=p.approved_revision_id and u.id=r.created_by and p.state='published' and lower(u.email) like '%@example.test' and (u.raw_app_meta_data ? 'goos_s2_fixture_run' or u.raw_app_meta_data ? 'goos_s3_fixture_run')",
+  );
   if (existsSync(".local/s2-fixtures.json")) {
     const previous = JSON.parse(
         readFileSync(".local/s2-fixtures.json", "utf8"),

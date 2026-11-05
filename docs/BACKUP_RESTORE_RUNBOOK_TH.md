@@ -77,3 +77,14 @@ ledger ต้อง identity-bound application_id/subject_id/action/time จา�
 replayซ้ำต้องไม่เปลี่ยน fingerprint เพิ่มและ active shares ต้องเป็นศูนย์; เก็บ ledger/archives mode600 แยกจากระบบเผยแพร่
 key ปัจจุบันอยู่ private DB จึงอยู่ใน backup เดียวกัน ยังไม่อ้าง KMS/separate trust boundary
 ผลเฉพาะlocalไม่แทน hosted PITR/backup/RPO/RTO; ตรวจ [ผลS3](S3_REPORT_TH.md) ก่อนสรุปความพร้อม
+
+## เพิ่มเติม S4 ตาม C-34
+
+เมื่อมี `.local/s4-fixtures.json` จาก `npm run test:s4` ให้รัน `npm run test:backup-restore` ต่อโดยไม่ seed ขนาน
+script สร้าง referral สมมติเฉพาะ drill และเก็บ snapshot ขณะ share ยัง active ก่อน owner ถอนแชร์
+ตรวจ encrypted package/hash/key บน target แยก แล้ว replay ledger ผ่าน `private.goos_s4_replay_withdrawals(jsonb)` ก่อนเปิด traffic
+replay ต้องหยุด share และสร้าง recipient cessation เพียงครั้งเดียว การรันซ้ำต้องไม่เปลี่ยน fingerprint
+ledger S4 ใช้ referral/subject/actor/time ที่อ่านจาก source operator เท่านั้น ไม่มี route ให้ผู้ใช้เรียก replay
+
+นี่คือ withdrawal replay ใน local ไม่ใช่ physical deletion replay หรือหลักฐาน hosted RTO/RPO
+ยังไม่มี purge policy/endpoint; ห้ามใช้ผลนี้อ้างว่าลบข้อมูลทุกสำเนาแล้วหรือผ่าน BP-AC-16 ทั้งข้อ

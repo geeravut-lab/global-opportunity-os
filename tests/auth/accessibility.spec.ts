@@ -19,6 +19,8 @@ for (const lang of ["th", "en"]) {
   test(`${lang}: all account sections WCAG, 320px reflow and 200% text`, async ({
     page,
   }) => {
+    // Eight full-page navigations plus axe/reflow; retain the per-request and assertion deadlines.
+    test.setTimeout(90000);
     await signIn(page, await actor(), lang);
     for (const section of [
       "",

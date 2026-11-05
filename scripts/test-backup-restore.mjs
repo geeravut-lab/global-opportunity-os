@@ -247,6 +247,8 @@ try {
     s3Application,
     s3ExpectedHash,
     s3Ledger = [];
+  let s4Client, s4Referral, s4ExpectedHash;
+  let s4Ledger = [];
   if (existsSync(".local/s3-fixtures.json")) {
     const f = JSON.parse(readFileSync(".local/s3-fixtures.json", "utf8"));
     s3Client = sdk(source.apiUrl, source.key);
@@ -296,6 +298,67 @@ try {
       await sourceConnection.query(
         "select md5(private.goos_s3_decrypt(encrypted_payload)::text) as hash from private.application_packages where application_id=$1",
         [s3Application],
+      )
+    ).rows[0].hash;
+  }
+  if (existsSync(".local/s4-fixtures.json")) {
+    const f = JSON.parse(readFileSync(".local/s4-fixtures.json", "utf8"));
+    s4Client = sdk(source.apiUrl, source.key);
+    assert(
+      !(
+        await s4Client.auth.signInWithPassword({
+          email: f.actors.user.email,
+          password: f.actors.user.password,
+        })
+      ).error,
+      "S4 restore fixture login",
+    );
+    const listing = randomUUID(),
+      revision = randomUUID();
+    await sourceConnection.query(
+      "insert into app.opportunities(id,organization_id) values($1,$2)",
+      [listing, f.targetOrg],
+    );
+    await sourceConnection.query(
+      "insert into app.opportunity_revisions select (jsonb_populate_record(null::app.opportunity_revisions,to_jsonb(r)||jsonb_build_object('id',$1::text,'opportunity_id',$2::text,'revision_no',1))).* from app.opportunity_revisions r join app.opportunities o on o.approved_revision_id=r.id where o.id=$3",
+      [revision, listing, f.targetListing],
+    );
+    await sourceConnection.query(
+      "update app.opportunities set state='published',approved_revision_id=$2 where id=$1",
+      [listing, revision],
+    );
+    await sourceConnection.query(
+      "insert into private.catalog_reviews(opportunity_id,revision_id,actor_id,decision,reason) values($1,$2,$3,'publish','Synthetic restore fixture only')",
+      [listing, revision, f.actors.reviewer.id],
+    );
+    s4Referral = p(
+      await s4Client.rpc("goos_s4_propose", {
+        p_case: f.sourceCase,
+        p_opportunity: listing,
+        p_purpose: "service_support",
+      }),
+    );
+    const preview = p(
+      await s4Client.rpc("goos_s4_preview", {
+        p_id: s4Referral,
+        p_fields: ["display_alias"],
+        p_skills: [],
+        p_notice: "00000000-0000-4000-8000-000000000402",
+      }),
+    );
+    p(
+      await s4Client.rpc("goos_s4_submit", {
+        p_preview: preview.id,
+        p_hash: preview.hash,
+        p_notice: "00000000-0000-4000-8000-000000000402",
+        p_confirmed: true,
+        p_key: randomUUID(),
+      }),
+    );
+    s4ExpectedHash = (
+      await sourceConnection.query(
+        "select md5(private.goos_s3_decrypt(encrypted_payload)::text) hash from private.s4_packages where referral_id=$1",
+        [s4Referral],
       )
     ).rows[0].hash;
   }
@@ -441,7 +504,25 @@ try {
       )
     ).rows;
   }
+  if (s4Referral) {
+    p(
+      await s4Client.rpc("goos_s4_referral_action", {
+        p_id: s4Referral,
+        p_action: "revoke",
+        p_version: 2,
+        p_member: null,
+      }),
+    );
+    s4Ledger = (
+      await sourceConnection.query(
+        "select referral_id,subject_id,actor_id,created_at from private.s4_withdrawals where referral_id=$1",
+        [s4Referral],
+      )
+    ).rows;
+    assert(s4Ledger.length === 1, "S4 withdrawal ledger missing");
+  }
   const ledger = {
+    s4: s4Ledger,
     s3: s3Ledger,
     delegations: (
       await sourceConnection.query(
@@ -517,7 +598,7 @@ try {
       "--username=supabase_admin",
       "--dbname=postgres",
       "--set=ON_ERROR_STOP=1",
-      "--command=CREATE ROLE goos_api NOLOGIN NOINHERIT NOBYPASSRLS; CREATE ROLE goos_authz NOLOGIN NOINHERIT NOBYPASSRLS; CREATE ROLE goos_worker NOLOGIN NOINHERIT NOBYPASSRLS; GRANT goos_api,goos_authz,goos_worker TO postgres;",
+      "--command=CREATE ROLE goos_api NOLOGIN NOINHERIT NOBYPASSRLS; CREATE ROLE goos_authz NOLOGIN NOINHERIT NOBYPASSRLS; CREATE ROLE goos_worker NOLOGIN NOINHERIT NOBYPASSRLS; CREATE ROLE goos_reporter NOLOGIN NOINHERIT NOBYPASSRLS; GRANT goos_api,goos_authz,goos_worker,goos_reporter TO postgres;",
     ],
     "prepare-app-roles",
   );
@@ -556,7 +637,7 @@ try {
   await reconcileAppAcls(targetConnection, expectedAcls);
   const boundary = (
     await targetConnection.query(
-      "select has_schema_privilege('authenticated','app','usage') as app_access,has_schema_privilege('authenticated','private','usage') as private_access,(select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_roles r on r.oid=p.proowner where n.nspname='public' and p.proname like 'goos_%' and(r.rolbypassrls or r.rolname<>'goos_api')) as unsafe_rpc_owners,has_function_privilege('anon','public.goos_save_settings(text,text,jsonb,bigint)','execute') as guest_write",
+      "select has_schema_privilege('authenticated','app','usage') as app_access,has_schema_privilege('authenticated','private','usage') as private_access,(select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_roles r on r.oid=p.proowner where n.nspname='public' and p.proname like 'goos_%' and(r.rolbypassrls or (r.rolname<>'goos_api' and not(p.proname='goos_s4_guest_report' and r.rolname='goos_reporter')))) as unsafe_rpc_owners,has_function_privilege('anon','public.goos_save_settings(text,text,jsonb,bigint)','execute') as guest_write",
     )
   ).rows[0];
   privateJson(dir + "/restore-boundary.json", boundary);
@@ -569,7 +650,7 @@ try {
   );
   const unsafe = (
     await targetConnection.query(
-      "select count(*) from pg_roles where rolname in ('goos_api','goos_authz','goos_worker') and(rolsuper or rolbypassrls or rolcanlogin or rolinherit)",
+      "select count(*) from pg_roles where rolname in ('goos_api','goos_authz','goos_worker','goos_reporter') and(rolsuper or rolbypassrls or rolcanlogin or rolinherit)",
     )
   ).rows[0].count;
   assert(Number(unsafe) === 0, "Restored app role attributes");
@@ -602,6 +683,18 @@ try {
       "Snapshot must predate withdrawal",
     );
   }
+  if (s4Referral) {
+    const r = (
+      await targetConnection.query(
+        "select r.share_active,md5(private.goos_s3_decrypt(p.encrypted_payload)::text) hash from private.s4_referrals r join private.s4_packages p on p.referral_id=r.id where r.id=$1",
+        [s4Referral],
+      )
+    ).rows[0];
+    assert(
+      r.share_active && r.hash === s4ExpectedHash,
+      "S4 restored snapshot/package/key must predate withdrawal",
+    );
+  }
   let auditDenied = false;
   try {
     await targetConnection.query(
@@ -632,6 +725,11 @@ try {
           "select private.goos_s3_replay_withdrawals($1::jsonb)",
           [JSON.stringify(ledger.s3)],
         );
+      if (s4Referral)
+        await targetConnection.query(
+          "select private.goos_s4_replay_withdrawals($1::jsonb)",
+          [JSON.stringify(ledger.s4)],
+        );
       await targetConnection.query("commit");
     } catch (e) {
       await targetConnection.query("rollback");
@@ -646,6 +744,18 @@ try {
       JSON.stringify(once),
     "Withdrawal replay not idempotent",
   );
+  if (s4Referral) {
+    const r = (
+      await targetConnection.query(
+        "select share_active,(select count(*)::int from private.s4_cessations where resource_id=r.id) cessations from private.s4_referrals r where id=$1",
+        [s4Referral],
+      )
+    ).rows[0];
+    assert(
+      !r.share_active && r.cessations === 1,
+      "S4 restored share must stay revoked with one cessation",
+    );
+  }
   if (s3Application) {
     assert(
       (

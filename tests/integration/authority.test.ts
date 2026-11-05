@@ -87,7 +87,7 @@ describe("Auth metadata และบทบาทฐานข้อมูลจ�
   });
   it("public goos RPC ทั้งหมดเป็นของบทบาท NOBYPASSRLS", async () => {
     const rows = await sql(
-      "select p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_roles r on r.oid=p.proowner where n.nspname='public' and p.proname like 'goos_%' and (r.rolname<>'goos_api' or r.rolbypassrls or r.rolsuper)",
+      "select p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_roles r on r.oid=p.proowner where n.nspname='public' and p.proname like 'goos_%' and ((r.rolname<>'goos_api' and not(p.proname='goos_s4_guest_report' and r.rolname='goos_reporter')) or r.rolbypassrls or r.rolsuper)",
     );
     expect(rows).toHaveLength(0);
   });
