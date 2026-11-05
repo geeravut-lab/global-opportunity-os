@@ -80,11 +80,16 @@ if (action === "preflight") {
   const pending = migrations.filter(
     (m) =>
       !applied.some((a) => a.version === m.version) &&
-      (process.argv.includes("--include-s2") || m.version <= "202611040013"),
+      m.version <=
+        (process.argv.includes("--include-s3")
+          ? "202611050031"
+          : process.argv.includes("--include-s2")
+            ? "202611050018"
+            : "202611040013"),
   );
   if (!pending.length) {
     console.log(
-      "No pending hosted migrations in selected scope; S2 requires explicit --include-s2",
+      "No pending hosted migrations in selected scope; use explicit --include-s2 or --include-s3 for that phase",
     );
     process.exit(0);
   }

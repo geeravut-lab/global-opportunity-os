@@ -123,9 +123,20 @@ try {
     p_confirmed: true,
   });
   if (profile.error) throw Error("fresh profile/consent failed");
-  const s2=await client.rpc("goos_s2_catalog",{p_filter:{}});
-  if(s2.error||!Array.isArray(s2.data?.items))throw Error("fresh S2 public catalog failed");
-  if((await client.rpc("goos_s2_assessment")).error)throw Error("fresh S2 assessment policy failed");
+  const s2 = await client.rpc("goos_s2_catalog", { p_filter: {} });
+  if (s2.error || !Array.isArray(s2.data?.items))
+    throw Error("fresh S2 public catalog failed");
+  if ((await client.rpc("goos_s2_assessment")).error)
+    throw Error("fresh S2 assessment policy failed");
+  if ((await client.rpc("goos_s3_subjects")).error)
+    throw Error("fresh S3 subject policy failed");
+  const worker = (
+    await c.query(
+      "select has_function_privilege('goos_worker','private.goos_s3_claim(text,integer,uuid[])','execute') as claim,has_table_privilege('goos_worker','private.application_packages','select') as package",
+    )
+  ).rows[0];
+  if (!worker.claim || worker.package)
+    throw Error("fresh worker boundary failed");
   console.log(
     "Fresh migrations: all applied; real Auth → bootstrap → profile/consent passed",
   );

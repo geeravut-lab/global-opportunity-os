@@ -1,6 +1,7 @@
 // Restore drill: source/target are guarded loopback Supabase stacks with synthetic identities only.
 import {
   readFileSync,
+  existsSync,
   writeFileSync,
   mkdirSync,
   mkdtempSync,
@@ -241,6 +242,49 @@ try {
     ) === 0,
     "Non-synthetic source identities found: do not back up real data in this drill",
   );
+  let s3Client,
+    s3Application,
+    s3ExpectedHash,
+    s3Ledger = [];
+  if (existsSync(".local/s3-fixtures.json")) {
+    const f = JSON.parse(readFileSync(".local/s3-fixtures.json", "utf8"));
+    s3Client = sdk(source.apiUrl, source.key);
+    assert(
+      !(
+        await s3Client.auth.signInWithPassword({
+          email: f.actors.outsider.email,
+          password: f.actors.outsider.password,
+        })
+      ).error,
+      "S3 restore fixture login",
+    );
+    const preview = p(
+      await s3Client.rpc("goos_s3_preview", {
+        p_subject: f.subjects.outsider,
+        p_opportunity: f.listings.unlimited,
+        p_fields: ["display_alias", "country_code"],
+        p_skills: [],
+        p_notice: "00000000-0000-4000-8000-000000000202",
+        p_application: null,
+      }),
+    );
+    s3Application = p(
+      await s3Client.rpc("goos_s3_submit", {
+        p_preview: preview.id,
+        p_hash: preview.hash,
+        p_notice: "00000000-0000-4000-8000-000000000202",
+        p_confirmed: true,
+        p_readback: false,
+        p_key: randomUUID(),
+      }),
+    ).id;
+    s3ExpectedHash = (
+      await sourceConnection.query(
+        "select md5(private.goos_s3_decrypt(encrypted_payload)::text) as hash from private.application_packages where application_id=$1",
+        [s3Application],
+      )
+    ).rows[0].hash;
+  }
   const clients = [];
   for (const label of ["a", "b"]) {
     const email = run + "-" + label + "@example.test",
@@ -366,7 +410,25 @@ try {
     }),
   );
   p(await clients[1].rpc("goos_revoke_current_session"));
+  if (s3Application) {
+    p(
+      await s3Client.rpc("goos_s3_transition", {
+        p_id: s3Application,
+        p_action: "withdraw",
+        p_version: 1,
+        p_reason: "user_requested",
+        p_fields: [],
+      }),
+    );
+    s3Ledger = (
+      await sourceConnection.query(
+        "select application_id,subject_id,action,created_at from private.s3_withdrawals where application_id=$1",
+        [s3Application],
+      )
+    ).rows;
+  }
   const ledger = {
+    s3: s3Ledger,
     delegations: (
       await sourceConnection.query(
         "select * from app.delegations where id=$1",
@@ -441,7 +503,7 @@ try {
       "--username=supabase_admin",
       "--dbname=postgres",
       "--set=ON_ERROR_STOP=1",
-      "--command=CREATE ROLE goos_api NOLOGIN NOINHERIT NOBYPASSRLS; CREATE ROLE goos_authz NOLOGIN NOINHERIT NOBYPASSRLS; GRANT goos_api,goos_authz TO postgres;",
+      "--command=CREATE ROLE goos_api NOLOGIN NOINHERIT NOBYPASSRLS; CREATE ROLE goos_authz NOLOGIN NOINHERIT NOBYPASSRLS; CREATE ROLE goos_worker NOLOGIN NOINHERIT NOBYPASSRLS; GRANT goos_api,goos_authz,goos_worker TO postgres;",
     ],
     "prepare-app-roles",
   );
@@ -493,7 +555,7 @@ try {
   );
   const unsafe = (
     await targetConnection.query(
-      "select count(*) from pg_roles where rolname in ('goos_api','goos_authz') and(rolsuper or rolbypassrls or rolcanlogin or rolinherit)",
+      "select count(*) from pg_roles where rolname in ('goos_api','goos_authz','goos_worker') and(rolsuper or rolbypassrls or rolcanlogin or rolinherit)",
     )
   ).rows[0].count;
   assert(Number(unsafe) === 0, "Restored app role attributes");
@@ -506,6 +568,26 @@ try {
     ).rows[0].hash === createHash("sha256").update(png).digest("hex"),
     "Binary asset changed",
   );
+  if (s3Application) {
+    assert(
+      (
+        await targetConnection.query(
+          "select md5(private.goos_s3_decrypt(encrypted_payload)::text) as hash from private.application_packages where application_id=$1",
+          [s3Application],
+        )
+      ).rows[0].hash === s3ExpectedHash,
+      "Restored encrypted S3 payload/key mismatch",
+    );
+    assert(
+      (
+        await targetConnection.query(
+          "select count(*)::int as n from app.resource_shares where application_id=$1 and status='active'",
+          [s3Application],
+        )
+      ).rows[0].n === 1,
+      "Snapshot must predate withdrawal",
+    );
+  }
   let auditDenied = false;
   try {
     await targetConnection.query(
@@ -531,6 +613,11 @@ try {
           `insert into ${table} select * from jsonb_populate_recordset(null::${table},$1::jsonb) on conflict(${key}) do nothing`,
           [JSON.stringify(rows)],
         );
+      if (s3Application)
+        await targetConnection.query(
+          "select private.goos_s3_replay_withdrawals($1::jsonb)",
+          [JSON.stringify(ledger.s3)],
+        );
       await targetConnection.query("commit");
     } catch (e) {
       await targetConnection.query("rollback");
@@ -545,6 +632,26 @@ try {
       JSON.stringify(once),
     "Withdrawal replay not idempotent",
   );
+  if (s3Application) {
+    assert(
+      (
+        await targetConnection.query(
+          "select state from app.applications where id=$1",
+          [s3Application],
+        )
+      ).rows[0].state === "withdrawn",
+      "S3 withdrawal state resurrected",
+    );
+    assert(
+      (
+        await targetConnection.query(
+          "select count(*)::int as n from app.resource_shares where application_id=$1 and status='active'",
+          [s3Application],
+        )
+      ).rows[0].n === 0,
+      "S3 consent share resurrected",
+    );
+  }
   for (const name of stopped)
     docker(["start", name], "resume-" + name.split("_")[1]);
   stopped = [];
@@ -622,6 +729,8 @@ try {
     sessionRevokeReplay: true,
     delegationWithdrawalReplay: true,
     idempotentReplay: true,
+    s3EncryptedPayload: !!s3Application,
+    s3WithdrawalReplay: !!s3Application,
     seconds: Math.round((Date.now() - started) / 1000),
     archiveSha256: createHash("sha256")
       .update(readFileSync(archive))
