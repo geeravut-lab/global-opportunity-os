@@ -4,7 +4,6 @@ import {
   writeFileSync,
   mkdirSync,
   mkdtempSync,
-  cpSync,
   openSync,
   closeSync,
   chmodSync,
@@ -50,9 +49,8 @@ writeFileSync(
     .replaceAll("543", "573"),
   { mode: 0o600 },
 );
-cpSync("supabase/migrations", dir + "/supabase/migrations", {
-  recursive: true,
-});
+// Restore archive ก่อนใช้ migrations ใหม่กว่า snapshot เพื่อไม่ให้ target มี FK/trigger แทรก
+mkdirSync(dir + "/supabase/migrations");
 const env = {
   ...process.env,
   PATH: resolve(".local/bin") + delimiter + process.env.PATH,
@@ -434,6 +432,18 @@ try {
       "--command=DROP TABLE IF EXISTS realtime.messages CASCADE;",
     ],
     "prepare-partitioned-target",
+  );
+  docker(
+    [
+      "exec",
+      "supabase_db_" + id,
+      "psql",
+      "--username=supabase_admin",
+      "--dbname=postgres",
+      "--set=ON_ERROR_STOP=1",
+      "--command=CREATE ROLE goos_api NOLOGIN NOINHERIT NOBYPASSRLS; CREATE ROLE goos_authz NOLOGIN NOINHERIT NOBYPASSRLS; GRANT goos_api,goos_authz TO postgres;",
+    ],
+    "prepare-app-roles",
   );
   const input = openSync(archive, "r");
   try {
