@@ -94,10 +94,10 @@ test("private pages require login; anonymous reporting returns only a receipt/st
     .getByLabel("Details", { exact: true })
     .fill("Synthetic anonymous browser concern");
   await form.getByRole("button", { name: "Submit request" }).click();
+  await done(page);
   await expect(
     page.getByRole("heading", { name: "Save your tracking receipt" }),
   ).toBeVisible();
-  await done(page);
   const id = await page
       .getByLabel("Report number", { exact: true })
       .first()
@@ -173,6 +173,7 @@ test("beneficiary reviews exact fields and destination accepts a single coordina
   await review
     .getByRole("button", { name: "Review before sharing", exact: true })
     .click();
+  await done(user);
   await expect(
     user.getByRole("form", { name: "Submit request", exact: true }),
   ).toBeVisible();
@@ -497,9 +498,11 @@ test("closing the DB release gate removes a protected dirty page without a manua
     await expect(
       p.getByText("S4 UI INTERNAL CANARY", { exact: true }),
     ).toHaveCount(0);
-    expect(
-      (await p.request.get("/api/s4/referrals/" + referral)).status(),
-    ).toBe(403);
+    const denied = await p.request.get("/api/s4/referrals/" + referral);
+    expect(denied.status()).toBe(404);
+    const body = await denied.json();
+    expect(body.code).toBe("NOT_FOUND");
+    expect(body).not.toHaveProperty("data");
   } finally {
     await metadata(
       "update private.s4_release set enabled=true where singleton",

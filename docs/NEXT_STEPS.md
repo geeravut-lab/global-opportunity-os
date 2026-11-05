@@ -1,7 +1,7 @@
 # ขั้นถัดไปหลังพัฒนา S4 ตาม C-34
 
 production ปัจจุบันเป็น S2/S3 จาก PR #3–10 และ migrations1–32 ตาม [รายงาน rollout](PRODUCTION_ROLLOUT_TH.md)
-S4 เพิ่มบน feature branch ด้วยข้อมูลสมมติ ยังไม่ใช้ migrations33–57 หรือเปิด flags บน hosted
+S4 เพิ่มบน feature branch ด้วยข้อมูลสมมติ ยังไม่ใช้ migrations33–59 หรือเปิด flags บน hosted
 ผลตรวจที่รันจริงและข้อจำกัดดู [รายงาน S4](S4_REPORT_TH.md)
 
 1. **S4 — review และ rollout:** ตรวจ PR การส่งต่อเคส/consent/destination assignment, outcomes/evidence/dispute และ privacy/export/holds/reports; ตรวจ notice/TTL/สิทธิ์เจ้าหน้าที่และนโยบายหลักฐาน ก่อนเลือกอนุมัติ rollout migrations/flags แบบแยกขั้น พร้อม rollback ที่ปิด gates โดยไม่ลบข้อมูล

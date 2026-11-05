@@ -30,6 +30,7 @@ export function LiveSync({
       connected = false,
       quiet = 0,
       baseline: string | undefined,
+      renderedBaseline: string | undefined,
       client: SupabaseClient | undefined,
       timer: ReturnType<typeof setTimeout>,
       debounce: ReturnType<typeof setTimeout>,
@@ -114,7 +115,10 @@ export function LiveSync({
           "[data-live-fingerprint]",
         )?.dataset.liveFingerprint;
         // Server navigation may have already rendered the revision returned by this poll.
-        if (rendered !== undefined) baseline = rendered;
+        if (rendered !== undefined && rendered !== renderedBaseline) {
+          baseline = rendered;
+          renderedBaseline = rendered;
+        }
         if (initial) {
           baseline ??= d.fingerprint;
           quiet = 0;

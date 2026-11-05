@@ -1022,6 +1022,27 @@ describe("S4 privacy, restricted safety and release gates", () => {
       ).error?.code,
     ).toBe("22023");
   });
+  it("live fingerprints follow owned records without reacting to an unrelated report; candidate helpers remain private", async () => {
+    const before = (await rpc(c.user, "goos_live_fingerprint")).fingerprint;
+    await rpc(c.safety, "goos_s4_report_create", {
+      p_kind: "service",
+      p_body: "Synthetic unrelated live-isolation report",
+      p_org: null,
+      p_accused: null,
+      p_appeal: null,
+    });
+    expect((await rpc(c.user, "goos_live_fingerprint")).fingerprint).toBe(before);
+    await rpc(c.user, "goos_s4_privacy_create", {
+      p_kind: "access",
+      p_body: "Synthetic owned live-isolation request",
+      p_confirmed: true,
+    });
+    expect((await rpc(c.user, "goos_live_fingerprint")).fingerprint).not.toBe(before);
+    const grants = await sql(
+      "select has_function_privilege(r,f,'execute') allowed from unnest(array['anon','authenticated','goos_worker','goos_reporter']) r cross join unnest(array['private.goos_s4_owned_candidates()','private.goos_s4_candidates(text)','private.goos_s4_case_candidates(boolean)']) f",
+    );
+    expect(grants.every((r) => r.allowed === false)).toBe(true);
+  });
   it("default DB release gate denies direct RPCs even when a browser bypasses the BFF", async () => {
     await sql("update private.s4_release set enabled=false where singleton");
     try {

@@ -82,7 +82,7 @@ if (action === "preflight") {
       !applied.some((a) => a.version === m.version) &&
       m.version <=
         (process.argv.includes("--include-s4")
-          ? "202611050057"
+          ? "202611050059"
           : process.argv.includes("--include-s3")
             ? "202611050032"
             : process.argv.includes("--include-s2")
@@ -260,7 +260,7 @@ if (action === "preflight") {
         (m) =>
           m.version <=
           (process.argv.includes("--include-s4")
-            ? "202611050057"
+            ? "202611050059"
             : "202611050032"),
       ).length,
     ),
