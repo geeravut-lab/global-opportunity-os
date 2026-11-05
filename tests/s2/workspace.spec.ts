@@ -188,6 +188,9 @@ test("publisher can create an organization and quarantined evidence via the real
     .getByLabel(t.name, { exact: true })
     .fill("Synthetic UI " + fixture.run);
   await form.getByRole("button", { name: t.create, exact: true }).click();
+  await expect(p.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect(p.locator("main")).toContainText("Synthetic UI " + fixture.run);
   const card = p.locator("article").filter({
     has: p.getByRole("heading", {
@@ -205,6 +208,9 @@ test("publisher can create an organization and quarantined evidence via the real
   );
   await card.getByRole("button", { name: t.upload, exact: true }).click();
   expect((await uploaded).status()).toBe(200);
+  await expect(p.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect(card).toContainText(t.quarantined);
 });
 test("CSRF, unsafe MIME and guessed organization IDs fail before a mutation", async () => {
