@@ -31,6 +31,8 @@ export default async function Coordination({
   if (!c) redirect("/" + lang + "/auth/login");
   const u = await c.auth.getUser();
   if (u.error || !u.data.user) redirect("/" + lang + "/auth/login");
+  // Capture before reading page data so the first client poll cannot silently adopt a newer state than the rendered snapshot.
+  const initialFingerprint = await c.rpc("goos_live_fingerprint");
   const results = await Promise.all([
     c.rpc("goos_context"),
     !id && ["home", "referrals", "outcomes", "reports"].includes(section)
@@ -49,6 +51,7 @@ export default async function Coordination({
         Promise.resolve({ data: null, error: { code: "SERVICE_UNAVAILABLE" } }))
       : Promise.resolve({ data: { items: [] }, error: null }),
     c.rpc("goos_s3_orgs"),
+    Promise.resolve(initialFingerprint),
   ]);
   const item = id
     ? await c.rpc("goos_s4_detail", { p_kind: section, p_id: id })
@@ -96,6 +99,7 @@ export default async function Coordination({
       lang={lang}
       section={section as S4Kind | "home"}
       initial={{
+        liveFingerprint: initialFingerprint.data?.fingerprint,
         context: results[0].data,
         sources: results[1].data,
         notice: results[2].data,

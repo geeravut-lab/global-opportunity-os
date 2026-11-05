@@ -32,7 +32,7 @@ S4 มี implementation สำหรับทดสอบข้อมูลส�
 
 ## S4 — ส่งต่อ ผลลัพธ์ และสิทธิ์ข้อมูลตาม C-34
 
-ใช้ dependencies เดิมและ migrations 33–56; ไม่แก้ migrations 1–32 ที่เผยแพร่แล้ว
+ใช้ dependencies เดิมและ migrations 33–57; ไม่แก้ migrations 1–32 ที่เผยแพร่แล้ว
 ทั้ง `S4_ENABLED` และ `private.s4_release.enabled` ปิดโดยค่าเริ่มต้น ป้องกัน direct RPC bypass ด้วย
 ดู [ขอบเขต](docs/S4_SCOPE_TH.md), [วิธีพัฒนา](docs/S4_EXECUTION_TH.md), [ADR-006](docs/adr/ADR-006-S4-TH.md), [OpenAPI](api/s4.openapi.json) และ [ผลตรวจจริง](docs/S4_REPORT_TH.md)
 

@@ -55,5 +55,7 @@ anonymous events ใช้ ledger ที่ actor เป็น null แยกจ
 
 ไทย–อังกฤษ, typography/color tokens เดิม, home cards, mobile bottom bar และ BusyForm/BusyLink/busyFetch/DownloadLink เดิม
 Live signals มีแต่ account revision ไม่มี narrative/payload; dirty forms ไม่ถูกทับ และ revocation ต้องปิดข้อมูลที่ไม่มีสิทธิ์แม้ฟอร์มยังไม่บันทึก
+S4 จับ fingerprint ก่อนอ่านข้อมูล server และเปรียบเทียบกับ revision ของหน้าที่แสดงจริง เพื่อไม่พลาดสถานะที่เปลี่ยนก่อน client poll แรก; ระหว่างบันทึก/เปลี่ยนหน้ารอให้จบก่อน refresh ซ้อน
+สัญญาณ evidence/outcome ส่งถึงเจ้าของ ผู้ตรวจ และเจ้าหน้าที่เคสที่ยังมีสิทธิ์ปัจจุบัน ไม่มี narrative และไม่ใช้สัญญาณแทน authorization
 S4_ENABLED กับ private.s4_release.enabled ต้องเปิดทั้งคู่; DB gate ปิดโดยค่าเริ่มต้นเพื่อกัน direct RPC bypass
 รอบ C-34 พัฒนา local/feature branch เท่านั้น ยังไม่ migrate/เปิด S4 บน production หรือถือว่า SMTP/hosted S1/Recovery ผ่าน

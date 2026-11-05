@@ -184,10 +184,10 @@ test("beneficiary reviews exact fields and destination accepts a single coordina
   await confirm
     .getByRole("button", { name: "Submit request", exact: true })
     .click();
+  await done(user);
   await expect(
     user.getByText("Awaiting destination response", { exact: true }),
   ).toBeVisible();
-  await done(user);
   const manager = pages.outsider;
   await manager.goto("/en/coordination/referrals");
   const accept = manager.getByRole("form", {
@@ -218,10 +218,10 @@ test("internal destination notes remain private, and a revoked member loses a di
     .fill("S4 UI INTERNAL CANARY");
   await form.getByLabel("Note visibility").selectOption("internal");
   await form.getByRole("button", { name: "Add note", exact: true }).click();
+  await done(p);
   await expect(
     p.getByText("S4 UI INTERNAL CANARY", { exact: true }),
   ).toBeVisible();
-  await done(p);
   expect(
     JSON.stringify(await detail(pages.user, "referrals", referral)),
   ).not.toContain("S4 UI INTERNAL CANARY");
@@ -286,10 +286,10 @@ test("outcome evidence stays quarantined until the real restricted inspector; in
   await upload
     .getByRole("button", { name: "Upload for inspection", exact: true })
     .click();
+  await done(provider);
   await expect(
     provider.getByText("Quarantined; download unavailable", { exact: true }),
   ).toBeVisible();
-  await done(provider);
   execFileSync(process.execPath, ["scripts/process-s4-evidence.mjs"], {
     stdio: "pipe",
     timeout: 30000,
@@ -335,10 +335,10 @@ test("outcome evidence stays quarantined until the real restricted inspector; in
   await pages.user
     .getByRole("button", { name: "Dispute outcome", exact: true })
     .click();
+  await done(pages.user);
   await expect(
     pages.user.getByText(/^Disputed; excluded from verified outcomes ·/),
   ).toBeVisible();
-  await done(pages.user);
 });
 test("privacy export requires assigned identity review and exports only owned/shared records with no-store", async () => {
   const p = pages.user;

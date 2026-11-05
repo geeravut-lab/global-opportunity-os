@@ -579,6 +579,14 @@ describe("S4 outcomes, evidence and independent review", () => {
       p_id: outcome,
       p_body: bad.toString("base64"),
     });
+    const beforeSignal = Number(
+      (
+        await sql(
+          "select revision from private.live_revisions where account_id=$1",
+          [f.actors.replacement.id],
+        )
+      )[0]?.revision ?? 0,
+    );
     const db = new pg.Client({ connectionString: runtime.dbUrl });
     await db.connect();
     try {
@@ -597,6 +605,16 @@ describe("S4 outcomes, evidence and independent review", () => {
     } finally {
       await db.end();
     }
+    expect(
+      Number(
+        (
+          await sql(
+            "select revision from private.live_revisions where account_id=$1",
+            [f.actors.replacement.id],
+          )
+        )[0]?.revision ?? 0,
+      ),
+    ).toBeGreaterThan(beforeSignal);
     const clean = await rpc(c.impact, "goos_s4_download", { p_id: id });
     expect(clean.hash).toMatch(/^[a-f0-9]{64}$/);
     expect(

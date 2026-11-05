@@ -109,10 +109,17 @@ export function LiveSync({
           schedule(30000);
           return;
         }
-        if (baseline === undefined) {
-          baseline = d.fingerprint;
+        const initial = baseline === undefined;
+        const rendered = document.querySelector<HTMLElement>(
+          "[data-live-fingerprint]",
+        )?.dataset.liveFingerprint;
+        // Server navigation may have already rendered the revision returned by this poll.
+        if (rendered !== undefined) baseline = rendered;
+        if (initial) {
+          baseline ??= d.fingerprint;
           quiet = 0;
-        } else if (baseline !== d.fingerprint) {
+        }
+        if (baseline !== d.fingerprint) {
           quiet = 0;
           if (mayRefresh(!document.hidden, dirty(), pathname)) {
             baseline = d.fingerprint;
@@ -123,7 +130,7 @@ export function LiveSync({
             schedule(3000);
             return;
           }
-        } else quiet++;
+        } else if (!initial) quiet++;
         schedule(
           liveDeadlineDelay(nextLiveDelay(quiet, connected), d.next_catalog_at),
         );

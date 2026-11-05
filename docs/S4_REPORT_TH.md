@@ -15,11 +15,11 @@ production ยังเป็น main `ec81321` จาก PR #10; รอบน�
 | S4.2 / BP-B-402 | L0 self-report/L1 provider-report แยก provenance; PNG quarantine → restricted worker inspect; independent scoped MFA reviewer/assignment, beneficiary confirmation หรือ documentary alternative, L2 verify/dispute/correct/dedup    | BP-AC-12/15: ไม่ให้ partner ตรวจตนเอง, ไม่ให้ general admin อ่าน narrative โดยตำแหน่ง; ไม่มี L3 หรือ causal-impact claim                                           |
 | S4.3 / BP-B-403 | access/export/correct/delete request, identity check, officer routing/holds/reasons/append-only history, recipient cessation/ack และ operator-only withdrawal replay                                                                | BP-AC-16/18 เฉพาะส่วนที่ทำแล้ว: no-store owner-only export, internal notes ไม่รั่ว, stop sharing; **ยังไม่มี physical purge/deletion replay และไม่อ้าง AC-16 ครบ** |
 | Reports/appeals | คิว safety/service จำกัดสิทธิ์, independent officer/assignment; ไม่แจ้ง accused อัตโนมัติ; anonymous report/status/appeal ด้วย receipt สุ่มที่เก็บเฉพาะ hash                                                                        | ไม่มี SLA/24h/emergency promise; anonymous role write-only ไม่อ่าน/decrypt narrative; abuse/roster/escalation จริงยังต้องปิดก่อนเปิด intake                        |
-| UI/Live         | `/th                                                                                                                                                                                                                                | en/coordination`และ`/th                                                                                                                                            | en/report`, home cards, mobile bottom bar, typography/color tokens, spinner/duplicate suppression, exact-field consent, current-rights download | account signals/fingerprint ไม่มี narrative; dirty forms ไม่ถูกทับ แต่ถอนสิทธิ์แล้วต้องปิดข้อมูลทันที; automated axe ไม่แทน manual assistive-technology UAT |
+| UI/Live | หน้า coordination/report ไทย–อังกฤษ, home cards, mobile bottom bar, typography/color tokens, spinner/duplicate suppression, exact-field consent และ current-rights download | account signals/fingerprint ไม่มี narrative; dirty forms ไม่ถูกทับ แต่ถอนสิทธิ์แล้วต้องปิดข้อมูลทันที; automated axe ไม่แทน manual assistive-technology UAT |
 
 ## ไฟล์และโครงสร้างที่เปลี่ยนจริง
 
-- migrations33–56 เพิ่ม referrals/previews/packages/cases/notes, outcomes/evidence, staff scopes, privacy/reports/cessations/withdrawals/events/idempotency, current notice map และ default-off DB release gate; ไม่แก้ published migrations1–32
+- migrations33–57 เพิ่ม referrals/previews/packages/cases/notes, outcomes/evidence, staff scopes, privacy/reports/cessations/withdrawals/events/idempotency, current notice map และ default-off DB release gate; ไม่แก้ published migrations1–32
 - `lib/s4`, `app/api/s4`, `components/s4-panel.tsx`, `components/guest-report.tsx`, pages coordination/report: DTO/input/BFF/สองภาษา/หน้าจอ; [OpenAPI](../api/s4.openapi.json) อธิบาย routes และ validators ที่มีอยู่
 - ปรับ navigation/shell/proxy/Live endpoint และสิทธิ์กรณีถอนสมาชิกหรือ source share โดยคง MFA/tenant/assignment checks ทุก request
 - worker PNG inspector ใช้ฟังก์ชันเดียวกับ maintenance เดิมและจำกัด table allowlist; production จะประมวลผล S4 เฉพาะเมื่อ flag เปิดหลัง rollout
@@ -34,18 +34,18 @@ production ยังเป็น main `ec81321` จาก PR #10; รอบน�
 | `npm run test:unit` | 89/89 ผ่าน |
 | `npm run test:e2e` | 25/25 ผ่าน |
 | `npm run test:a11y` | 24/24 ผ่าน (axe ไทย–อังกฤษ/320px ของหน้าเดิม) |
-| `npm run db:test:fresh` | ผ่าน migrations56/56 บน stack ใหม่; Auth/bootstrap/profile/consent, default-off S4 gate และ reporter write-only negatives |
-| `npm run test:integration` | 102/102 ผ่านใน6ไฟล์บน schema56 รวม S4 24กรณีและ regression S1–S3 |
+| `npm run db:test:fresh` | ผ่าน migrations57/57 บน stack ใหม่; Auth/bootstrap/profile/consent, default-off S4 gate และ reporter write-only negatives |
+| `npm run test:integration` | 102/102 ผ่านใน6ไฟล์บน schema57 รวม S4 24กรณีและ regression S1–S3 |
 | `npm run test:auth` | 27/28 ผ่าน แล้วทวน MFA/องค์กร/คำเชิญเฉพาะกรณีผ่าน1/1 หลังรอ spinner ครบ; เป็นผลสองรัน ไม่ใช่ single-run28/28 |
 | `npm run test:s2` | 13/13 ผ่าน รวมสองหน้าต่าง/draft/stale save, publication, axeและ reflow ไทย–อังกฤษ |
-| `npm run test:s3` | รอผลรอบสุดท้าย |
+| `npm run test:s3` | 12/12 ผ่าน รวม consent/application/case lifecycle, assignment revoke, preferences, typed automation, axeและ fonts/reflow ไทย–อังกฤษ |
 | `npm run test:s4` | flow เดิม7/7 ผ่าน; เพิ่ม shutdown-gate test แล้ว กำลังทวน8ข้อรวม axe WCAG2.2 |
 | `npm run test:backup-restore` | รอผลรอบสุดท้าย |
 | JSON parse/local OpenAPI response references, Markdown local links, staged credential-pattern scan และ `git diff --check` | ผ่านก่อนจัดทำ PR; จะทวนกับ diff สุดท้าย |
 
 รอบ regression พบ `goos_s2_matches` timeout เมื่อประวัติ synthetic publications สะสม จึงเพิ่ม candidate prefilter/index ใน migrations53–56 สำหรับ matching, publisher catalog, account metadata และ subject candidates ของ S3 โดยยังเรียก public-listing predicate และ RLS เดิม ไม่เพิ่ม timeout/สิทธิ์หรือแก้ published migrations
 ชุดทดสอบ S2 แยกรายการสมมติเก่าชั่วคราวและคืนสถานะหลัง suite; seeder local หมุนเวียน published fixtures เก่าเป็น paused โดยตรวจ port/อีเมล example.test/metadata fixture และเก็บข้อมูล/ประวัติไว้
-S2 integration ทวนหลัง54ผ่าน15/15 และ integration รวมหลัง56ผ่าน102/102; notice-version test ใช้ version label เฉพาะแต่ละรอบเพื่อรันซ้ำได้
+S2 integration ทวนหลัง54ผ่าน15/15 และ integration รวมหลัง57ผ่าน102/102; notice-version test ใช้ version label เฉพาะแต่ละรอบเพื่อรันซ้ำได้
 ชุด accessibility ของบัญชี8หน้าและวงจร MFA/องค์กร/คำเชิญใช้ budget90วินาที; S2 axe10หน้าใช้120วินาที กรณี login/บันทึกรอ navigation หรือ spinner จบแบบมีขอบเขต ไม่ขยาย timeout ของฐานข้อมูลหรือAPI และไม่ถือเป็นหลักฐาน NFR
 
 ชุด Auth ตั้ง S4 DB gate ปิดระหว่างทดสอบและคืนค่าเดิมเมื่อจบ เพื่อให้ตรง app flags ของ S1; seeder S2/S3 ปิด gate ก่อนเตรียม fixtures และ S4 seed เปิดกลับเฉพาะ local สำหรับ enabled-matrix tests ห้ามรันชุดเหล่านี้พร้อมกัน
@@ -53,6 +53,8 @@ S2 integration ทวนหลัง54ผ่าน15/15 และ integration �
 เมื่อ account metadata โหลดไม่สำเร็จโดย session ยังถูกต้อง หน้า S2 แสดง retry error แทนส่งไป login; genuine account/session invalid ยัง redirect เหมือนเดิม ชุดทดสอบปิดหน้าต่างเสริมเมื่อใช้เสร็จเพื่อลด polling ที่ไม่ใช่ส่วนของสถานการณ์
 
 S3 โหลดรายชื่อ subject เฉพาะ apply/settings และคำขอข้อมูลเพิ่มเติมที่เจ้าของมีสิทธิ์ submit; หน้ารายละเอียดเคสไม่โหลดข้อมูลส่วนนี้เมื่อไม่ใช้ โดยคง RPC/RLS และ scope checks เดิม
+
+Live ของ S4 ผูก fingerprint ก่อนอ่านข้อมูลหน้า server กับ revision ของหน้าที่แสดงจริง เพื่อไม่พลาดการเปลี่ยนสถานะระหว่าง server render กับ poll แรก และหลีกเลี่ยง refresh ซ้อนระหว่างบันทึก/เปลี่ยนหน้า; migration57 ส่งสัญญาณสถานะหลักฐานให้เจ้าหน้าที่เคสปัจจุบันด้วย โดยไม่มี payload และยังตรวจสิทธิ์ทุกครั้ง
 
 ผลเหล่านี้เป็น functional checks ด้วย synthetic fixtures ไม่ใช่ผล load/NFR หรือ hosted UAT
 

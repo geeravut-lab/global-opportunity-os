@@ -105,7 +105,7 @@ AI: D-05 + B-202/B-203 → B-501 → B-502 → B-601; CSR: B-402 → B-503 → B
 | S1 | 12–20 | auth vendor/environment/region approval |
 | S2 | 15–25 | reviewer/partner verification และ content/translation |
 | S3 | 15–25 | case operation/consent notices/email agreement |
-| S4   | migrations33–56, warm referral exact-field consent/destination case, outcomes L0/L1/L2+evidence/dispute, privacy/export/holds/cessation/replay และ restricted anonymous reports/appeals บน feature branch         | review/rollout แยก; legal notices/retention/roster/abuse/SLA/hosted restore ก่อนข้อมูลจริง; ไม่มี physical purge                                                                              |
+| S4 | 15–25 | legal/retention/safeguarding/evidence authority |
 | S5 | 15–25 | AI vendor contract, human eval labels, metric/privacy review |
 | S6 | 12–20 | independent QA/a11y/security, training/rota/UAT |
 
@@ -131,6 +131,6 @@ BP-D-01/02/03/04 ส่วนที่เกี่ยวข้อง ระบ�
 | S1 | Email/password, Google login/MFA/admin ที่ owner ยืนยัน, session revoke, own adult profile, notice/consent/delegation, org invitations, branding/admin/live; เพิ่ม validation/Orca/restore และ MFA-owner runbooks | hosted Email/Live/tenant tests ยังติด network; Recovery/SMTP เลื่อนตาม C-24; operational roster/backup/device UAT ก่อนผู้ใช้จริง; S3เพิ่ม prepare/submit/progress แยก scope ใน local ตาม C-29 |
 | S2 | migrations14–18, verified organizations/evidence, catalog/search/assessment/bookmarks/rules, workspace/live/tests ตาม C-28; แบ่ง3 PR ที่ต่อกัน | ยังต้อง review/CI/hosted rollout, production evidence worker/scan policy/ผู้ตรวจจริง และประกาศ privacy/retention; S1 hosted ไม่ได้ผ่านจากการเริ่ม S2 |
 | S3 | migrations19–31, consent preview/atomic application/share/case/outbox, assigned staff notes/progress/job steps, local SMTP/typed rules และ UI/tests; ปรับ typography/loading ร่วมทุกหน้า | review/rollout/production worker/SMTP/notices/key/retention/operations ตาม [รายงานS3](S3_REPORT_TH.md); S1 hostedยังไม่ผ่าน |
-| S4 | ยังไม่มี backend ของระยะนี้ | warm referral/outcomes/safety/privacy lifecycle |
+| S4 | migrations33–57, warm referral พร้อม consent ใหม่และ destination case, outcomes L0/L1/L2/evidence/dispute, privacy/export/holds/cessation/withdrawal replay และ restricted reports/appeals บน feature branch | review/rollout แยก; notice/retention/roster/abuse/SLA/hosted restore ก่อนข้อมูลจริง; ไม่มี physical purge, user blocking หรือ external S4 email |
 | S5 | มีหน้าตัวอย่าง AI/impact เท่านั้น | RAG/AI gateway/evaluation และ aggregate privacy จริง |
 | S6 | ยังไม่เริ่ม pilot readiness | manual a11y/UAT/restore/incident/load/release gates |

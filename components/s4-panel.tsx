@@ -31,6 +31,7 @@ const subscribeTimezone = () => () => {};
 const timezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 const serverTimezone = () => "UTC";
 type Data = {
+  liveFingerprint?: string;
   context: AccountContext;
   sources: S4Source[];
   notice: Notice;
@@ -384,7 +385,8 @@ export function S4Panel({
     <main
       id="main"
       className="account-page s2-page workflow-page s4-page"
-      data-live-busy={busy}
+      data-live-busy={busy || router.isPending}
+      data-live-fingerprint={d.liveFingerprint}
     >
       <h1>{t(section)}</h1>
       <p className="notice">{t("synthetic")}</p>
