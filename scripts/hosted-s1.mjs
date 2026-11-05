@@ -82,7 +82,7 @@ if (action === "preflight") {
       !applied.some((a) => a.version === m.version) &&
       m.version <=
         (process.argv.includes("--include-s3")
-          ? "202611050031"
+          ? "202611050032"
           : process.argv.includes("--include-s2")
             ? "202611050018"
             : "202611040013"),
@@ -198,6 +198,55 @@ if (action === "preflight") {
   console.log(
     "Production app environment configured; operator credentials excluded",
   );
+} else if (action === "worker-configure") {
+  const pools = await api(
+    "supabase",
+    `/v1/projects/${ref}/config/database/pooler`,
+  );
+  const pool = pools.find((p) => p.pool_mode === "transaction") ?? pools[0];
+  if (!pool?.db_host?.endsWith(".pooler.supabase.com"))
+    throw Error("Pooler guard");
+  const role = "goos_maintenance_login",
+    password = randomBytes(48).toString("base64url"),
+    secret = randomBytes(48).toString("base64url");
+  await query(
+    `begin;do $$begin if exists(select 1 from pg_roles where rolname='${role}') then if coalesce(shobj_description((select oid from pg_roles where rolname='${role}'),'pg_authid'),'')<>'Opp4All managed maintenance worker v1' then raise exception 'worker role conflict';end if;else create role ${role} login noinherit nosuperuser nocreatedb nocreaterole nobypassrls;comment on role ${role} is 'Opp4All managed maintenance worker v1';end if;end $$;alter role ${role} password ${literal(password)};grant goos_worker to ${role};commit;`,
+    false,
+  );
+  const connection = new URL("postgresql://placeholder");
+  connection.hostname = pool.db_host;
+  connection.port = String(pool.db_port);
+  connection.username = role + "." + ref;
+  connection.password = password;
+  connection.pathname = "/postgres";
+  for (const [key, value] of Object.entries({
+    S3_WORKER_DATABASE_URL: connection.toString(),
+    MAINTENANCE_SECRET: secret,
+  }))
+    await api(
+      "vercel",
+      `/v9/projects/${project}/env?teamId=${team}&upsert=true`,
+      "POST",
+      { key, value, type: "encrypted", target: ["production"] },
+    );
+  await query(
+    `begin;do $$declare v uuid;begin select id into v from vault.secrets where name='opp4all_maintenance_secret';if v is null then perform vault.create_secret(${literal(secret)},'opp4all_maintenance_secret','Opp4All authenticated maintenance dispatch');else perform vault.update_secret(v,${literal(secret)},'opp4all_maintenance_secret','Opp4All authenticated maintenance dispatch');end if;end $$;commit;`,
+    false,
+  );
+  console.log(
+    "Machine principal and encrypted production credentials configured; schedule not started",
+  );
+} else if (action === "worker-schedule") {
+  await query(
+    `begin;create extension if not exists pg_cron with schema pg_catalog;create extension if not exists pg_net with schema extensions;
+  create or replace function private.dispatch_maintenance() returns bigint language plpgsql security definer set search_path='' as $$declare token text;request_id bigint;begin select decrypted_secret into strict token from vault.decrypted_secrets where name='opp4all_maintenance_secret';select net.http_post(url=>'https://opp4all.vercel.app/api/internal/maintenance',headers=>jsonb_build_object('Authorization','Bearer '||token,'Content-Type','application/json'),body=>'{}'::jsonb,timeout_milliseconds=>50000) into request_id;return request_id;end $$;
+  revoke all on function private.dispatch_maintenance() from public,anon,authenticated,goos_api,goos_authz,goos_worker;
+  select cron.schedule('opp4all-maintenance-minute','* * * * *','select private.dispatch_maintenance();');commit;`,
+    false,
+  );
+  console.log(
+    "Existing Supabase PostgreSQL cron/net enabled and authenticated maintenance scheduled each minute",
+  );
 } else if (action === "verify") {
   const rows = await query(
     `select 'migrations' as check,(select count(*) from private.deployment_migrations)::text as result union all select 'unsafe_roles',count(*)::text from pg_roles where rolname in ('goos_api','goos_authz') and(rolsuper or rolbypassrls or rolcanlogin or rolinherit) union all select 'tables_without_rls',count(*)::text from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('app','private') and c.relkind='r' and not c.relrowsecurity union all select 'owner_designation',count(*)::text from private.platform_bootstrap union all select 'public_settings',(select version::text from app.platform_settings where singleton) union all select 'realtime_guard',count(*)::text from pg_policies where schemaname='realtime' and policyname='goos_live_namespace_guard' union all select 'audit_immutable',count(*)::text from pg_trigger where tgname='goos_audit_immutable';`,
@@ -221,5 +270,5 @@ if (action === "preflight") {
   );
 } else
   throw Error(
-    "Use preflight | migrate | designate-owner | auth | vercel-env | verify",
+    "Use preflight | migrate | designate-owner | auth | vercel-env | worker-configure | worker-schedule | verify",
   );
