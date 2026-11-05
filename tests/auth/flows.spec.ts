@@ -155,12 +155,18 @@ test("profile creation/edit, escaped text and optimistic concurrency", async ({
   await page
     .getByRole("button", { name: "Create fictional profile", exact: true })
     .click();
+  await expect(page.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect(page.locator("#profile-region")).toBeVisible();
   const me = (await (await page.request.get("/api/v1/me")).json()).data;
   expect(me.profile.display_alias.includes("<img")).toBe(true);
   expect(await page.locator("main img[src=x]").count()).toBe(0);
   await page.locator("#profile-region").fill("พื้นที่สมมติ");
   await page.getByRole("button", { name: "Save profile", exact: true }).click();
+  await expect(page.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect
     .poll(
       async () =>
