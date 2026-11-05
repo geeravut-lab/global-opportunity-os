@@ -1,0 +1,2391 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Opp4All S4 BFF",
+    "version": "0.4.0",
+    "description": "C-34 development scope. S4_ENABLED + S3/S2 flags และ DB release gate ต้องเปิดก่อนใช้ ทุก resource ตรวจ user JWT/current rights และ RLS; anonymous intake ใช้ write-only context กับ receipt hash ไม่มี receipt ใน URL. DTO ดู lib/s4/model.ts. ไม่ใช่หลักฐานว่า operational gates หรือ physical purge ผ่านแล้ว."
+  },
+  "paths": {
+    "/api/s4/proposals": {
+      "post": {
+        "summary": "เสนอส่งต่อจากเคสที่มีสิทธิ์",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["case", "opportunity", "purpose"],
+                "properties": {
+                  "case": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "opportunity": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "enum": ["service_support", "work_support"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ]
+      }
+    },
+    "/api/s4/previews": {
+      "post": {
+        "summary": "ผู้ใช้ตรวจ exact fields/recipient/notice",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "fields", "skills", "notice"],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 7,
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "display_alias",
+                        "country_code",
+                        "coarse_region",
+                        "preferred_language",
+                        "available_hours_week",
+                        "skills",
+                        "contact_email"
+                      ]
+                    }
+                  },
+                  "skills": {
+                    "type": "array",
+                    "maxItems": 10,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 60
+                    }
+                  },
+                  "notice": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ]
+      }
+    },
+    "/api/s4/submissions": {
+      "post": {
+        "summary": "ยืนยันและส่งแบบ idempotent",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["preview", "hash", "notice", "confirmed"],
+                "properties": {
+                  "preview": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "hash": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "notice": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "confirmed": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{8,80}$"
+            }
+          }
+        ]
+      }
+    },
+    "/api/s4/outcomes": {
+      "post": {
+        "summary": "รายงานหรือแก้ไขผลลัพธ์แบบ supersede",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "case",
+                  "kind",
+                  "start",
+                  "end",
+                  "occurred",
+                  "body",
+                  "corrects"
+                ],
+                "properties": {
+                  "case": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "service_delivered",
+                      "job_started",
+                      "skills_completed"
+                    ]
+                  },
+                  "start": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "end": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "occurred": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "body": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "corrects": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ]
+      },
+      "get": {
+        "summary": "รายการ metadata ที่มีสิทธิ์ / ไม่ให้ narrative โดยตำแหน่ง admin",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/s4/privacy": {
+      "post": {
+        "summary": "รับคำขอสิทธิ์ข้อมูล ไม่ purge จริง",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["kind", "body", "confirmed"],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["access", "export", "correct", "delete"]
+                  },
+                  "body": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "confirmed": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ]
+      },
+      "get": {
+        "summary": "รายการ metadata ที่มีสิทธิ์ / ไม่ให้ narrative โดยตำแหน่ง admin",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/s4/reports": {
+      "post": {
+        "summary": "รับรายงาน/อุทธรณ์แบบจำกัดสิทธิ์",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["kind", "body", "org", "accused", "appeal"],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["service", "safety"]
+                  },
+                  "body": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "org": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "accused": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "appeal": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ]
+      },
+      "get": {
+        "summary": "รายการ metadata ที่มีสิทธิ์ / ไม่ให้ narrative โดยตำแหน่ง admin",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/s4/scope": {
+      "post": {
+        "summary": "platform admin จัด scope เจ้าหน้าที่",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["account", "scope", "grant", "expires"],
+                "properties": {
+                  "account": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "scope": {
+                    "type": "string",
+                    "enum": ["impact", "privacy", "safety"]
+                  },
+                  "grant": {
+                    "type": "boolean"
+                  },
+                  "expires": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ]
+      }
+    },
+    "/api/s4/referrals/{id}/action": {
+      "post": {
+        "summary": "ดำเนินการตามสิทธิ์ปัจจุบัน: referrals/{id}/action",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["action", "version", "member"],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": ["accept", "decline", "cancel", "revoke", "expire"]
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "member": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/s4/cases/{id}/action": {
+      "post": {
+        "summary": "ดำเนินการตามสิทธิ์ปัจจุบัน: cases/{id}/action",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "action",
+                  "version",
+                  "member",
+                  "body",
+                  "visibility",
+                  "supersedes"
+                ],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": ["assign", "note", "start", "resolve", "close"]
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "member": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "visibility": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": ["internal", "beneficiary_shared"]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "supersedes": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/s4/outcomes/{id}/action": {
+      "post": {
+        "summary": "ดำเนินการตามสิทธิ์ปัจจุบัน: outcomes/{id}/action",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["action", "version", "reason"],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": ["confirm", "dispute", "verify", "reject"]
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "reason": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": ["reviewed_documentary_evidence"]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/s4/privacy/{id}/action": {
+      "post": {
+        "summary": "ดำเนินการตามสิทธิ์ปัจจุบัน: privacy/{id}/action",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["action", "version", "reason"],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "verify_identity",
+                      "approve",
+                      "hold",
+                      "release_hold",
+                      "decline",
+                      "stop_sharing",
+                      "complete_correction"
+                    ]
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "reason": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "authenticated_session_review",
+                          "assisted_verified",
+                          "active_investigation",
+                          "legal_obligation"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/s4/reports/{id}/action": {
+      "post": {
+        "summary": "ดำเนินการตามสิทธิ์ปัจจุบัน: reports/{id}/action",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["action", "version"],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": ["review", "resolve", "dismiss"]
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/s4/outcomes/{id}/evidence": {
+      "post": {
+        "summary": "ดำเนินการตามสิทธิ์ปัจจุบัน: outcomes/{id}/evidence",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["body"],
+                "properties": {
+                  "body": {
+                    "type": "string",
+                    "minLength": 60,
+                    "maxLength": 1398104,
+                    "pattern": "^[A-Za-z0-9+/]+={0,2}$",
+                    "description": "PNG base64 สูงสุด 1 MB; กักไว้ก่อน ไม่มี download จน decode/re-encode ผ่าน"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/s4/cessations/{id}/ack": {
+      "post": {
+        "summary": "ดำเนินการตามสิทธิ์ปัจจุบัน: cessations/{id}/ack",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/s4/guest": {
+      "post": {
+        "summary": "รายงานไม่ระบุตัวตน/ตรวจสถานะด้วย proof ผ่าน POST",
+        "security": [],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["operation", "kind", "body", "id", "receipt"],
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "enum": ["create", "status"]
+                  },
+                  "kind": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": ["service", "safety"]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "receipt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ]
+      }
+    },
+    "/api/s4/outcomes/{id}/assign": {
+      "post": {
+        "summary": "ดำเนินการตามสิทธิ์ปัจจุบัน: outcomes/{id}/assign",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["account", "expires", "version"],
+                "properties": {
+                  "account": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "expires": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/s4/privacy/{id}/assign": {
+      "post": {
+        "summary": "ดำเนินการตามสิทธิ์ปัจจุบัน: privacy/{id}/assign",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["account", "expires", "version"],
+                "properties": {
+                  "account": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "expires": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/s4/reports/{id}/assign": {
+      "post": {
+        "summary": "ดำเนินการตามสิทธิ์ปัจจุบัน: reports/{id}/assign",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "ตรง APP_ORIGIN; ไม่รับ cross-site JSON writes"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["account", "expires", "version"],
+                "properties": {
+                  "account": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "expires": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/s4/referrals": {
+      "get": {
+        "summary": "รายการ metadata ที่มีสิทธิ์ / ไม่ให้ narrative โดยตำแหน่ง admin",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/s4/referrals/{id}": {
+      "get": {
+        "summary": "รายละเอียดที่ผ่าน own/current assignment + consent + MFA",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/s4/outcomes/{id}": {
+      "get": {
+        "summary": "รายละเอียดที่ผ่าน own/current assignment + consent + MFA",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/s4/privacy/{id}": {
+      "get": {
+        "summary": "รายละเอียดที่ผ่าน own/current assignment + consent + MFA",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/s4/reports/{id}": {
+      "get": {
+        "summary": "รายละเอียดที่ผ่าน own/current assignment + consent + MFA",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/s4/sources": {
+      "get": {
+        "summary": "อ่านข้อมูลประกอบตาม scope: sources",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        }
+      }
+    },
+    "/api/s4/staff": {
+      "get": {
+        "summary": "อ่านข้อมูลประกอบตาม scope: staff",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        }
+      }
+    },
+    "/api/s4/notice": {
+      "get": {
+        "summary": "อ่านข้อมูลประกอบตาม scope: notice",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["th", "en"]
+            }
+          }
+        ]
+      }
+    },
+    "/api/s4/cessations": {
+      "get": {
+        "summary": "อ่านข้อมูลประกอบตาม scope: cessations",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Response200"
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        }
+      }
+    },
+    "/api/s4/evidence/{id}/download": {
+      "get": {
+        "summary": "ดาวน์โหลดผ่าน current authorization แบบ attachment/no-store",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "attachment: evidence.png; no-store, nosniff และ sandbox; evidence ต้อง clean / export ต้อง owner+identity approval",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/s4/privacy/{id}/export": {
+      "get": {
+        "summary": "ดาวน์โหลดผ่าน current authorization แบบ attachment/no-store",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "attachment: opp4all-data.json; no-store, nosniff และ sandbox; evidence ต้อง clean / export ต้อง owner+identity approval",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Response401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Response403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Response404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Response409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Response422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Response429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Response503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "Response200": {
+        "description": "สำเร็จหลัง commit / ข้อมูลที่ผ่าน current authorization",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            }
+          }
+        }
+      },
+      "Response401": {
+        "description": "ต้องเข้าสู่ระบบ",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Response403": {
+        "description": "Origin หรือ MFA ไม่ผ่าน",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Response404": {
+        "description": "ไม่พบหรือไม่มีสิทธิ์ ไม่คืน payload",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Response409": {
+        "description": "Version/idempotency/transaction conflict ต้องตรวจข้อมูลล่าสุด",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Response422": {
+        "description": "Input หรือ policy gate ไม่ผ่าน",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Response429": {
+        "description": "เกินขอบเขตการรับคำขอ",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Response503": {
+        "description": "S4/บริการยังไม่พร้อม",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "Supabase SSR HttpOnly cookies",
+        "description": "ชื่อ cookie จริงผูก Project และอาจแบ่ง chunks; ไม่รับ service role ใน browser"
+      }
+    },
+    "schemas": {
+      "Envelope": {
+        "type": "object",
+        "required": ["data", "meta"],
+        "properties": {
+          "data": {},
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "required": ["code", "status", "request_id"],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    }
+  }
+}
