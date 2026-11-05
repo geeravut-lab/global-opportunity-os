@@ -241,7 +241,8 @@ if (action === "preflight") {
     `begin;create extension if not exists pg_cron with schema pg_catalog;create extension if not exists pg_net with schema extensions;
   create or replace function private.dispatch_maintenance() returns bigint language plpgsql security definer set search_path='' as $$declare token text;request_id bigint;begin select decrypted_secret into strict token from vault.decrypted_secrets where name='opp4all_maintenance_secret';select net.http_post(url=>'https://opp4all.vercel.app/api/internal/maintenance',headers=>jsonb_build_object('Authorization','Bearer '||token,'Content-Type','application/json'),body=>'{}'::jsonb,timeout_milliseconds=>50000) into request_id;return request_id;end $$;
   revoke all on function private.dispatch_maintenance() from public,anon,authenticated,goos_api,goos_authz,goos_worker;
-  select cron.schedule('opp4all-maintenance-minute','* * * * *','select private.dispatch_maintenance();');commit;`,
+  select cron.schedule('opp4all-maintenance-minute','* * * * *','select private.dispatch_maintenance();');
+  select cron.alter_job(jobid,active:=true) from cron.job where jobname='opp4all-maintenance-minute';commit;`,
     false,
   );
   console.log(

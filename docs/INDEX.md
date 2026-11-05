@@ -7,6 +7,7 @@
 
 - [Production rollout ตาม C-32](PRODUCTION_ROLLOUT_TH.md)
 - [ขอบเขต S4 ก่อนเริ่มพัฒนา](S4_SCOPE_TH.md)
+- [SMTP/Recovery production และข้อมูลที่ยังต้องมี](SMTP_RECOVERY_ROLLOUT_TH.md)
 
 - [ผลพัฒนา S3 และงาน readiness ที่ยังเหลือ](S3_REPORT_TH.md)
 - [แผน S3 ตาม C-29](S3_EXECUTION_PLAN_TH.md)
