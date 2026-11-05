@@ -231,7 +231,7 @@ describe("Platform admin and brand authorization", () => {
     await expect(
       sql("update private.audit_events set action=action where false"),
     ).rejects.toMatchObject({ code: "42501" });
-    expect(!!(await owner.rpc("goos_export_audit")).error).toBe(false);
+    expect((await owner.rpc("goos_export_audit")).error).toBeNull();
   });
 });
 describe("Live signals and notification isolation", () => {

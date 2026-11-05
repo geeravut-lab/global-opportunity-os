@@ -79,8 +79,12 @@ C คือหลักฐานการตัดสินใจ P คือข
 | รหัส | ข้อยืนยัน | หลักฐาน/ขอบเขต |
 | --- | --- | --- |
 | C-28 | เริ่มพัฒนา S2 ได้โดยไม่ต้องรอ S1 hosted ที่ยังติด Network | เจ้าของสั่งล่าสุด “เริ่มทำ S2 ได้เลย” หลังสถานะ C-27; เปลี่ยนเฉพาะลำดับเริ่มงาน ครอบคลุม verified organizations/evidence, catalog/search, assessment/bookmarks/rule matching ตาม C-25 ด้วยข้อมูลสมมติและ stack เดิม; คง S1 hosted เป็น blocked, Recovery/SMTP เลื่อน, ไม่รับรอง gate/P-* อื่นหรืออนุมัติ real beneficiary/paid services/AI/cases/minors; เตรียม PR ที่ทดสอบได้ก่อน rollout S2 |
+| C-29 | เริ่มพัฒนา S3 ทั้งหมดตาม BP-B-301–303 | เจ้าของสั่ง “ดำเนินการ S3 ทั้งหมดต่อเลย” หลังส่ง PR S2; ครอบคลุม preview/consent/atomic application/share/event/outbox/idempotency/capacity, delegated prepare/submit/progress ที่อนุมัติแยก, case routing/assignment/notes/follow-up, adult recruiter human workflow และ generic in-app/email พร้อม retry/dead-letter/settings/typed automation; ใช้ stack เดิมและข้อมูลสมมติ เตรียม PR ที่ต่อจาก S2 โดยไม่อ้างว่า S1 hosted/S2 rollout ผ่าน ไม่รวม warm referral/outcome verification/privacy deletion ของ S4, AI/impact ของ S5, ข้อมูลจริง/minors/paid provisioning/ข้อความภายนอกหรือการ deploy production จากคำสั่งนี้ |
+| C-30 | ปรับ typography/color ตาม knowledge ล่าสุดบน main เพื่อให้อ่านชัด | เจ้าของสั่งใช้ docs/TYPOGRAPHY-COLOR-KNOWLEDGE.md เพราะตัวอักษรเดิมเล็ก; ใช้ self-hosted Geist/Noto Sans Thai, rem scale, line-height/contrast/touch targets และ tokens โดยปรับให้เป็นธีม Opp4All เดิม ไม่เพิ่มระบบร้านค้า/ธีมลูกค้าหรือ Tailwind/framework ใหม่ |
+| C-31 | แสดง spinner ระหว่างการทำงานจากปุ่ม/เมนูและป้องกันกดซ้ำ | เจ้าของสั่งให้ทุกปุ่ม/เมนูแสดงสถานะรอจนงานเสร็จ; เพิ่ม activity indicator สำหรับ user API/navigation/download พร้อมกันกดซ้ำใน action เดิม จบตาม response/transition/error จริง ไม่ใช้ timer แกล้งว่าทำเสร็จ และไม่ให้ background Live polling ทำ spinner กระพริบตลอด |
 
 ## สิ่งที่ต้องตัดสินใจก่อนระบบจริง
+
 
 ใช้ D-01 ถึง D-12 และ G0–G6 จาก Blueprint โดยอ้างเป็น BP-D-*/BP-G* ในแผน เพื่อไม่ชนรหัสของ starter pack
 C-10 เดิมอนุมัติต้นแบบ; C-11 เพิ่ม S0/S1 สำหรับการพัฒนาและข้อมูลสมมติ แต่ยังไม่อนุมัติราคา SLA retention สูตรคะแนน
