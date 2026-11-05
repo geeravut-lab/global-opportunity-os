@@ -33,6 +33,7 @@
 | เมนู Desktop (sidebar) + มือถือ (bottom bar + sheet)     | [NAVIGATION-KNOWLEDGE.md](./NAVIGATION-KNOWLEDGE.md)                       |
 | กฎอัตโนมัติ (rules engine ที่แอดมินปรับได้)              | [AUTOMATION-RULES-KNOWLEDGE.md](./AUTOMATION-RULES-KNOWLEDGE.md)           |
 | อัปเดตสถานะให้ผู้ใช้เห็นทันทีไม่ต้อง refresh (Live sync) | [LIVE-SYNC-KNOWLEDGE.md](./LIVE-SYNC-KNOWLEDGE.md)                           |
+| ฟอนต์ สี และขนาดตัวอักษรในแต่ละส่วนของระบบ (typography + color) | TYPOGRAPHY-COLOR-KNOWLEDGE.md                                   |
 | แจ้งเตือนในแอปและ LINE: คิว โควตา retry การ์ด Flex       | [LINE-NOTIFICATIONS-KNOWLEDGE.md](./LINE-NOTIFICATIONS-KNOWLEDGE.md)       |
 | สองภาษาและการสลับภาษา                                    | [I18N-KNOWLEDGE.md](./I18N-KNOWLEDGE.md)                                   |
 
