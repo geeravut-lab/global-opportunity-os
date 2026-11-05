@@ -356,6 +356,7 @@ test("two windows preserve an assessment draft and reject stale saves", async ({
     (await (await p.request.get("/api/s2/assessment")).json()).data
       .country_code,
   ).toBe("TH");
+  await c.close();
 });
 for (const lang of ["th", "en"] as const)
   test(`${lang}: public and role-specific S2 pages pass axe, keyboard and mobile reflow`, async ({
@@ -395,6 +396,8 @@ for (const lang of ["th", "en"] as const)
       ).toBe(true);
       await p.setViewportSize({ width: 1280, height: 900 });
     }
+    for (const p of new Set(targets.map(([p]) => p)))
+      await p.goto("about:blank");
   });
 
 test("a public catalog pause updates an already open bookmark window", async () => {

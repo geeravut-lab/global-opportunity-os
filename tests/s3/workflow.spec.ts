@@ -348,6 +348,7 @@ test("notification settings preserve a second-window draft and reject a stale ve
   await expect(p.locator("main")).toContainText(t.conflict);
   await p.getByRole("button", { name: t.reload, exact: true }).click();
   await busyDone(p);
+  await c.close();
 });
 for (const lang of ["th", "en"] as const)
   test(

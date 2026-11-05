@@ -38,7 +38,15 @@ export default async function Workspace({
   const user = await c.auth.getUser();
   if (user.error || !user.data.user) redirect(`/${lang}/auth/login`);
   const loaded = await loadAccount(c, lang);
-  if (loaded.error || !loaded.data) redirect(`/${lang}/auth/login`);
+  if (loaded.error?.code === "28000") redirect(`/${lang}/auth/login`);
+  if (loaded.error || !loaded.data)
+    return (
+      <main id="main" className="account-page">
+        <h1>{t[section]}</h1>
+        <p role="alert">{t.error}</p>
+        <Link href={`/${lang}/workspace/${section}`}>{t.reload}</Link>
+      </main>
+    );
   const account = loaded.data;
   if (section === "review" && !account.context.has_platform_role) notFound();
   const [
