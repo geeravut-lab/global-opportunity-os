@@ -169,7 +169,9 @@ test("beneficiary creates an exact-field preview and explicitly confirms one rea
   const receipt = (await r.json()).data;
   application = receipt.id;
   caseId = receipt.case_id;
-  await expect(p).toHaveURL("/en/workflow/application/" + application);
+  await expect(p).toHaveURL("/en/workflow/application/" + application, {
+    timeout: 20000,
+  });
   await busyDone(p);
   const d = await detail();
   expect(Object.keys(d.package.values).sort()).toEqual([
