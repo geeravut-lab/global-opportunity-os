@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authorized, maintain } from "@/lib/maintenance/worker.mjs";
+import {
+  authorized,
+  maintain,
+  failureReason,
+} from "@/lib/maintenance/worker.mjs";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -19,9 +23,9 @@ export async function POST(request: NextRequest) {
     );
   try {
     return NextResponse.json({ data: await maintain() }, { headers });
-  } catch {
+  } catch (error) {
     return NextResponse.json(
-      { code: "MAINTENANCE_UNAVAILABLE" },
+      { code: "MAINTENANCE_UNAVAILABLE", reason: failureReason(error) },
       { status: 503, headers },
     );
   }

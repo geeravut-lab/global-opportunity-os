@@ -2,6 +2,7 @@ export function authorized(
   header: string | null,
   secret: string | undefined,
 ): boolean;
+export function failureReason(error: unknown): string;
 export function maintain(env?: NodeJS.ProcessEnv): Promise<{
   inApp: number;
   email: number;
