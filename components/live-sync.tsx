@@ -20,7 +20,9 @@ export function LiveSync({
     [offline, setOffline] = useState(false);
   const enabled = active && !/\/auth\//.test(pathname);
   const protectedPage =
-    /^\/(th|en)\/(account|admin|workspace|workflow)(\/|$)/.test(pathname);
+    /^\/(th|en)\/(account|admin|workspace|workflow|coordination)(\/|$)/.test(
+      pathname,
+    );
   useEffect(() => {
     if (!enabled) return;
     let cancelled = false,
@@ -54,8 +56,16 @@ export function LiveSync({
         const application = pathname.match(
           /^\/(th|en)\/workflow\/application\/([a-f0-9-]{36})$/i,
         )?.[2];
+        const s4 = pathname.match(
+          /^\/(th|en)\/coordination\/(referrals|outcomes|privacy|reports)\/([a-f0-9-]{36})$/i,
+        );
         const r = await fetch(
-          "/api/live" + (application ? "?application=" + application : ""),
+          "/api/live" +
+            (application
+              ? "?application=" + application
+              : s4
+                ? "?s4_kind=" + s4[2] + "&s4_id=" + s4[3]
+                : ""),
           { cache: "no-store" },
         );
         if (r.status === 401 || r.status === 404) {
@@ -87,7 +97,11 @@ export function LiveSync({
             void client.removeAllChannels();
             client = undefined;
           }
-          router.replace(`/${lang}/workflow/applications`);
+          router.replace(
+            pathname.includes("/coordination/")
+              ? `/${lang}/coordination`
+              : `/${lang}/workflow/applications`,
+          );
           router.refresh();
           return;
         }
