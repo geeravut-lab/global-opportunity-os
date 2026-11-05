@@ -3,6 +3,7 @@ import { Icon } from "./icon";
 import { demoNav, demoHref, demoText, type DemoRole } from "@/lib/prototype";
 import { authText, accountSections } from "@/lib/auth/copy";
 import { platformCopy, platformSections } from "@/lib/platform/copy";
+import { s2Text } from "@/lib/s2/copy";
 export interface HomeMenuItem {
   href: string;
   label: string;
@@ -155,35 +156,133 @@ export function DemoHomeMenus({
   }));
   return <HomeMenuGrid items={items} label={demoText[lang].mainNav} />;
 }
-export function AccountHomeMenus({ lang }: { lang: "th" | "en" }) {
+export function AccountHomeMenus({
+  lang,
+  s2 = false,
+}: {
+  lang: "th" | "en";
+  s2?: boolean;
+}) {
   const c = captions[lang];
   return (
     <HomeMenuGrid
       label={demoText[lang].mainNav}
-      items={accountSections
-        .filter((s) => s !== "home")
-        .map((s, i) => ({
-          href: `/${lang}/account/${s}`,
-          label: authText[lang][s],
-          description: c[s],
-          art: arts[s],
-          wide: i === 0 || i === 3,
-        }))}
+      items={[
+        ...accountSections
+          .filter((s) => s !== "home")
+          .map((s, i) => ({
+            href: `/${lang}/account/${s}`,
+            label: authText[lang][s],
+            description: c[s],
+            art: arts[s],
+            wide: i === 0 || i === 3,
+          })),
+        ...(s2
+          ? (
+              [
+                "assessment",
+                "bookmarks",
+                "matches",
+                "organizations",
+                "catalog",
+              ] as const
+            ).map((s, i) => ({
+              href: `/${lang}/workspace/${s}`,
+              label: s2Text[lang][s],
+              description: s2Text[lang].home,
+              art: [1, 5, 0, 7, 8][i],
+              wide: i === 0,
+            }))
+          : []),
+      ]}
     />
   );
 }
-export function AdminHomeMenus({ lang }: { lang: "th" | "en" }) {
+export function AdminHomeMenus({
+  lang,
+  s2 = false,
+}: {
+  lang: "th" | "en";
+  s2?: boolean;
+}) {
   const c = captions[lang];
   return (
     <HomeMenuGrid
       label={demoText[lang].mainNav}
-      items={platformSections.map((s, i) => ({
-        href: `/${lang}/admin/${s}`,
-        label: platformCopy[lang][s],
-        description: c[s],
-        art: arts[s],
-        wide: i === 0 || i === 3,
-      }))}
+      items={[
+        ...platformSections.map((s, i) => ({
+          href: `/${lang}/admin/${s}`,
+          label: platformCopy[lang][s],
+          description: c[s],
+          art: arts[s],
+          wide: i === 0 || i === 3,
+        })),
+        ...(s2
+          ? [
+              {
+                href: `/${lang}/workspace/review`,
+                label: s2Text[lang].review,
+                description: s2Text[lang].organizations,
+                art: 7,
+                wide: true,
+              },
+            ]
+          : []),
+      ]}
+    />
+  );
+}
+
+export function S2HomeMenus({
+  lang,
+  canReview,
+}: {
+  lang: "th" | "en";
+  canReview: boolean;
+}) {
+  const t = s2Text[lang];
+  const sections = [
+    "assessment",
+    "bookmarks",
+    "matches",
+    "organizations",
+    "catalog",
+    "review",
+  ] as const;
+  const descriptions = {
+    th: [
+      "เลือกตอบเท่าที่สะดวก และกลับมาแก้ไขได้",
+      "กลับมาดูโอกาสที่คุณสนใจ",
+      "ดูเกณฑ์และเหตุผล พร้อมค้นหาด้วยตนเอง",
+      "ดูแลองค์กรและส่งหลักฐานส่วนตัว",
+      "สร้างและส่งรายการให้ผู้ตรวจพิจารณา",
+      "ตรวจองค์กรและโอกาสก่อนเผยแพร่",
+    ],
+    en: [
+      "Answer what you choose and edit later",
+      "Return to opportunities that interest you",
+      "See criteria and reasons, or search on your own",
+      "Manage organizations and private evidence",
+      "Create listings and send them for review",
+      "Review organizations and listings before publication",
+    ],
+  };
+  return (
+    <HomeMenuGrid
+      label={demoText[lang].mainNav}
+      items={sections.flatMap((section, i) =>
+        section === "review" && !canReview
+          ? []
+          : [
+              {
+                href: `/${lang}/workspace/${section}`,
+                label: t[section],
+                description: descriptions[lang][i],
+                art: [1, 2, 4, 8, 0, 9][i],
+                wide: i === 0 || section === "review",
+              },
+            ],
+      )}
     />
   );
 }

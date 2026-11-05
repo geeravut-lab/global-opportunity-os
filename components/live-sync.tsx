@@ -2,7 +2,11 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { mayRefresh, nextLiveDelay } from "@/lib/platform/live";
+import {
+  mayRefresh,
+  nextLiveDelay,
+  liveDeadlineDelay,
+} from "@/lib/platform/live";
 export function LiveSync({
   lang,
   active,
@@ -15,7 +19,9 @@ export function LiveSync({
     [pending, setPending] = useState(false),
     [offline, setOffline] = useState(false);
   const enabled = active && !/\/auth\//.test(pathname);
-  const protectedPage = /^\/(th|en)\/(account|admin)(\/|$)/.test(pathname);
+  const protectedPage = /^\/(th|en)\/(account|admin|workspace)(\/|$)/.test(
+    pathname,
+  );
   useEffect(() => {
     if (!enabled) return;
     let cancelled = false,
@@ -88,7 +94,9 @@ export function LiveSync({
             return;
           }
         } else quiet++;
-        schedule(nextLiveDelay(quiet, connected));
+        schedule(
+          liveDeadlineDelay(nextLiveDelay(quiet, connected), d.next_catalog_at),
+        );
       } catch {
         setOffline(true);
         connected = false;

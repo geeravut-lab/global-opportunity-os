@@ -2,7 +2,7 @@
 import { createClient } from "@supabase/supabase-js";
 import pg from "pg";
 import { randomBytes, randomUUID } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { localRuntime } from "./local-runtime.ts";
 import { privateJson, syntheticTotp } from "./validation-runtime.ts";
@@ -32,6 +32,21 @@ async function rpc(c, n, args = {}) {
 }
 const clients = {};
 try {
+  if (existsSync(".local/s2-fixtures.json")) {
+    const previous = JSON.parse(
+        readFileSync(".local/s2-fixtures.json", "utf8"),
+      ),
+      actor = previous.actors?.reviewer;
+    if (
+      /^s2ui[0-9a-f]{12}$/.test(previous.run) &&
+      actor?.email === previous.run + "-reviewer@example.test" &&
+      /^[a-f0-9-]{36}$/i.test(actor.id)
+    )
+      await db.query(
+        "update private.platform_role_grants g set revoked_at=coalesce(g.revoked_at,now()) where g.account_id=$1 and g.granted_by=$1 and not exists(select 1 from private.platform_owner p where p.account_id=$1) and exists(select 1 from auth.users u where u.id=$1 and lower(u.email)=$2 and u.raw_app_meta_data->>'goos_s2_fixture_run'=$3)",
+        [actor.id, actor.email, previous.run],
+      );
+  }
   save();
   for (const name of ["publisher", "reviewer", "user"]) {
     const email = run + "-" + name + "@example.test",

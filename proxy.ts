@@ -13,5 +13,6 @@ export const config = {
     "/:lang/account/:path*",
     "/:lang/auth/:path*",
     "/:lang/admin/:path*",
+    "/:lang/workspace/:path*",
   ],
 };

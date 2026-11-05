@@ -42,7 +42,8 @@ notice ฉบับ development เป็น immutable และผูก purpos
 `S2_ENABLED=true` เปิด UI/BFF/public catalog backend ในเครื่องเท่านั้นตามการตั้ง env ของ process
 flag ไม่ใช่ authorization; direct RPC ยังตรวจสิทธิ์และ grants ของ DB ส่วนค่าเริ่มต้นยังคงต้นแบบเดิมเพื่อไม่เปิด backend ที่ยังไม่ migrate
 runtime ของแอปไม่มี management token/service_role; fixture/worker/local DB tools ไม่ถูกเรียกจากหน้าเว็บ
-S2 migrations ใหม่14–17 ยังไม่ใช้กับ Supabase ที่ให้บริการจริงในรอบพัฒนานี้
+S2 migrations ใหม่14–18 ยังไม่ใช้กับ Supabase ที่ให้บริการจริงในรอบพัฒนานี้
+คิว org/listing แบ่งหน้า20รายการ และ evidence metadata ใช้ batch RPC เดียวแทน N+1 เพื่อคงสิทธิ์และลดเวลา refresh
 ดูคำสั่งและผลจริงในรายงาน S2 เมื่อจัดชุดทดสอบเสร็จ; ไม่ถือว่า build/local tests ทำให้ hosted หรือ pilot gates ผ่าน
 
 ## ช่องว่างก่อน rollout/ผู้ใช้จริง

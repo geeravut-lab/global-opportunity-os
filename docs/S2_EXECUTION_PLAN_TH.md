@@ -32,7 +32,7 @@ dependency: S2.1→S2.2→S2.3→S2.4; S2.5 ใช้ S1 authority และต�
 - ไม่ตั้ง vendor scanner/paid plan หรือเลือก operational verifier จริงแทนเจ้าของ; เอกสาร/metadata/fixtures ทำต่อได้โดยไม่แต่ง partner claims
 - ไม่ขยาย profile delegation S1 ไปถึง assessment/submit เอง; หากต้องเพิ่ม scope ต้องออกแบบ consent/allow-deny แยกและบันทึกขอบเขต
 
-ชื่อ tables/routes ข้างต้นเป็นข้อเสนอจน PR นั้นเลือกจริง จึงยังไม่มีคำสั่ง migration/seed ของ S2 ให้รัน
+ชื่อ tables/routes ในตารางเป็นแผนเริ่มต้น; การเลือกจริงและคำสั่ง local ที่มีแล้วอยู่ใน [รายงาน S2](S2_REPORT_TH.md) และ [ADR-004](adr/ADR-004-S2-TH.md) ไม่ใช่คำสั่งให้ apply hosted โดยอัตโนมัติ
 
 ## Fixtures และความปลอดภัย
 
@@ -44,6 +44,6 @@ manifest ต้องระบุ target/run/UUID/tag และ cleanup เฉ�
 ## ประมาณการและเงื่อนไขส่งมอบ
 
 ช่วง effort เดิม S2 คือ15–25 engineer-days เพื่อวางแผน ไม่ใช่เวลาที่ agent ใช้หรือสัญญาวันส่ง
-ให้ re-estimate แยก6 PR หลัง S1 hosted ผ่านและรู้ผู้ตรวจ/นโยบายหลักฐาน/scan path
+แบ่งส่ง review เป็น3 PR ที่ต่อกันตามรายงาน S2 โดยคง functions6กลุ่มในตาราง; ให้ re-estimate งาน rollout/scan/operations เมื่อรู้ผู้ตรวจและนโยบายหลักฐานจริง
 S2 ทำงานกับข้อมูลสมมติได้โดยไม่กล่าวว่าองค์กรได้รับการตรวจจริง; ก่อนเปิดรับข้อมูล/พันธมิตรจริงยังต้องผ่าน operational/privacy gates
 Email Recovery/SMTP ที่เลื่อนไว้ต้องกลับมาปิดก่อน real-user production launch ตาม C-24

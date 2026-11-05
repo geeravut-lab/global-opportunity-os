@@ -55,12 +55,28 @@ function run(args, label) {
   const path = dir + "/" + label + ".log";
   writeFileSync(path, (r.stdout ?? "") + (r.stderr ?? ""), { mode: 0o600 });
   chmodSync(path, 0o600);
-  if (r.status !== 0)
+  if (r.status !== 0) {
+    // รายงานเฉพาะ enum/exit code; stdout/stderr เต็มอาจมี local keys จึงคงไว้ใน private log
+    const raw = (r.stdout ?? "") + (r.stderr ?? "");
+    const reason =
+      [
+        ["port_conflict", /address already in use|port is already allocated/i],
+        ["image_rate_limit", /toomanyrequests|pull rate limit/i],
+        ["image_fetch", /failed to pull|manifest unknown|pull access denied/i],
+        ["container_health", /unhealthy|health check|not healthy/i],
+        ["timeout", /timed out|timeout|context deadline exceeded/i],
+        ["migration", /failed to apply migration|migration failed|SQLSTATE/i],
+        ["daemon", /cannot connect to the docker daemon/i],
+      ].find(([, pattern]) => pattern.test(raw))?.[0] ?? "unclassified";
+    console.error(
+      JSON.stringify({ validation: label, exit: r.status, reason }),
+    );
     throw Error(
       "Validation stack " +
         label +
         " failed; inspect private log without credentials",
     );
+  }
   return r.stdout;
 }
 if (action === "stop") {
@@ -78,8 +94,7 @@ if (action === "stop") {
       ],
       "start",
     );
-  if (action === "start")
-    run(["migration", "up", "--local"], "migrate");
+  if (action === "start") run(["migration", "up", "--local"], "migrate");
   const raw = JSON.parse(run(["status", "-o", "json"], "status"));
   for (const k of ["API_URL", "DB_URL"])
     if (

@@ -166,6 +166,56 @@ guard จำกัด Project/origin ตรวจ Confirm email Off และส
 ไม่ใช้ test bypass ในเว็บ ไม่เผย service key ให้ browser; ถ้า network ไม่ผ่านจะหยุดก่อนสร้าง fixture
 รอบนี้ยังไม่ถือว่าผล hosted ผ่าน ดูรายงานหลักฐานที่แยก target ชัดเจน
 
+## S2 — ชุดพัฒนาตาม C-28
+
+เพิ่มองค์กร/หลักฐาน/การตรวจอิสระ, catalog revisions และค้นหาจาก backend,
+assessment ที่ข้ามคำถามได้, bookmarks, rule matching และ Live sync ของข้อมูล public
+ดู [รายงาน S2](docs/S2_REPORT_TH.md), [ADR-004](docs/adr/ADR-004-S2-TH.md) และ [สัญญา API](api/s2.openapi.json)
+S1 hosted ยังติด Network; C-28 อนุมัติให้เริ่ม S2 ต่อโดยไม่เปลี่ยนสถานะนั้นเป็นผ่าน
+
+S2 ปิดตามค่าเริ่มต้น (`S2_ENABLED` ไม่เป็น true) และ migrations14–18 ยังเป็นงาน local/PR
+Supabase ที่ให้บริการจริงยังมี13 migrations ตามรายงาน S1; ไม่มีการ copy fixtures ไป hosted
+
+```sh
+npm ci
+npm run db:start
+npm run dev:s2
+```
+
+เปิด `http://127.0.0.1:3000/th/opportunities` หรือ `/th/workspace`
+`dev:s2` บังคับใช้ loopback runtime543xx, Auth local/Google off และ origin3000
+ไม่รับ hosted URL/key ที่อาจ inherited จาก Cloud และไม่ส่ง operator/service credentials ให้ web child
+Email signup ใน local ยังยืนยันผ่าน Mailpit54324 ตามฐาน S1; ไม่เปลี่ยน Confirm email ของ hosted
+
+```sh
+npm run build
+npm run test:unit
+npm run test:integration
+npm run test:s2
+npm run db:test:fresh
+npm run test:backup-restore
+```
+
+`test:s2` สร้างบัญชี/องค์กร/รายการสมมติใหม่ใน local และเปิด production server3200 เอง
+credentials/MFA/manifest อยู่ `.local/s2-fixtures.json` mode600 ไม่ส่งเป็น artifact หรือแชต
+fixtures เก็บใน local DB เพื่อทบทวน UI ไม่ลบข้อมูลเดิมหรือ disable immutable events; อย่าอ้างว่าเป็น partner จริง
+หยุด test server ก่อนเปิดตัวอื่นที่พอร์ตเดียวกัน
+
+Worker ตรวจหลักฐาน PNG ใน local:
+
+```sh
+npm run db:process-evidence
+```
+
+รับ UUID เฉพาะไฟล์ได้ด้วย `npm run db:process-evidence -- <UUID>`
+worker ตรวจขนาด/pixels/PNG และสร้างภาพใหม่ ลบ original หลังตัดสิน; ไม่ใช่ general antivirus/PDF/Office scanner
+ไม่ deploy worker/cron อัตโนมัติ เมื่อ worker ไม่พร้อมไฟล์คง quarantine และดาวน์โหลดไม่ได้
+การ rollout จริงต้องยืนยันชนิดเอกสาร/scan policy/ผู้ตรวจอิสระ/worker และ privacy/retention ก่อนข้อมูลจริง
+
+คำสั่ง operator `hosted-s1.mjs migrate` เลือกเพียง S1≤0013 ตามค่าเริ่มต้น
+`migrate --include-s2` จะเลือก S2 ด้วย เป็นคำสั่งเปลี่ยนระบบจริงที่ **ยังไม่รันในงาน S2 นี้**
+ต้องตรวจ PR/migration checksums/ขอบเขต rollout ก่อนใช้ ไม่ reset DB และไม่สร้าง fake verified partners บน hosted
+
 ## โครงสร้าง
 
 - `app/` หน้าเว็บตามภาษา รายละเอียด 404 และ CSS

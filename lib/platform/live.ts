@@ -9,3 +9,13 @@ export function mayRefresh(visible: boolean, dirty: boolean, pathname: string) {
 export function ownLiveTopics(id: string) {
   return [`goos:u:${id}`, "goos:settings"];
 }
+export function liveDeadlineDelay(
+  delay: number,
+  next: string | null | undefined,
+  now = Date.now(),
+) {
+  const deadline = next ? Date.parse(next) : NaN;
+  return Number.isFinite(deadline)
+    ? Math.max(250, Math.min(delay, deadline - now + 100))
+    : delay;
+}

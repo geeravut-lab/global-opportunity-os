@@ -10,12 +10,20 @@ import {
 } from "../../lib/platform/settings";
 import { validateBrandImage } from "../../lib/platform/image";
 import {
+  liveDeadlineDelay,
   nextLiveDelay,
   mayRefresh,
   ownLiveTopics,
 } from "../../lib/platform/live";
 import { backTarget, navigationFor } from "../../lib/platform/navigation";
 describe("Platform boundaries", () => {
+  it("public expiry wakes a connected client without a refresh and avoids a past-deadline busy loop", () => {
+    const now = Date.parse("2026-11-05T00:00:00Z");
+    expect(liveDeadlineDelay(60000, "2026-11-05T00:00:02Z", now)).toBe(2100);
+    expect(liveDeadlineDelay(60000, "2026-11-04T00:00:00Z", now)).toBe(250);
+    expect(liveDeadlineDelay(4000, null, now)).toBe(4000);
+    expect(liveDeadlineDelay(4000, "invalid", now)).toBe(4000);
+  });
   it("malformed public settings fall back without opening new permissions", () => {
     const s = parseSettings({
       name_th: "<script>",

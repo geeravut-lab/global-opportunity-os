@@ -5,6 +5,10 @@
 
 ## เอกสารรอบปัจจุบัน
 
+- [ผลพัฒนา S2, checks จริง และงาน rollout ที่เหลือ](S2_REPORT_TH.md)
+- [ADR-004: องค์กร/catalog/assessment/permissions และขอบเขต PNG inspection](adr/ADR-004-S2-TH.md)
+- [OpenAPI ของ BFF S2](../api/s2.openapi.json)
+
 - [หลักฐานปิด S1 / blocker ของ hosted / เงื่อนไขเริ่ม S2](S1_READINESS_EXECUTION_TH.md)
 - [ผล merge/deploy PR #1 และวิธีทดสอบ hosted ต่อ](S1_HOSTED_HANDOFF_TH.md)
 - [คู่มือกู้ MFA และโอน platform owner](MFA_OWNER_RUNBOOK_TH.md)
