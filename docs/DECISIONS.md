@@ -83,6 +83,7 @@ C คือหลักฐานการตัดสินใจ P คือข
 | C-30 | ปรับ typography/color ตาม knowledge ล่าสุดบน main เพื่อให้อ่านชัด | เจ้าของสั่งใช้ docs/TYPOGRAPHY-COLOR-KNOWLEDGE.md เพราะตัวอักษรเดิมเล็ก; ใช้ self-hosted Geist/Noto Sans Thai, rem scale, line-height/contrast/touch targets และ tokens โดยปรับให้เป็นธีม Opp4All เดิม ไม่เพิ่มระบบร้านค้า/ธีมลูกค้าหรือ Tailwind/framework ใหม่ |
 | C-31 | แสดง spinner ระหว่างการทำงานจากปุ่ม/เมนูและป้องกันกดซ้ำ | เจ้าของสั่งให้ทุกปุ่ม/เมนูแสดงสถานะรอจนงานเสร็จ; เพิ่ม activity indicator สำหรับ user API/navigation/download พร้อมกันกดซ้ำใน action เดิม จบตาม response/transition/error จริง ไม่ใช้ timer แกล้งว่าทำเสร็จ และไม่ให้ background Live polling ทำ spinner กระพริบตลอด |
 | C-32 | อนุมัติรวม PR3–8 และ deploy production พร้อม rollout S2/S3/worker/SMTP และปิด readiness ต่อ | เจ้าของสั่ง merge/deploy production, migrations/flags/worker/SMTPจริง, แก้ runtime network และทดสอบ hosted Email/Live/สิทธิ์/Recovery; อนุญาตดำเนินงานโครงสร้างเดิมตามขอบเขตนี้ ไม่ลบข้อมูลเดิม ไม่ provision paid services หรือส่งข้อความถึง partner; SMTPต้องมี provider credentials ที่ตั้งผ่าน Secrets; S4ให้เลือกขอบเขตส่งต่อ/ผลลัพธ์/privacyก่อนเริ่มพัฒนา ยังไม่รับรองนโยบาย retention/purge/holds หรือ minors |
+| C-33 | ใช้ Resend เป็นผู้ให้บริการส่งอีเมล | เจ้าของระบุว่า “ผมจะใช้ Resend ในการส่ง email”; ยังไม่ระบุโดเมน/อีเมลผู้ส่งหรือให้ credentials จึงเตรียม SMTP setup ต่อโดยไม่ซื้อบริการหรือสร้างผู้ส่งแทนเจ้าของ; คง Confirm email Off/Google ตามเดิมและทดสอบ Recovery หลังตั้งค่าจริง |
 
 ## สิ่งที่ต้องตัดสินใจก่อนระบบจริง
 

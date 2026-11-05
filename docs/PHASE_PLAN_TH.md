@@ -1,3 +1,5 @@
+> สถานะล่าสุด C-32: รวมPR3–8และdeploy S2/S3 productionแล้ว ดู [รายงาน rollout](PRODUCTION_ROLLOUT_TH.md); ผล/ข้อความก่อนC-32ด้านล่างรักษาไว้เป็นหลักฐานตามวันที่ ไม่ใช่สถานะrolloutล่าสุด
+
 # แผนพัฒนาใหม่ตาม Product Blueprint v1.0
 
 วันที่ 2026-11-04 อ้าง §5 modules, §6 J1–J7, §16 acceptance, §17 backlog และ §18 gates

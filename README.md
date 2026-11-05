@@ -1,15 +1,17 @@
+> อัปเดต C-32: PR #3–9 รวมแล้วและ S2/S3ขึ้นproductionพร้อมflags; ดู [รายงาน rollout](docs/PRODUCTION_ROLLOUT_TH.md) สำหรับ worker/SMTP/hosted readiness ที่ยังเหลือ ข้อความสถานะก่อนC-32ด้านล่างเป็นประวัติผลlocal/PR
+
 # Global Opportunity OS
 
 โครงการมีพันธกิจทั่วโลก ครอบคลุมผู้รับประโยชน์ทุกกลุ่ม พร้อมเป้าหมายธุรกิจยั่งยืน
-ชิ้นงานปัจจุบันมี **หน้าแรกการ์ดภาพประกอบสามมุมมอง, ฐาน S1 Email/Google, ผู้ดูแล branding และ Live sync**
+ชิ้นงานปัจจุบันมี **หน้าแรกสามมุมมอง, S1 Email/Google/MFA/branding/Live sync, S2 directory และ S3 applications/cases**
 ปรับตาม [Product Blueprint TH v1.0](docs/Global-Opportunity-OS-Product-Blueprint-TH.md) และภาพ UX Showcase ที่เจ้าของแนบ
-ไดเรกทอรีและ dashboard สามบทบาทยังใช้ข้อมูลสมมติ การสลับ role เป็น demo navigation
-บัญชี S1 อยู่ `/th/auth/login` และ `/th/account` แยกจาก demo; ผู้ดูแลจริงอยู่ `/th/admin` และต้องผ่าน MFA
-ใช้ migrations ทั้ง 13 ไฟล์กับ Supabase ที่เจ้าของอนุญาตแล้ว พร้อมตั้ง Auth callback/production env ใน Vercel
-ยังไม่มี AI หรือการส่งต่อจริง; เจ้าของยืนยัน Google login/MFA และเปิดหน้าผู้ดูแลได้แล้ว
+หน้า `/th/demo/partner` และ `/th/demo/admin` เป็นตัวอย่างข้อมูลสมมติ; การสลับ role ใน demo ไม่ให้สิทธิ์จริง
+ระบบจริงใช้ `/th/auth/login`, `/th/account`, `/th/opportunities`, `/th/workflow` และหน้าจัดการที่ตรวจสิทธิ์ฝั่ง server/DB
+ผู้ดูแลจริงอยู่ `/th/admin` และต้องผ่าน MFA; เจ้าของยืนยัน Google login/MFA และเปิดหน้าผู้ดูแลได้แล้ว
+PR #3–9 รวม main แล้ว เปิด S2/S3 production flags และใช้ migrations 32 ไฟล์กับ Supabase ที่เจ้าของอนุญาต
 Confirm email ปิดชั่วคราวตามเจ้าของ: signup ที่ได้ session เข้าบัญชีทันที โดยคง JWT/RLS/MFA
-Email Recovery/SMTP เลื่อนตาม C-24 จนก่อนเปิดรับผู้ใช้จริง; ไม่ขวาง S2 ตาม C-25
-hosted Email/security/live smoke ยังติด network ของ runtime แยกจากผลทดสอบในเครื่อง
+hosted Email/session/Live/สิทธิ์ ยังติด network ของ runtime แยกจากผล local/CI; SMTP/Recovery ยังไม่ปิด; production worker มี cron ทุกนาทีและผ่าน maintenance HTTP 200 หลังแก้ TLS
+ไม่มี AI หรือ S4 warm referral จริงจากรอบนี้; ขอบเขต S4 อยู่ในเอกสารสำหรับเริ่มงานภายหลัง
 
 [ดูแผน S0–S6 พร้อม functions/features](docs/PHASE_PLAN_TH.md) ·
 [ดูผลเทียบ Blueprint/ภาพ](docs/BLUEPRINT_ALIGNMENT_TH.md) ·
@@ -42,11 +44,11 @@ npm run dev -- --hostname 127.0.0.1 --port 3000
 
 เส้นทางต้นแบบ:
 
-| มุมมอง | ไทย | อังกฤษ |
-| --- | --- | --- |
-| ผู้ใช้ | /th | /en |
-| พันธมิตร NGO | /th/demo/partner | /en/demo/partner |
-| ผู้ดูแลระบบ | /th/demo/admin | /en/demo/admin |
+| มุมมอง            | ไทย               | อังกฤษ            |
+| ----------------- | ----------------- | ----------------- |
+| ผู้ใช้            | /th               | /en               |
+| พันธมิตร NGO      | /th/demo/partner  | /en/demo/partner  |
+| ผู้ดูแลระบบ       | /th/demo/admin    | /en/demo/admin    |
 | ค้นหาโอกาสสาธารณะ | /th/opportunities | /en/opportunities |
 
 `/` เปลี่ยนไป `/th` ปุ่มเปลี่ยนภาษาคง section/filter และรายการเดิม
@@ -255,7 +257,7 @@ npm run worker:s3 -- --watch --tick --email
 worker จำกัด loopback543xx และ fake @example.test, deep link localhost3000;
 เมื่อใช้ test server3300 เพิ่ม `--origin http://127.0.0.1:3300`
 `--org <UUID>`/`--ids <UUID,UUID>` จำกัดงานเฉพาะ; dry-run writes0, watch ทุก3วินาที หยุดด้วย Ctrl+C
-ไม่มี worker/cron/SMTP provider production ถูก provision จากคำสั่งเหล่านี้; SMTP delivery เป็น at-least-once
+คำสั่ง local เหล่านี้ไม่ตั้ง worker/cron/SMTP production; SMTP delivery เป็น at-least-once
 restore หลัง `test:s3` ตรวจ encrypted package+key และ replay withdrawal ของ S3 เพิ่มจากฐาน S1
 
 ตอนนี้มี31 migration files ใน local; hosted S1 ยัง13 ไม่มีการใช้14–31กับระบบจริงในงานนี้
@@ -293,3 +295,11 @@ Preview ไม่ใช้ production Auth env โดยปริยาย; loca
 อ่าน [สารบัญ](docs/INDEX.md), [ทะเบียนการตัดสินใจ](docs/DECISIONS.md) และ
 [ขั้นตอนถัดไป](docs/NEXT_STEPS.md) ก่อนขยายขอบเขต แชตและเอกสารใช้ภาษาไทย
 ชื่อเทคโนโลยี รหัส และคำสั่งคงรูปที่จำเป็น
+
+## Maintenance production
+
+worker route `/api/internal/maintenance` ต้องมี MAINTENANCE_SECRET และ machine DB connection ที่ตั้งผ่าน operator เท่านั้น
+เมื่อ worker PR/deployment พร้อม ให้ใช้ `node scripts/hosted-s1.mjs worker-configure` แล้ว deploy code+env ก่อน `worker-schedule`
+คำสั่งเหล่านี้เปลี่ยน production ใช้เฉพาะ scope C-32; ไม่ provision paid services ไม่ใช้ operator/service-role ในweb runtime
+SMTPต้องมี SMTP_HOST/PORT/USER/PASSWORD/FROM ผ่าน encrypted Environment Settings; เฉพาะ465/587พร้อมTLSverification
+ไม่มีSMTPจะประมวลผลเฉพาะ PNG/in-app และไม่claimemail queue ดูรายงานก่อนกล่าวว่าRecoveryพร้อมแล้ว
