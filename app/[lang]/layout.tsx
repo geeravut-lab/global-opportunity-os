@@ -1,3 +1,4 @@
+import { ActivityIndicator } from "@/components/activity-indicator";
 import { PwaRegister } from "@/components/pwa-register";
 import { AppShell } from "@/components/app-shell";
 import type { Metadata } from "next";
@@ -6,6 +7,7 @@ import { notFound } from "next/navigation";
 import { copy, isLocale } from "@/lib/i18n";
 import { publicSettings } from "@/lib/platform/server";
 import { imageUrl } from "@/lib/platform/settings";
+import { s3Enabled } from "@/lib/s3/model";
 import { s2Enabled } from "@/lib/s2/model";
 import { serverClient } from "@/lib/supabase/server";
 import "../globals.css";
@@ -49,6 +51,10 @@ export default async function LocaleLayout({
     s2Enabled() && hasSessionCookie
       ? await (await serverClient())?.rpc("goos_context")
       : null;
+  const workflowOrgs =
+    s3Enabled() && context?.data
+      ? await (await serverClient())?.rpc("goos_s3_orgs")
+      : null;
   return (
     <html lang={lang}>
       <body>
@@ -56,11 +62,19 @@ export default async function LocaleLayout({
           {t.skip}
         </a>
         <PwaRegister />
+        <ActivityIndicator lang={lang} />
         <AppShell
           lang={lang}
           branding={branding}
           hasSessionCookie={hasSessionCookie}
           s2={s2Enabled()}
+          workflow={{
+            enabled: s3Enabled(),
+            hasOrg: !!context?.data?.has_membership,
+            canRoute: (workflowOrgs?.data ?? []).some(
+              (o: { can_route: boolean }) => o.can_route,
+            ),
+          }}
           canReview={!!context?.data?.has_platform_role}
         >
           {children}

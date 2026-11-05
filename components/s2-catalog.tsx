@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { BusyForm } from "@/components/busy-form";
+import Link from "@/components/busy-link";
 import type { CatalogResult, CatalogEntry } from "@/lib/s2/model";
 import { categories } from "@/lib/directory";
 import { BookmarkButton } from "./s2-bookmark";
@@ -106,7 +107,7 @@ export function S2Catalog({
     <main id="main" className="wrap s2-page">
       <h1>{t.title}</h1>
       <p className="notice">{t.intro}</p>
-      <form action={`/${lang}/opportunities`} className="s2-form">
+      <BusyForm action={`/${lang}/opportunities`} className="s2-form">
         <label>
           {t.search}
           <input
@@ -181,7 +182,7 @@ export function S2Catalog({
         <button className="button primary" type="submit">
           {t.submit}
         </button>
-      </form>
+      </BusyForm>
       {error ? (
         <p role="alert">{t[error]}</p>
       ) : data?.items.length ? (
@@ -242,9 +243,11 @@ export function S2Catalog({
 export function S2Detail({
   lang,
   entry: e,
+  applications = false,
 }: {
   lang: "th" | "en";
   entry: CatalogEntry;
+  applications?: boolean;
 }) {
   const t = text[lang];
   return (
@@ -299,6 +302,16 @@ export function S2Detail({
           </a>
         </p>
         <BookmarkButton lang={lang} id={e.id} />
+        {applications && (
+          <Link
+            className="button primary"
+            href={`/${lang}/workflow/apply/${e.id}`}
+          >
+            {lang === "th"
+              ? "เตรียมคำขอและตรวจข้อมูลก่อนส่ง"
+              : "Prepare and review a request"}
+          </Link>
+        )}
         <p>{t.manual}</p>
       </article>
     </main>

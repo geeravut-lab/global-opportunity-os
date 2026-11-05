@@ -1,9 +1,10 @@
 "use client";
-import Link from "next/link";
+import { busyFetch, navigateWithActivity } from "@/lib/ui/activity";
+import Link from "@/components/busy-link";
 import { AccountHomeMenus } from "./home-menu-cards";
 import Image from "next/image";
 import { useState, useRef, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useBusyRouter as useRouter } from "@/lib/ui/router";
 import { accountSections, authErrorText, authText } from "@/lib/auth/copy";
 import { platformCopy } from "@/lib/platform/copy";
 import type { Locale } from "@/lib/i18n";
@@ -71,7 +72,7 @@ export function AccountPanel({
     body?: unknown,
     method = body === undefined ? "GET" : "POST",
   ): Promise<T> {
-    const result = await fetch(path, {
+    const result = await busyFetch(path, {
       method,
       headers:
         body === undefined ? undefined : { "Content-Type": "application/json" },
@@ -430,7 +431,7 @@ export function AccountPanel({
                     });
                     setNewPass("");
                     setRepeatPass("");
-                    window.location.assign(`/${lang}/auth/login`);
+                    navigateWithActivity(`/${lang}/auth/login`);
                   });
                 }}
               >
@@ -1062,7 +1063,7 @@ export function AccountPanel({
           onClick={() =>
             run(async () => {
               await api("/api/auth/logout", {});
-              window.location.assign(`/${lang}/auth/login`);
+              navigateWithActivity(`/${lang}/auth/login`);
             })
           }
         >

@@ -1,5 +1,5 @@
 import { Arrow } from "@/components/arrow";
-import Link from "next/link";
+import Link from "@/components/busy-link";
 import { notFound } from "next/navigation";
 import { entries } from "@/lib/fixtures";
 import {
@@ -10,6 +10,7 @@ import {
   filterQuery,
 } from "@/lib/directory";
 import { copy, isLocale } from "@/lib/i18n";
+import { s3Enabled } from "@/lib/s3/model";
 import { s2Enabled } from "@/lib/s2/model";
 import { readCatalog } from "@/lib/s2/server";
 import { S2Catalog, S2Detail } from "@/components/s2-catalog";
@@ -37,7 +38,7 @@ export default async function DetailPage({
       return <S2Catalog lang={lang} data={null} error="unavailable" />;
     }
     if (!result.items[0]) notFound();
-    return <S2Detail lang={lang} entry={result.items[0]} />;
+    return <S2Detail lang={lang} entry={result.items[0]} applications={s3Enabled()} />;
   }
   const entry = entries.find((item) => item.slug === slug);
   if (!entry) notFound();

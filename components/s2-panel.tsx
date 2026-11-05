@@ -1,7 +1,8 @@
 "use client";
+import { busyFetch } from "@/lib/ui/activity";
 import { useState, useTransition, type FormEvent } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/components/busy-link";
+import { useBusyRouter as useRouter } from "@/lib/ui/router";
 import type { AccountData, Notice } from "@/lib/auth/types";
 import type {
   S2Org,
@@ -20,6 +21,7 @@ import {
   type S2Section,
 } from "@/lib/s2/copy";
 import { categories } from "@/lib/directory";
+import { DownloadLink } from "./download-link";
 import { BookmarkButton } from "./s2-bookmark";
 import { S2HomeMenus } from "./home-menu-cards";
 export function S2Panel({
@@ -75,7 +77,7 @@ export function S2Panel({
     setBusy(true);
     setMessage("");
     try {
-      const r = await fetch(
+      const r = await busyFetch(
           path.startsWith("/api/") ? path : "/api/s2/" + path,
           {
             method: "POST",
@@ -173,7 +175,9 @@ export function S2Panel({
                 <li key={x.id}>
                   {stateLabel(lang, x.status)}{" "}
                   {x.status === "clean" && (
-                    <a href={`/api/s2/evidence/${x.id}`}>{t.download}</a>
+                    <DownloadLink href={`/api/s2/evidence/${x.id}`} lang={lang}>
+                      {t.download}
+                    </DownloadLink>
                   )}
                 </li>
               ))}

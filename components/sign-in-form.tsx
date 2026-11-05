@@ -1,5 +1,6 @@
 "use client";
-import Link from "next/link";
+import { busyFetch, navigateWithActivity } from "@/lib/ui/activity";
+import Link from "@/components/busy-link";
 import { useState, type FormEvent } from "react";
 import { authErrorText, authText } from "@/lib/auth/copy";
 import type { Locale } from "@/lib/i18n";
@@ -32,7 +33,7 @@ export function SignInForm({
     setMessage("");
     setError(false);
     try {
-      const response = await fetch(`/api/auth/${mode}`, {
+      const response = await busyFetch(`/api/auth/${mode}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -47,7 +48,7 @@ export function SignInForm({
         setError(true);
         setMessage(authErrorText(result.code, lang));
       } else if (result.data.redirect) {
-        window.location.assign(result.data.redirect);
+        navigateWithActivity(result.data.redirect);
       } else {
         setPass("");
         setMessage(mode === "signup" ? t.signupAccepted : t.sent);
@@ -64,7 +65,7 @@ export function SignInForm({
     setError(false);
     setMessage("");
     try {
-      const response = await fetch("/api/auth/google", {
+      const response = await busyFetch("/api/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ locale: lang, adultConfirmed: adult }),
@@ -73,7 +74,7 @@ export function SignInForm({
       if (!response.ok) {
         setError(true);
         setMessage(authErrorText(result.code, lang));
-      } else window.location.assign(result.data.redirect);
+      } else navigateWithActivity(result.data.redirect);
     } catch {
       setError(true);
       setMessage(t.error);

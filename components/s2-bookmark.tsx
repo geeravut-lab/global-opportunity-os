@@ -1,6 +1,7 @@
 "use client";
+import { busyFetch } from "@/lib/ui/activity";
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/busy-link";
 export function BookmarkButton({
   lang,
   id,
@@ -21,7 +22,7 @@ export function BookmarkButton({
         onClick={async () => {
           setBusy(true);
           try {
-            const r = await fetch("/api/s2/bookmarks/" + id, {
+            const r = await busyFetch("/api/s2/bookmarks/" + id, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ saved: !remove }),

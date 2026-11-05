@@ -1,8 +1,9 @@
 "use client";
-import Link from "next/link";
+import Link from "@/components/busy-link";
 import Image from "next/image";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useBusyRouter as useRouter } from "@/lib/ui/router";
 import { LanguageSwitch } from "./language-switch";
 import { Icon } from "./icon";
 import { LiveSync } from "./live-sync";
@@ -56,6 +57,7 @@ function ShellContent({
   hasSessionCookie = false,
   s2 = false,
   canReview = false,
+  workflow = {},
 }: {
   lang: "th" | "en";
   children: React.ReactNode;
@@ -63,15 +65,17 @@ function ShellContent({
   hasSessionCookie?: boolean;
   s2?: boolean;
   canReview?: boolean;
+  workflow?: { enabled?: boolean; hasOrg?: boolean; canRoute?: boolean };
 }) {
   const pathname = usePathname(),
     params = useSearchParams(),
     router = useRouter(),
     pt = platformCopy[lang],
     t = demoText[lang];
-  const accountMode = /^\/(th|en)\/(account|auth|admin|workspace)(\/|$)/.test(
-      pathname,
-    ),
+  const accountMode =
+      /^\/(th|en)\/(account|auth|admin|workspace|workflow)(\/|$)/.test(
+        pathname,
+      ),
     adminMode = /^\/(th|en)\/admin(\/|$)/.test(pathname);
   const role: DemoRole = pathname.includes("/demo/partner")
     ? "partner"
@@ -85,6 +89,7 @@ function ShellContent({
     params.get("section"),
     s2,
     canReview,
+    workflow,
   );
   const title = adminMode
       ? pt.platform
@@ -431,6 +436,7 @@ export function AppShell(props: {
   hasSessionCookie?: boolean;
   s2?: boolean;
   canReview?: boolean;
+  workflow?: { enabled?: boolean; hasOrg?: boolean; canRoute?: boolean };
 }) {
   return <ShellContent {...props} />;
 }

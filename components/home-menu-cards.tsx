@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/busy-link";
 import { Icon } from "./icon";
 import { demoNav, demoHref, demoText, type DemoRole } from "@/lib/prototype";
 import { authText, accountSections } from "@/lib/auth/copy";

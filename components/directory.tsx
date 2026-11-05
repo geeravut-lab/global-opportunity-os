@@ -1,7 +1,7 @@
 "use client";
 import { Arrow } from "@/components/arrow";
 
-import Link from "next/link";
+import Link from "@/components/busy-link";
 import { useState } from "react";
 import { categories, regions, defaults, filterPublicEntries, filterQuery, type Filters, type PublicEntry } from "@/lib/directory";
 import { copy, type Locale } from "@/lib/i18n";

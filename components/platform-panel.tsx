@@ -1,8 +1,9 @@
 "use client";
+import { busyFetch } from "@/lib/ui/activity";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/busy-link";
 import { useRef, useState, useTransition, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useBusyRouter as useRouter } from "@/lib/ui/router";
 import { platformCopy, platformSections } from "@/lib/platform/copy";
 import { imageUrl, type PlatformSettings } from "@/lib/platform/settings";
 interface Admin {
@@ -49,7 +50,7 @@ export function PlatformPanel({
     setMessage("");
     setError(false);
     try {
-      const r = await fetch("/api/platform", {
+      const r = await busyFetch("/api/platform", {
         method: "POST",
         ...(body instanceof FormData
           ? { body }
