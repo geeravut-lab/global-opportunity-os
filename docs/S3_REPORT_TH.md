@@ -18,8 +18,10 @@ S1 hosted ยัง blocked; S2/S3 อยู่ local/feature PR ไม่ถื
 
 ## PR ที่ต่อกัน
 
-[#6 ฐานข้อมูล/API/สิทธิ์](https://github.com/geeravut-lab/global-opportunity-os/pull/6) → [#7 typography/loading](https://github.com/geeravut-lab/global-opportunity-os/pull/7) → หน้าจอ/tests/รายงาน S3 (กำลังจัดชุดสุดท้าย)
-ต่อจาก S2 #3–5 ยังไม่ merge/rollout; CI/Preview ที่ยังรันไม่ถือว่าผ่านโดยอัตโนมัติ
+[#6 ฐานข้อมูล/API/สิทธิ์](https://github.com/geeravut-lab/global-opportunity-os/pull/6) → [#7 typography/loading](https://github.com/geeravut-lab/global-opportunity-os/pull/7) → [#8 หน้าจอ/tests/รายงาน S3](https://github.com/geeravut-lab/global-opportunity-os/pull/8)
+ต่อจาก S2 #3–5 ยังไม่ merge/rollout; CI ชุดโค้ดรวม `443167c` และฐาน `6ec1a35`: check+s1-local ผ่านทั้ง push/pull_request
+Vercel Preview ของ UX `9227f0c` ผ่าน; การอัปเดตหลังชุดโค้ดรวมเป็น tests/ภาพ/เอกสารเท่านั้น ไม่มี runtime code เปลี่ยน
+ดู Checks ของ commitล่าสุดในแต่ละ PR ก่อน merge; ผลCIของcommitที่ระบุไม่ใช่ hosted UAT
 
 ## ไฟล์และสถาปัตยกรรม
 
@@ -48,7 +50,12 @@ S1 hosted ยัง blocked; S2/S3 อยู่ local/feature PR ไม่ถื
 | `npm run test:s3` | 12/12 ผ่าน ครบ preview/submit/assignment/notes/reassign/close/dirty settings/สองภาษา/automation/revoke-sharing รวม spinner ที่หน่วง API/route/search และกดซ้ำ |
 | `npm run test:backup-restore` | ผ่าน74วินาที, fingerprint54ตาราง/120 RLS policies/ACL/binary asset/Auth password/MFA, decrypt S3 package+key และ idempotent withdrawal/session replay ก่อนเปิด target573xx; targetหยุดแล้ว |
 
-S2/Auth regression รอบสุดท้ายยังรันอยู่; เพิ่ม assertions lost-lease reclaim/stale ack และ manual-retry authorization/budget แล้ว รอ integration รอบยืนยันก่อนสรุปผล
+integration77/77 รอบยืนยันรวม lost-lease reclaim/stale ack และ manual-retry authorization/budget ผ่านแล้ว
+Auth28กรณีตรวจครบ:27ผ่านชุดเต็ม + profileผ่านรอบยืนยันด้วย `playwright test --config playwright.auth.config.ts --grep "profile creation/edit"`; ยังคง version/escaped-text/conflict assertions ครบ
+`npm run test:s2` ผ่าน13/13 (รวม20หน้า/ภาษาของ axe/reflow และ two-window/live pause)
+spinner regression ล่าสุดผ่าน2/2 หลังใช้ pending-state ร่วมกัน; ทดสอบ login/navigation โดยรอ completion จริงสูงสุด20วินาที ไม่มี timer ปิดสถานะรอในแอป
+ชุด Auth เดิมรอบแรก27/28 ส่วน profile ผ่านหลังเพิ่มการรอ spinner; คำสั่งรันทวนข้างต้นเป็นผลที่ใช้ปิดกรณีนั้น ไม่กล่าวว่ารอบแรกผ่าน28/28
+ฟอนต์ตรวจ FontFace.load ได้จริง (Geist1face/Noto Sans Thai2faces สถานะloaded) และ HTTP200ทั้ง3ไฟล์จาก local origin
 ผลผ่านข้างต้นเป็น local/synthetic เท่านั้น ไม่ใช้แทน hosted readiness
 
 พบ regression audit export timeout บนประวัติ local ที่สะสมมาก จึงเพิ่ม migration0031:

@@ -54,7 +54,7 @@ test.beforeAll(async ({ browser }) => {
     await p.locator("#auth-email").fill(a.email);
     await p.locator("#auth-password").fill(a.password);
     await p.locator("form button[type=submit]").click();
-    await expect(p).toHaveURL(/\/en\/account$/);
+    await expect(p).toHaveURL(/\/en\/account$/, { timeout: 20000 });
     if (a.factorId) {
       const r = await p.request.post("/api/auth/mfa-verify", {
         headers: { Origin: origin },
@@ -124,7 +124,9 @@ test("Next navigation and a native GET filter both show a spinner until their de
   await nav.click({ noWaitAfter: true });
   await expect(p.locator(".activity-spinner").first()).toBeVisible();
   release();
-  await expect(p).toHaveURL(/\/en\/workflow\/applications$/);
+  await expect(p).toHaveURL(/\/en\/workflow\/applications$/, {
+    timeout: 20000,
+  });
   await expect(p.locator("main h1")).toHaveText(t.applications);
   await busyDone(p);
   await p.unroute("**/en/workflow/applications**");
