@@ -35,6 +35,7 @@ export function useBusyRouter() {
   return useMemo(
     () => ({
       ...router,
+      isPending: pending,
       push: (...args: Parameters<typeof router.push>) =>
         run(() => router.push(...args)),
       replace: (...args: Parameters<typeof router.replace>) =>
@@ -43,6 +44,6 @@ export function useBusyRouter() {
       back: () => run(() => router.back()),
       forward: () => run(() => router.forward()),
     }),
-    [router, run],
+    [router, run, pending],
   );
 }

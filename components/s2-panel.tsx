@@ -1,6 +1,6 @@
 "use client";
 import { busyFetch } from "@/lib/ui/activity";
-import { useState, useTransition, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "@/components/busy-link";
 import { useBusyRouter as useRouter } from "@/lib/ui/router";
 import type { AccountData, Notice } from "@/lib/auth/types";
@@ -62,7 +62,7 @@ export function S2Panel({
     router = useRouter(),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false),
-    [refreshing, startRefresh] = useTransition(),
+    refreshing = router.isPending,
     [editing, setEditing] = useState<DraftListing | null>(null);
   const dirty = (e: FormEvent<HTMLFormElement>) => {
     e.currentTarget.dataset.liveDirty = "true";
@@ -103,7 +103,7 @@ export function S2Panel({
       if (!quiet) {
         setMessage(t.saved);
         window.dispatchEvent(new Event("goos:saved"));
-        startRefresh(() => router.refresh());
+        router.refresh();
       }
       return { ok: true, data: d.data };
     } catch {
