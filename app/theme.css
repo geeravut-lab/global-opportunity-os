@@ -1,0 +1,56 @@
+/* Opp4All: แหล่งค่าสีและสเกลตัวอักษรส่วนกลาง ไม่ใช้ชุดสีร้านค้าจาก knowledge ตรงตัว */
+:root {
+  --goos-ink: #17213f;
+  --goos-muted: #475569;
+  --goos-page: #f6f7fc;
+  --goos-surface: #ffffff;
+  --goos-primary: #4338ca;
+  --goos-primary-hover: #3730a3;
+  --goos-primary-pressed: #312e81;
+  --goos-nav-bg: #151c3b;
+  --goos-nav-raised: #243054;
+  --goos-nav-text: #f8fafc;
+  --goos-nav-muted: #cbd5e1;
+  --goos-line: #d5daea;
+  --goos-field-border: #64748b;
+  --goos-success-bg: #e4f6ef;
+  --goos-success-fg: #166534;
+  --goos-warning-bg: #fff3d8;
+  --goos-warning-fg: #854d0e;
+  --goos-danger-bg: #ffe9eb;
+  --goos-danger-fg: #a61b34;
+  --goos-info-bg: #e5edff;
+  --goos-info-fg: #1e40af;
+  --goos-highlight-bg: #eeeafe;
+  --goos-highlight-fg: #3730a3;
+  --goos-accent: #f6d783;
+  --goos-chart-blue: #2563eb;
+  --goos-chart-purple: #7c3aed;
+  --goos-chart-teal: #0f766e;
+  --goos-chart-gold: #a16207;
+  --goos-chart-neutral: #64748b;
+  --goos-chart-blue-light: #93c5fd;
+  --goos-chart-blue-pale: #dbeafe;
+  --goos-focus-on-dark: #c4b5fd;
+  --goos-disabled-bg: #e2e8f0;
+  --goos-disabled-fg: #475569;
+  --font-sans:
+    "Geist Variable", "Noto Sans Thai Variable", ui-sans-serif, system-ui,
+    sans-serif;
+  --font-tiny: 0.75rem;
+  --font-caption: 0.875rem;
+  --font-body: 1rem;
+  --font-lead: 1.125rem;
+  --font-section: 1.25rem;
+  --font-heading: 1.5rem;
+  --font-title: 1.875rem;
+  --font-display: 2.25rem;
+  --ink: var(--goos-ink);
+  --muted: var(--goos-muted);
+  --paper: var(--goos-page);
+  --teal: var(--goos-primary);
+  --line: var(--goos-line);
+  --gold: var(--goos-highlight-bg);
+  --white: var(--goos-surface);
+  color-scheme: light;
+}

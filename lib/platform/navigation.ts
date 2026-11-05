@@ -1,6 +1,7 @@
 import { demoHref, demoNav, safeSection, type DemoRole } from "@/lib/prototype";
 import { accountSections, authText } from "@/lib/auth/copy";
 import { platformCopy, platformSections } from "./copy";
+import { s3Copy } from "../s3/copy";
 import { s2Sections, s2Text } from "../s2/copy";
 export interface NavEntry {
   href: string;
@@ -15,9 +16,45 @@ export function navigationFor(
   section: string | null,
   s2 = false,
   canReview = false,
+  workflow: { enabled?: boolean; hasOrg?: boolean; canRoute?: boolean } = {},
 ): NavEntry[] {
+  const flowEntry = {
+    href: `/${lang}/workflow`,
+    label: s3Copy[lang].home,
+    icon: "clipboard",
+    active: false,
+  };
+  if (/^\/(th|en)\/workflow(\/|$)/.test(pathname)) {
+    return (
+      [
+        "home",
+        "applications",
+        ...(workflow.hasOrg ? ["queue"] : []),
+        ...(workflow.canRoute ? ["team", "automation"] : []),
+        "settings",
+        ...(canReview || workflow.canRoute ? ["delivery"] : []),
+      ] as const
+    ).map((key) => ({
+      href: `/${lang}/workflow${key === "home" ? "" : "/" + key}`,
+      label:
+        s3Copy[lang][
+          key as
+            | "home"
+            | "applications"
+            | "queue"
+            | "team"
+            | "automation"
+            | "settings"
+            | "delivery"
+        ],
+      icon: key === "home" ? "home" : "clipboard",
+      active:
+        pathname === `/${lang}/workflow${key === "home" ? "" : "/" + key}`,
+    }));
+  }
   if (/^\/(th|en)\/workspace(\/|$)/.test(pathname))
     return [
+      ...(workflow.enabled ? [flowEntry] : []),
       ...s2Sections
         .filter((s) => s !== "review" || canReview)
         .map((s) => ({
@@ -43,6 +80,7 @@ export function navigationFor(
     ];
   if (/^\/(th|en)\/admin(\/|$)/.test(pathname))
     return [
+      ...(workflow.enabled ? [flowEntry] : []),
       {
         href: `/${lang}/admin`,
         label: platformCopy[lang].platform,
@@ -81,6 +119,7 @@ export function navigationFor(
     ];
   if (/\/(account|auth)(\/|$)/.test(pathname))
     return [
+      ...(workflow.enabled ? [flowEntry] : []),
       ...accountSections.map((s, i) => ({
         href: `/${lang}/account${s === "home" ? "" : "/" + s}`,
         label: authText[lang][s],
@@ -118,27 +157,31 @@ export function navigationFor(
     saved: "workspace/bookmarks",
     profile: "account/profile",
   };
-  return demoNav[role]
-    .filter(
-      (s) =>
-        !publicS2 ||
-        ["home", "opportunities", "assessment", "saved", "profile"].includes(
-          s.id,
-        ),
-    )
-    .map((s) => ({
-      href:
-        publicS2 && destinations[s.id]
-          ? `/${lang}/${destinations[s.id]}`
-          : demoHref(lang, role, s.id),
-      label: s.label[lang],
-      icon: s.icon,
-      active: current === s.id,
-    }));
+  return [
+    ...demoNav[role]
+      .filter(
+        (s) =>
+          !publicS2 ||
+          ["home", "opportunities", "assessment", "saved", "profile"].includes(
+            s.id,
+          ),
+      )
+      .map((s) => ({
+        href:
+          publicS2 && destinations[s.id]
+            ? `/${lang}/${destinations[s.id]}`
+            : demoHref(lang, role, s.id),
+        label: s.label[lang],
+        icon: s.icon,
+        active: current === s.id,
+      })),
+    ...(workflow.enabled ? [flowEntry] : []),
+  ];
 }
 export function backTarget(pathname: string, from: string | null) {
   const locale = pathname.startsWith("/en") ? "en" : "th";
   const parents: [RegExp, string][] = [
+    [/^\/(th|en)\/workflow\/.+$/, `/${locale}/workflow`],
     [/^\/(th|en)\/workspace\/.+$/, `/${locale}/workspace`],
     [/^\/(th|en)\/admin\/.+$/, `/${locale}/admin`],
     [/^\/(th|en)\/account\/.+$/, `/${locale}/account`],

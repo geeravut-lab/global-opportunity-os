@@ -1,3 +1,4 @@
+import { s3Enabled } from "@/lib/s3/model";
 import { NextRequest } from "next/server";
 import { requestClient } from "@/lib/supabase/request";
 import { success, problem, dbProblem } from "@/lib/auth/http";
@@ -10,7 +11,18 @@ export async function GET(req: NextRequest) {
     if (u.error || !u.data.user?.email_confirmed_at)
       return a.apply(problem(401, "SIGN_IN_REQUIRED"));
     const r = await a.client.rpc("goos_live_fingerprint");
-    return a.apply(r.error ? dbProblem(r.error) : success(r.data));
+    if (r.error) return a.apply(dbProblem(r.error));
+    const application = req.nextUrl.searchParams.get("application");
+    if (application && s3Enabled()) {
+      if (!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(application))
+        return a.apply(problem(422, "INVALID_INPUT"));
+      const access = await a.client.rpc("goos_s3_access", {
+        p_id: application,
+      });
+      if (access.error) return a.apply(dbProblem(access.error));
+      return a.apply(success({ ...r.data, resource_allowed: access.data }));
+    }
+    return a.apply(success(r.data));
   } catch {
     return a.apply(problem(503, "SERVICE_UNAVAILABLE"));
   }

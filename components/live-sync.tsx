@@ -19,9 +19,8 @@ export function LiveSync({
     [pending, setPending] = useState(false),
     [offline, setOffline] = useState(false);
   const enabled = active && !/\/auth\//.test(pathname);
-  const protectedPage = /^\/(th|en)\/(account|admin|workspace)(\/|$)/.test(
-    pathname,
-  );
+  const protectedPage =
+    /^\/(th|en)\/(account|admin|workspace|workflow)(\/|$)/.test(pathname);
   useEffect(() => {
     if (!enabled) return;
     let cancelled = false,
@@ -52,7 +51,13 @@ export function LiveSync({
           schedule(30000);
           return;
         }
-        const r = await fetch("/api/live", { cache: "no-store" });
+        const application = pathname.match(
+          /^\/(th|en)\/workflow\/application\/([a-f0-9-]{36})$/i,
+        )?.[2];
+        const r = await fetch(
+          "/api/live" + (application ? "?application=" + application : ""),
+          { cache: "no-store" },
+        );
         if (r.status === 401 || r.status === 404) {
           cancelled = true;
           setPending(false);
@@ -75,6 +80,17 @@ export function LiveSync({
         }
         const d = (await r.json()).data;
         setOffline(false);
+        if (d.resource_allowed === false) {
+          cancelled = true;
+          setPending(false);
+          if (client) {
+            void client.removeAllChannels();
+            client = undefined;
+          }
+          router.replace(`/${lang}/workflow/applications`);
+          router.refresh();
+          return;
+        }
         if (!d.enabled) {
           schedule(30000);
           return;

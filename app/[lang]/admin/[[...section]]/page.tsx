@@ -1,6 +1,6 @@
 import { AdminHomeMenus } from "@/components/home-menu-cards";
 import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/busy-link";
 import { isLocale } from "@/lib/i18n";
 import { serverClient } from "@/lib/supabase/server";
 import { platformCopy, platformSections } from "@/lib/platform/copy";

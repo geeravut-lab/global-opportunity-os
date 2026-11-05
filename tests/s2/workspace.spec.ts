@@ -188,6 +188,9 @@ test("publisher can create an organization and quarantined evidence via the real
     .getByLabel(t.name, { exact: true })
     .fill("Synthetic UI " + fixture.run);
   await form.getByRole("button", { name: t.create, exact: true }).click();
+  await expect(p.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect(p.locator("main")).toContainText("Synthetic UI " + fixture.run);
   const card = p.locator("article").filter({
     has: p.getByRole("heading", {
@@ -205,6 +208,9 @@ test("publisher can create an organization and quarantined evidence via the real
   );
   await card.getByRole("button", { name: t.upload, exact: true }).click();
   expect((await uploaded).status()).toBe(200);
+  await expect(p.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect(card).toContainText(t.quarantined);
 });
 test("CSRF, unsafe MIME and guessed organization IDs fail before a mutation", async () => {
@@ -268,11 +274,17 @@ test("bilingual listing editor accepts bounded Thai text and independent UI revi
     .getByLabel(t.source, { exact: true })
     .fill("https://example.invalid/ui-catalog");
   await form.getByRole("button", { name: t.save, exact: true }).click();
+  await expect(p.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   const row = p
     .locator("article")
     .filter({ has: p.getByRole("heading", { name: title, exact: true }) });
   await expect(row).toBeVisible();
   await row.getByRole("button", { name: t.submit, exact: true }).click();
+  await expect(p.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect(row).toContainText(t.in_review);
   const reviewer = pages.reviewer;
   await reviewer.goto("/en/workspace/review");
@@ -289,6 +301,9 @@ test("bilingual listing editor accepts bounded Thai text and independent UI revi
   );
   await review.getByRole("button", { name: t.save, exact: true }).click();
   expect((await published).status()).toBe(200);
+  await expect(reviewer.locator(".activity-spinner")).toHaveCount(0, {
+    timeout: 20000,
+  });
   await expect(review).toContainText(t.published, { timeout: 15000 });
   const result = await p.request.get(
     "/api/s2/catalog?q=" + encodeURIComponent(title),

@@ -3,6 +3,8 @@ import { publicEntry } from "@/lib/directory";
 import { notFound, redirect } from "next/navigation";
 import { isLocale } from "@/lib/i18n";
 import { Prototype } from "@/components/prototype";
+import { s3Enabled } from "@/lib/s3/model";
+import { s3Copy } from "@/lib/s3/copy";
 import { s2Enabled } from "@/lib/s2/model";
 import { s2Text } from "@/lib/s2/copy";
 import { HomeMenuGrid, S2HomeMenus } from "@/components/home-menu-cards";
@@ -39,6 +41,20 @@ export default async function Home({
               : "Browse without an account. Sign in to save opportunities and explore your needs."}
           </p>
           <p className="notice">{t.demo}</p>
+          {s3Enabled() && (
+            <HomeMenuGrid
+              label={s3Copy[lang].home}
+              items={[
+                {
+                  href: `/${lang}/workflow`,
+                  label: s3Copy[lang].home,
+                  description: s3Copy[lang].intro,
+                  art: 7,
+                  wide: true,
+                },
+              ]}
+            />
+          )}
           <HomeMenuGrid
             label={t.search}
             items={[

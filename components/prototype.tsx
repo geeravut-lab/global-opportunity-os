@@ -1,6 +1,7 @@
 "use client";
+import { BusyForm } from "@/components/busy-form";
 import { DemoHomeMenus } from "./home-menu-cards";
-import Link from "next/link";
+import Link from "@/components/busy-link";
 
 import { useState } from "react";
 import { Icon } from "./icon";
@@ -27,12 +28,27 @@ function Trend({ lang }: { lang: Locale }) {
     >
       <defs>
         <linearGradient id="trend-fill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#4986ff" stopOpacity=".32" />
-          <stop offset="1" stopColor="#4986ff" stopOpacity=".03" />
+          <stop
+            offset="0"
+            stopColor="var(--goos-chart-blue)"
+            stopOpacity=".32"
+          />
+          <stop
+            offset="1"
+            stopColor="var(--goos-chart-blue)"
+            stopOpacity=".03"
+          />
         </linearGradient>
       </defs>
       {[30, 70, 110, 150].map((y) => (
-        <line key={y} x1="35" x2="520" y1={y} y2={y} stroke="#e7eaf3" />
+        <line
+          key={y}
+          x1="35"
+          x2="520"
+          y1={y}
+          y2={y}
+          stroke="var(--goos-disabled-bg)"
+        />
       ))}
       <path
         d="M40 150 120 140 200 111 280 104 360 76 440 79 520 35V175H40Z"
@@ -41,11 +57,17 @@ function Trend({ lang }: { lang: Locale }) {
       <path
         d="M40 150 120 140 200 111 280 104 360 76 440 79 520 35"
         fill="none"
-        stroke="#2376ed"
+        stroke="var(--goos-chart-blue)"
         strokeWidth="3"
       />
       {[0, 1, 2, 3, 4, 5].map((n) => (
-        <text key={n} x={40 + n * 94} y="202" fill="#52607c" fontSize="13">
+        <text
+          key={n}
+          x={40 + n * 94}
+          y="202"
+          fill="var(--goos-muted)"
+          fontSize="0.875rem"
+        >
           {lang === "th"
             ? ["มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย."][n]
             : ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"][n]}
@@ -67,15 +89,15 @@ function WorldMap({ lang }: { lang: Locale }) {
       }
     >
       <path
-        fill="#64a3ff"
+        fill="var(--goos-chart-blue-light)"
         d="m22 62 30-27 45 7 22-14 28 16-9 26-28 14-13 28-25-5-10-25-22-4Zm74 62 27-8 23 19-9 38-21 44-16-15 1-40-15-21Z"
       />
       <path
-        fill="#4284f2"
+        fill="var(--goos-chart-blue)"
         d="m184 49 26-18 33 9 11-10 57 11 22 18 47 9-13 33-32 5-14 33-22-5-12-29-34-12-18 15-15-17-28-11Zm22 51 31 6 21 23-7 30-24 35-19-14-12-37-15-19Z"
       />
       <path
-        fill="#8cbbff"
+        fill="var(--goos-chart-blue-light)"
         d="m307 169 31-10 23 14 10 24-27 13-31-12Zm-148-136 12-15 8 26-9 16Z"
       />
     </svg>
@@ -269,7 +291,7 @@ export function Prototype({
           <div
             className="progress-ring"
             style={{
-              background: `conic-gradient(#34b6a0 ${(completed / 5) * 360}deg,#edf0f6 0)`,
+              background: `conic-gradient(var(--goos-field-border) ${(completed / 5) * 360}deg,var(--goos-highlight-bg) 0)`,
             }}
             role="img"
             aria-label={`${t.myPlan}: ${completed}/5`}
@@ -305,11 +327,11 @@ export function Prototype({
                       <i
                         style={{
                           background: [
-                            "#2674ef",
-                            "#5e99f8",
-                            "#8bb5ff",
-                            "#bad4ff",
-                            "#d6ddeb",
+                            "var(--goos-chart-blue)",
+                            "var(--goos-chart-blue-light)",
+                            "var(--goos-chart-blue-light)",
+                            "var(--goos-focus-on-dark)",
+                            "var(--goos-line)",
                           ][i],
                         }}
                       />
@@ -344,10 +366,10 @@ export function Prototype({
                     <i
                       style={{
                         background: [
-                          "#2578ff",
-                          "#8a60e7",
-                          "#31b19d",
-                          "#eebd53",
+                          "var(--goos-chart-blue)",
+                          "var(--goos-chart-purple)",
+                          "var(--goos-field-border)",
+                          "var(--goos-accent)",
                         ][i],
                       }}
                     />
@@ -376,7 +398,11 @@ export function Prototype({
               <small>{t.fictionalPerson}</small>
             </div>
           </section>
-          <form action={searchHref} className="dashboard-search" role="search">
+          <BusyForm
+            action={searchHref}
+            className="dashboard-search"
+            role="search"
+          >
             <label className="sr-only" htmlFor="home-search">
               {t.find}
             </label>
@@ -395,7 +421,7 @@ export function Prototype({
             >
               <Icon name="search" />
             </button>
-          </form>
+          </BusyForm>
           <DemoHomeMenus lang={lang} role={role} />
           {recommendations}
           <div className="beneficiary-lower">

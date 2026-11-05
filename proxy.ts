@@ -14,5 +14,6 @@ export const config = {
     "/:lang/auth/:path*",
     "/:lang/admin/:path*",
     "/:lang/workspace/:path*",
+    "/:lang/workflow/:path*",
   ],
 };

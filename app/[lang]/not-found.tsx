@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link from "@/components/busy-link";
 import { useParams } from "next/navigation";
 import { copy, isLocale } from "@/lib/i18n";
 export default function NotFound() {

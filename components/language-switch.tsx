@@ -1,7 +1,7 @@
 "use client";
 import { Arrow } from "@/components/arrow";
 
-import Link from "next/link";
+import Link from "@/components/busy-link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { filterQuery, normalizeFilters } from "@/lib/directory";
 import type { Locale } from "@/lib/i18n";
