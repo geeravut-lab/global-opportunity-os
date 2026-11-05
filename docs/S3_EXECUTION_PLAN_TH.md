@@ -11,7 +11,7 @@
 | BP-B-303 | generic inbox/deep links/settings, transactional outbox/worker leases/dedupe/backoff/dead-letter/monitoring, SMTP adapter ทดสอบ Mailpit, typed follow-up rule/dry-run/timezone | BP-AC-19; duplicate jobs/ack, lost lease/reclaim, opt-out/revoke/withdraw ก่อนส่ง, generic email ไม่มีชื่อรายการ/ข้อมูลเคส, retry ไม่เปลี่ยนธุรกิจซ้ำ |
 | UX/operations | ไทย–อังกฤษ, Opp4All cards/mobile bottom bar, private signals/dirty draft, OpenAPI, fixtures/CI, fresh schema/restore/withdrawal replay | REQ-06/07/10/13/15; AC-05/06/10/14/16 ของ starter เป็น subset แยกจาก BP-AC; keyboard/axe/reflow และ local restore ไม่แทน hosted/human UAT |
 
-แบ่ง review เป็น data/permissions → workflow API → UI/tests/docs โดยต่อจาก branch S2 ไม่ overwrite main
+แบ่ง review เป็น data/API/permissions → typography/loading ที่ใช้ร่วมทุกหน้า → workflow UI/tests/docs โดยต่อจาก branch S2 ไม่ overwrite main
 เลือก SMTP library จาก metadata/เอกสารทางการและ pin exact version ก่อนใช้ ไม่ provision vendor/paid service
 Email ทดสอบเฉพาะ local Mailpit และ fake addresses; external delivery/provider webhook/LINE ไม่ถูกเปิดจากคำสั่งนี้
 preview15นาที, share30วัน, idempotency24ชั่วโมง, retry5ครั้งเป็นค่าทดสอบทางเทคนิค ไม่ใช่นโยบาย production ที่อนุมัติ

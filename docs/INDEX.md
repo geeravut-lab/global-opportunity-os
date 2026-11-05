@@ -5,6 +5,12 @@
 
 ## เอกสารรอบปัจจุบัน
 
+- [ผลพัฒนา S3 และงาน readiness ที่ยังเหลือ](S3_REPORT_TH.md)
+- [แผน S3 ตาม C-29](S3_EXECUTION_PLAN_TH.md)
+- [ADR-005: consent/application/cases/outbox](adr/ADR-005-S3-TH.md)
+- [OpenAPI ของ BFF S3](../api/s3.openapi.json)
+- [Typography/color และ spinner ตาม C-30/C-31](TYPOGRAPHY_LOADING_REPORT_TH.md)
+
 - [ผลพัฒนา S2, checks จริง และงาน rollout ที่เหลือ](S2_REPORT_TH.md)
 - [ADR-004: องค์กร/catalog/assessment/permissions และขอบเขต PNG inspection](adr/ADR-004-S2-TH.md)
 - [OpenAPI ของ BFF S2](../api/s2.openapi.json)
@@ -15,7 +21,7 @@
 - [คู่มือ backup/restore และ replay สิทธิ์](BACKUP_RESTORE_RUNBOOK_TH.md)
 - [แผน PR S2: functions/features, schema และ tests](S2_EXECUTION_PLAN_TH.md)
 
-- [นำ knowledge ทั้ง 15 เรื่องมาใช้: ทำแล้ว/แผนตาม Phase](KNOWLEDGE_ADOPTION_TH.md)
+- [นำ knowledge และ typographyมาใช้: ทำแล้ว/แผนตาม Phase](KNOWLEDGE_ADOPTION_TH.md)
 - [รายงาน branding/live/หน้าแรกและ hosted S1](PLATFORM_REPORT_TH.md)
 - [ADR ของ branding/admin/Realtime/PWA](adr/ADR-003-PLATFORM-TH.md)
 

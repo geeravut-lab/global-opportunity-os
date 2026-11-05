@@ -94,7 +94,7 @@ npx --no-install playwright install --with-deps chromium
 
 ## พัฒนาและทดสอบ S1 ในเครื่อง
 
-ต้องมี Docker daemon และพอร์ต 54320–54324 ว่าง คำสั่งนี้สร้าง Supabase เฉพาะ local project
+ต้องมี Docker daemon และพอร์ต 54320–54325 ว่าง คำสั่งนี้สร้าง Supabase เฉพาะ local project
 พร้อมใช้ migrations กับ DB ในเครื่อง; ไม่ link กับ Project ของเจ้าของ ไม่ส่ง Email ออกภายนอก
 
 ```sh
@@ -116,7 +116,7 @@ npm run db:stop
 
 `test:integration` สร้าง fixture ใหม่และทดสอบ Auth/PostgREST/RLS จริง;
 `test:auth` เปิด/ปิดเว็บพอร์ต 3000 เองและบังคับใช้ local runtime แม้มี hosted environment variables
-`db:test:fresh` สร้าง stack แยกพอร์ต 55320–55324 ทดสอบ migrations ทั้งชุดแล้วหยุด stack นั้น
+`db:test:fresh` สร้าง stack แยกพอร์ต 55320–55325 ทดสอบ migrations ทั้งชุดแล้วหยุด stack นั้น
 ข้อมูล fixture และ Docker volumes ยังเก็บอยู่ตาม CLI default; ไม่มีคำสั่ง reset/destructive cleanup ใน workflow นี้
 `npm run check:s1` รวม integration + auth browser ต้องเริ่ม local DB และ build ก่อน
 `npm run db:migrate` ใช้ `migration up --local` เท่านั้น
@@ -216,6 +216,53 @@ worker ตรวจขนาด/pixels/PNG และสร้างภาพใ�
 `migrate --include-s2` จะเลือก S2 ด้วย เป็นคำสั่งเปลี่ยนระบบจริงที่ **ยังไม่รันในงาน S2 นี้**
 ต้องตรวจ PR/migration checksums/ขอบเขต rollout ก่อนใช้ ไม่ reset DB และไม่สร้าง fake verified partners บน hosted
 
+## S3 — ใบสมัคร เคส และการแจ้งเตือนตาม C-29
+
+เพิ่ม exact-field preview/consent, atomic application/idempotent receipt, คิว/assignment/notes,
+human job workflow, notification preferences/outbox/typed follow-up rules และ scoped Live sync
+รายละเอียดสิทธิ์/ข้อจำกัด: [ADR-005](docs/adr/ADR-005-S3-TH.md), [OpenAPI](api/s3.openapi.json), [ผลจริง](docs/S3_REPORT_TH.md)
+พร้อมปรับ typography/color และ spinner ตาม [C-30/C-31](docs/TYPOGRAPHY_LOADING_REPORT_TH.md)
+
+```sh
+npm ci
+npm run db:start
+npm run dev:s3
+```
+
+เปิด `/th/workflow` หรือ `/en/workflow` บน localhost3000; สมัคร/สร้างโปรไฟล์ adult สมมติก่อน
+`dev:s3` บังคับ Auth local และ S2/S3 flags true แต่ค่าเริ่มต้น deployment ยังปิดทั้งสอง flag
+ไม่มี credentials ของ worker/operator ใน web child; ไม่ copy fixtures ไป hosted
+
+```sh
+npm run build
+npm run test:unit
+npm run test:integration
+npm run test:s3
+npm run db:test:fresh
+npm run test:backup-restore
+```
+
+`test:s3` seed local S2/S3 fixtures แล้วเปิด/ปิด production server3300 เอง
+manifest/password/MFA อยู่ `.local/s3-fixtures.json` mode600 ที่ ignored; ไม่ส่งเป็น CI artifact
+Mailpit UI54324/SMTP54325 รับอีเมลทดสอบในเครื่องเท่านั้น (`db:start` ต้องใช้ config ล่าสุด)
+
+```sh
+npm run worker:s3 -- --dry-run
+npm run worker:s3 -- --tick --email
+npm run worker:s3 -- --watch --tick --email
+```
+
+worker จำกัด loopback543xx และ fake @example.test, deep link localhost3000;
+เมื่อใช้ test server3300 เพิ่ม `--origin http://127.0.0.1:3300`
+`--org <UUID>`/`--ids <UUID,UUID>` จำกัดงานเฉพาะ; dry-run writes0, watch ทุก3วินาที หยุดด้วย Ctrl+C
+ไม่มี worker/cron/SMTP provider production ถูก provision จากคำสั่งเหล่านี้; SMTP delivery เป็น at-least-once
+restore หลัง `test:s3` ตรวจ encrypted package+key และ replay withdrawal ของ S3 เพิ่มจากฐาน S1
+
+ตอนนี้มี31 migration files ใน local; hosted S1 ยัง13 ไม่มีการใช้14–31กับระบบจริงในงานนี้
+operator `migrate` เลือก≤0013, `--include-s2` เลือก≤0018, `--include-s3` เลือก≤0031 อย่างชัดเจน
+คำสั่งเปลี่ยน hosted เหล่านี้ **ยังไม่รันสำหรับ S2/S3**; ตรวจ PR/checksum/rollout/worker/notices ก่อน
+S1 hosted Network/Recovery ยังเป็นงานค้าง ไม่อ้างว่า S3 technical pass ทำให้ pilot พร้อม
+
 ## โครงสร้าง
 
 - `app/` หน้าเว็บตามภาษา รายละเอียด 404 และ CSS
@@ -223,7 +270,7 @@ worker ตรวจขนาด/pixels/PNG และสร้างภาพใ�
 - `lib/` คำแปล ข้อมูลสมมติ กฎสถานะ และการเลือกฟิลด์สาธารณะ
 - `tests/` unit, browser, accessibility และ local DB integration
 - `supabase/migrations/` ฐาน identity/permissions S1; `api/s1.openapi.json` สัญญา BFF ที่มีแล้ว
-- `.github/workflows/check.yml` ขั้นตรวจ CI ที่เตรียมไว้ ยังไม่เคยรันบน GitHub ในงานนี้
+- `.github/workflows/check.yml` ขั้นตรวจ CI; สถานะ run จริงแยกตาม PR ในรายงาน S2/S3
 
 ## Vercel
 

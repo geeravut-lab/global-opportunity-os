@@ -4,7 +4,7 @@
 **ก่อน pilot มี 7 ระยะ S0–S6**; งานหลัง MVP แยกอีก 5 กลุ่ม ไม่ใช่สิ่งที่ต้องสร้างก่อนเริ่มทั้งหมด
 แผนนี้แทนลำดับ 6 ระยะของเซสชันก่อนหน้า สำหรับการพัฒนาต่อไป ไม่แก้ประวัติว่าอนุมัติ production แล้ว
 
-**อนุมัติรอบนี้:** C-11 เพิ่มการตรวจต้นแบบ/รายละเอียด S0/ทดลอง Auth→DB และพัฒนา S1 ต่อจาก C-10
+**อนุมัติฐาน S1 เดิม:** C-11 เพิ่มการตรวจต้นแบบ/รายละเอียด S0/ทดลอง Auth→DB และพัฒนา S1 ต่อจาก C-10
 ผลทำจริงและส่วน S1 ที่ยังเหลืออยู่ใน [รายงาน S1](S1_REPORT_TH.md) ไม่ขยายไป S2–S6 โดยปริยาย
 **อนุมัติเพิ่ม:** C-17 จัดการ Supabase/push/deploy ชิ้นงาน S1; C-19–C-21 เพิ่ม branding/live/knowledge adoption และหน้าแรกการ์ดภาพประกอบ
 **คำสั่งเดิม C-23–C-25:** ปิด hosted Email/Live sync/สิทธิ์และ readiness S1 ก่อนเริ่ม S2; ลำดับนี้เปลี่ยนตาม C-28 ด้านล่าง
@@ -14,16 +14,21 @@ Email Recovery/SMTP เลื่อนจนก่อนเปิดรับผ
 **ยังไม่อนุมัติ:** real-data onboarding, vendor contracts, paid provisioning, external messages และ minor workflows
 P/D ใน Blueprint ยังต้อง disposition ตามเรื่อง ไม่ใช่อ่านเอกสารแล้วทุกตัวเลขกลายเป็น approved
 
+**อัปเดต C-29–C-31 วันที่5พฤศจิกายน2026:** เจ้าของอนุมัติพัฒนา S3 ทั้งหมดแล้ว พร้อม typography/color และ loading indicator
+ดู [ผล S3](S3_REPORT_TH.md), [ADR-005](adr/ADR-005-S3-TH.md) และ [ผล UX](TYPOGRAPHY_LOADING_REPORT_TH.md)
+S2/S3 ยังอยู่ feature PR/local; S1 hosted ยัง blocked; สถานะ implementation แยกจาก rollout และ release gates
+S4–S6/real-data/production gates ไม่ได้รับอนุมัติจากการเริ่ม S3
+
 ## แผนทุก Phase: functions และ features
 
 **อัปเดต C-28 วันที่5พฤศจิกายน2026:** เริ่ม S2 schema/API/UX/fixtures/tests แล้วตาม [รายงาน S2](S2_REPORT_TH.md)
 S1 hosted ยัง blocked, Recovery/SMTP ยังเลื่อน; สถานะ “ต้องรอ S1 ก่อนเริ่ม S2” ในประวัติ C-27 ถูกเปลี่ยนเฉพาะลำดับงานนี้
-ไม่ถือว่าอนุมัติ S3–S6, real beneficiary workflows หรือ production readiness จากการเริ่ม S2
+C-28 ไม่อนุมัติ S3 โดยลำพัง; การเริ่ม S3 มีคำสั่ง C-29 แยกแล้ว ส่วน S4–S6/ข้อมูลจริง/production readiness ยังไม่อนุมัติ
 
-รายละเอียดความสามารถ RooSuk ทั้ง 15 เรื่องและสิ่งที่ทำจริง/เสนอในแต่ละ Phase อยู่ [KNOWLEDGE_ADOPTION_TH.md](KNOWLEDGE_ADOPTION_TH.md)
+รายละเอียด knowledge เดิม15เรื่องและ typographyที่เพิ่มเป็นเรื่อง16และสิ่งที่ทำจริง/เสนอในแต่ละ Phase อยู่ [KNOWLEDGE_ADOPTION_TH.md](KNOWLEDGE_ADOPTION_TH.md)
 S1 เพิ่ม real platform admin/MFA, protected owner, โลโก้/favicon upload/reset, feature switches, audit/CSV,
 in-app notifications, private Live sync+polling, password hardening, PWA offline shell และเมนูการ์ดทุก role
-S2 เริ่มพัฒนาตาม C-28 แล้ว มี backend/UX/fixtures/tests ใน feature branches; ยังไม่เปิด S2 บน production และ S3–S6 ยังเป็นแผน
+S2 และ S3 มี backend/UX/fixtures/tests ใน feature branches ตาม C-28/C-29; ยังไม่ rollout production และ S4–S6 ยังเป็นแผน
 
 | Phase / เป้าหมาย | Functions & features ที่จะทำจริงในระยะนั้น | ผู้ใช้/หน้าจอ | Dependency / exit evidence |
 | --- | --- | --- | --- |
@@ -114,14 +119,14 @@ BP-D-01/02/03/04 ส่วนที่เกี่ยวข้อง ระบ�
 ไม่ต้องเลือก AI vendor/ราคา/ประเทศที่สองเพื่อให้ต้นแบบรอบนี้เสร็จ
 
 
-## สถานะชิ้นงานหลัง C-11
+## สถานะชิ้นงานล่าสุดตาม C-29–C-31
 
 | ระยะ | ทำแล้ว | งานถัดไป/สิ่งที่ยังไม่ยืนยัน |
 | --- | --- | --- |
 | S0 | prototype/แผน, ADR-002, schema/permissions, OpenAPI S1, local user-JWT/RLS spike | pilot scope/ops/privacy sign-off, hosted region/PITR/budget; ไม่อ้างว่าปิด S0 ทั้งระยะ |
-| S1 | Email/password, Google login/MFA/admin ที่ owner ยืนยัน, session revoke, own adult profile, notice/consent/delegation, org invitations, branding/admin/live; เพิ่ม validation/Orca/restore และ MFA-owner runbooks | hosted Email/Live/tenant tests ยังติด network; Recovery/SMTP เลื่อนตาม C-24; operational roster/backup/device UAT ก่อนผู้ใช้จริง; prepare/submit รอ S3 |
+| S1 | Email/password, Google login/MFA/admin ที่ owner ยืนยัน, session revoke, own adult profile, notice/consent/delegation, org invitations, branding/admin/live; เพิ่ม validation/Orca/restore และ MFA-owner runbooks | hosted Email/Live/tenant tests ยังติด network; Recovery/SMTP เลื่อนตาม C-24; operational roster/backup/device UAT ก่อนผู้ใช้จริง; S3เพิ่ม prepare/submit/progress แยก scope ใน local ตาม C-29 |
 | S2 | migrations14–18, verified organizations/evidence, catalog/search/assessment/bookmarks/rules, workspace/live/tests ตาม C-28; แบ่ง3 PR ที่ต่อกัน | ยังต้อง review/CI/hosted rollout, production evidence worker/scan policy/ผู้ตรวจจริง และประกาศ privacy/retention; S1 hosted ไม่ได้ผ่านจากการเริ่ม S2 |
-| S3 | หน้าตัวอย่าง applications/plan/case เท่านั้น | consent preview/atomic apply/cases/notifications จริง |
+| S3 | migrations19–31, consent preview/atomic application/share/case/outbox, assigned staff notes/progress/job steps, local SMTP/typed rules และ UI/tests; ปรับ typography/loading ร่วมทุกหน้า | review/rollout/production worker/SMTP/notices/key/retention/operations ตาม [รายงานS3](S3_REPORT_TH.md); S1 hostedยังไม่ผ่าน |
 | S4 | ยังไม่มี backend ของระยะนี้ | warm referral/outcomes/safety/privacy lifecycle |
 | S5 | มีหน้าตัวอย่าง AI/impact เท่านั้น | RAG/AI gateway/evaluation และ aggregate privacy จริง |
 | S6 | ยังไม่เริ่ม pilot readiness | manual a11y/UAT/restore/incident/load/release gates |

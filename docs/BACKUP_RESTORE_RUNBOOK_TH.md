@@ -66,3 +66,14 @@ drill จึงเก็บ source ACL snapshot และ reconcile เฉพา
 
 ห้ามใช้คำว่า production restore สำเร็จจนตรวจปลายทางจริง; ไม่ restore ทับ Project เดิมโดยไม่ระบุขอบเขตและ impact ของเหตุการณ์
 drill นี้ไม่ทดสอบ privacy deletion replay ที่ยังไม่มีใน S1; งานนั้นอยู่ S4 และต้องทดสอบก่อนรับข้อมูลจริงตามขอบเขต pilot
+
+
+## เพิ่มเติม S3 ตาม C-29
+
+เมื่อทดสอบ S3 แล้ว ให้รัน `npm run test:backup-restore` โดย source543xx มี synthetic fixtures เท่านั้น
+script ตรวจ decrypt ของ immutable package หลัง restore ว่า hash ตรงต้นทางและ key ใช้ได้
+ทดสอบ snapshot ก่อน withdraw → source withdraw → replay `private.goos_s3_replay_withdrawals(jsonb)` แบบ operator-only ก่อนเปิด Auth/REST target
+ledger ต้อง identity-bound application_id/subject_id/action/time จากแหล่งที่เชื่อถือได้ ไม่รับ arbitrary user input
+replayซ้ำต้องไม่เปลี่ยน fingerprint เพิ่มและ active shares ต้องเป็นศูนย์; เก็บ ledger/archives mode600 แยกจากระบบเผยแพร่
+key ปัจจุบันอยู่ private DB จึงอยู่ใน backup เดียวกัน ยังไม่อ้าง KMS/separate trust boundary
+ผลเฉพาะlocalไม่แทน hosted PITR/backup/RPO/RTO; ตรวจ [ผลS3](S3_REPORT_TH.md) ก่อนสรุปความพร้อม
