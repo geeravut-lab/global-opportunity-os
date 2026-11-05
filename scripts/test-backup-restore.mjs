@@ -130,7 +130,8 @@ async function fingerprint(c) {
     data = {};
   for (const t of tables) {
     assert(
-      /^[a-z_]+$/.test(t.schemaname) && /^[a-z_]+$/.test(t.tablename),
+      /^[a-z_][a-z0-9_]*$/.test(t.schemaname) &&
+        /^[a-z_][a-z0-9_]*$/.test(t.tablename),
       "Table identifier guard",
     );
     data[t.schemaname + "." + t.tablename] = (
@@ -258,26 +259,39 @@ try {
       ).error,
       "S3 restore fixture login",
     );
-    const preview = p(
-      await s3Client.rpc("goos_s3_preview", {
-        p_subject: f.subjects.outsider,
-        p_opportunity: f.listings.unlimited,
-        p_fields: ["display_alias", "country_code"],
-        p_skills: [],
-        p_notice: "00000000-0000-4000-8000-000000000202",
-        p_application: null,
-      }),
-    );
-    s3Application = p(
-      await s3Client.rpc("goos_s3_submit", {
-        p_preview: preview.id,
-        p_hash: preview.hash,
-        p_notice: "00000000-0000-4000-8000-000000000202",
-        p_confirmed: true,
-        p_readback: false,
-        p_key: randomUUID(),
-      }),
-    ).id;
+    // Resume only this exact synthetic subject/listing after an interrupted drill.
+    const pending = (
+      await sourceConnection.query(
+        "select id from app.applications where subject_id=$1 and opportunity_id=$2 and state='submitted'",
+        [f.subjects.outsider, f.listings.unlimited],
+      )
+    ).rows;
+    assert(pending.length <= 1, "Unexpected duplicate restore fixture");
+    if (pending.length) s3Application = pending[0].id;
+    else {
+      const preview = p(
+        await s3Client.rpc("goos_s3_preview", {
+          p_subject: f.subjects.outsider,
+          p_opportunity: f.listings.unlimited,
+          p_fields: ["display_alias", "country_code"],
+          p_skills: [],
+          p_notice: "00000000-0000-4000-8000-000000000202",
+          p_application: null,
+        }),
+      );
+      s3Application = p(
+        await s3Client.rpc("goos_s3_submit", {
+          p_preview: preview.id,
+          p_hash: preview.hash,
+          p_notice: "00000000-0000-4000-8000-000000000202",
+          p_confirmed: true,
+          p_readback: false,
+          p_key: randomUUID(),
+        }),
+      ).id;
+    }
+    manifest.s3Application = s3Application;
+    privateJson(dir + "/manifest.json", manifest);
     s3ExpectedHash = (
       await sourceConnection.query(
         "select md5(private.goos_s3_decrypt(encrypted_payload)::text) as hash from private.application_packages where application_id=$1",
