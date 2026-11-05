@@ -612,7 +612,28 @@ describe("S3 consent and transactional workflow", () => {
       )
     )[0].jobs;
     expect(claim.length).toBeGreaterThan(0);
-    for (const j of claim) {
+    for (const [index, j] of claim.entries()) {
+      if (index === 0) {
+        const oldLease = j.lease_id;
+        await sql(
+          "update private.outbox set lease_until=now()-interval '1 second' where id=$1",
+          [j.id],
+        );
+        const reclaimed = (
+          await machine(
+            "select private.goos_s3_claim('in_app',1,$1::uuid[]) jobs",
+            [[j.id]],
+          )
+        )[0].jobs[0];
+        expect(reclaimed.lease_id).not.toBe(oldLease);
+        await expect(
+          machine("select private.goos_s3_ack($1,$2,true,null)", [
+            j.id,
+            oldLease,
+          ]),
+        ).rejects.toMatchObject({ code: "40001" });
+        j.lease_id = reclaimed.lease_id;
+      }
       await machine("select private.goos_s3_ack($1,$2,true,null)", [
         j.id,
         j.lease_id,
@@ -717,6 +738,35 @@ describe("S3 consent and transactional workflow", () => {
         ])
       )[0],
     ).toEqual({ status: "dead", attempts: 5 });
+    const retry = {
+      p_id: job.id,
+      p_attempts: 5,
+      p_reason: "transport_restored",
+    };
+    expect((await c.outsider.rpc("goos_s3_retry", retry)).error?.code).toBe(
+      "P0002",
+    );
+    for (let i = 0; i < 3; i++) {
+      await rpc(c.publisher, "goos_s3_retry", retry);
+      expect(
+        (
+          await sql("select status,attempts from private.outbox where id=$1", [
+            job.id,
+          ])
+        )[0],
+      ).toEqual({ status: "pending", attempts: 0 });
+      expect((await c.publisher.rpc("goos_s3_retry", retry)).error?.code).toBe(
+        "40001",
+      );
+      // Simulate the next transport failure without changing business state.
+      await sql(
+        "update private.outbox set status='dead',attempts=5 where id=$1",
+        [job.id],
+      );
+    }
+    expect((await c.publisher.rpc("goos_s3_retry", retry)).error?.code).toBe(
+      "22023",
+    );
     expect((await row(application)).case_version).toBe(version);
   });
   it("withdrawal revokes all base/additional shares immediately and operator replay is identity-bound/idempotent", async () => {
@@ -750,8 +800,25 @@ describe("S3 consent and transactional workflow", () => {
   it("profile changes, suspension and idempotency expiry reject stale intent without partial package", async () => {
     const expiredPreview = await preview();
     const expiredKey = randomUUID();
-    await sql("insert into private.idempotency_records(actor_id,route,key,request_hash,application_id,receipt,expires_at) select $1,'s3.submit',$2,encode(sha256(convert_to(jsonb_build_array($3::uuid,$4::text,$5::uuid,true,false)::text,'UTF8')),'hex'),$6,receipt,now()-interval '1 second' from private.idempotency_records where application_id=$6 limit 1", [f.actors.user.id, expiredKey, expiredPreview.id, expiredPreview.hash, notice, application]);
-    expect((await c.user.rpc("goos_s3_submit", submitArgs(expiredPreview, expiredKey))).error?.code).toBe("40001");
+    await sql(
+      "insert into private.idempotency_records(actor_id,route,key,request_hash,application_id,receipt,expires_at) select $1,'s3.submit',$2,encode(sha256(convert_to(jsonb_build_array($3::uuid,$4::text,$5::uuid,true,false)::text,'UTF8')),'hex'),$6,receipt,now()-interval '1 second' from private.idempotency_records where application_id=$6 limit 1",
+      [
+        f.actors.user.id,
+        expiredKey,
+        expiredPreview.id,
+        expiredPreview.hash,
+        notice,
+        application,
+      ],
+    );
+    expect(
+      (
+        await c.user.rpc(
+          "goos_s3_submit",
+          submitArgs(expiredPreview, expiredKey),
+        )
+      ).error?.code,
+    ).toBe("40001");
     const p = await preview(
       c.outsider,
       f.subjects.outsider,

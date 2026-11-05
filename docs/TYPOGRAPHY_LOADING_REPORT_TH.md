@@ -35,7 +35,8 @@ unit คำนวณ contrast ข้อความ4.5และ focus/field boun
 ## หลักฐานและข้อจำกัด
 
 ผลสุดท้ายของ build/unit/browser/axe/reflow และ spinner ที่หน่วง API/navigation อยู่ใน [รายงาน S3](S3_REPORT_TH.md)
-ก่อนผลชุดสุดท้าย ห้ามใช้เอกสารนี้กล่าวว่า hosted ผ่าน ทุกการทดสอบในงานนี้ใช้ local/synthetic data
+ชุดรวมผ่าน unit81/integration77/S3 UI12/S2 UI13/validation10 และ baseline E2E25/axe24 ตามรายงาน; Auth27จากชุดเต็ม+profile1จากรอบยืนยัน
+ฟอนต์โหลดจริงผ่าน FontFace.load และ HTTP200; ทุกการทดสอบใช้ local/synthetic data ส่วนCIเป็นอีก target แยกจาก hosted UAT
 ยังต้องทดสอบ Safari/iOS/Android จริงและ NVDA/VoiceOver กับเจ้าของ; automated checks ไม่ใช่ใบรับรอง WCAG
 
 ขั้นถัดไป: review PR ที่ต่อจาก S2 → ตรวจ rollout/worker/notices → hosted UAT และ S1 network/recovery ตาม [งานถัดไป](NEXT_STEPS.md)

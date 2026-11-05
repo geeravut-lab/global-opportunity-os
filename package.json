@@ -35,19 +35,21 @@
     "db:process-evidence": "node scripts/process-evidence.mjs",
     "test:s2": "npm run db:prepare-s2 && playwright test --config playwright.s2.config.ts",
     "dev:s2": "node scripts/s2-app.mjs dev",
+    "db:prepare-s3": "node scripts/seed-s3-fixtures.mjs",
+    "dev:s3": "node scripts/s3-app.mjs dev",
     "worker:s3": "node scripts/s3-worker.mjs",
-    "db:prepare-s3": "node scripts/seed-s3-fixtures.mjs"
+    "test:s3": "npm run db:prepare-s3 && playwright test --config playwright.s3.config.ts"
   },
   "dependencies": {
+    "@fontsource-variable/geist": "5.3.0",
+    "@fontsource-variable/noto-sans-thai": "5.3.0",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.118.0",
     "next": "16.4.5",
+    "nodemailer": "10.3.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "sharp": "0.35.5",
-    "nodemailer": "10.3.1",
-    "@fontsource-variable/geist": "5.3.0",
-    "@fontsource-variable/noto-sans-thai": "5.3.0"
+    "sharp": "0.35.5"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

@@ -36,6 +36,7 @@ jobs:
       - run: npm run build
       - run: npm run check:s1
       - run: npm run test:s2
+      - run: npm run test:s3
       - run: npm run db:test:fresh
       - run: npm run db:validation:start
       - run: npm run test:validation:local
