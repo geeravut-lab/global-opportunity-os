@@ -1,3 +1,4 @@
+import { s5Enabled } from "@/lib/s5/model";
 import Link from "@/components/busy-link";
 import { Icon } from "./icon";
 import { demoNav, demoHref, demoText, type DemoRole } from "@/lib/prototype";
@@ -96,6 +97,12 @@ const arts: Record<string, number> = {
   features: 13,
   admins: 10,
 };
+function s5Items(lang: "th" | "en"): HomeMenuItem[] {
+  return s5Enabled() ? [
+    { href: `/${lang}/navigator`, label: lang === "th" ? "Navigator สำรวจโอกาส" : "Opportunity Navigator", description: lang === "th" ? "ตรวจตัวกรองและแหล่งอ้างอิง หรือค้นหาปกติได้เสมอ" : "Review filters and sources, with normal search always available", art: 4, wide: true },
+    { href: `/${lang}/impact`, label: lang === "th" ? "รายงานผลลัพธ์รวม" : "Aggregate outcomes", description: lang === "th" ? "ข้อมูลรวมที่คุ้มครองกลุ่มเล็ก ตามสิทธิ์องค์กร" : "Protected aggregate data within your organization's permissions", art: 11 },
+  ] : [];
+}
 export function HomeMenuGrid({
   items,
   label,
@@ -168,6 +175,7 @@ export function AccountHomeMenus({
     <HomeMenuGrid
       label={demoText[lang].mainNav}
       items={[
+        ...s5Items(lang),
         ...accountSections
           .filter((s) => s !== "home")
           .map((s, i) => ({
@@ -210,6 +218,8 @@ export function AdminHomeMenus({
     <HomeMenuGrid
       label={demoText[lang].mainNav}
       items={[
+        ...s5Items(lang),
+        ...(s5Enabled() ? [{ href: `/${lang}/admin/reporting`, label: lang === "th" ? "จัดการสิทธิ์รายงาน" : "Report permissions", description: lang === "th" ? "ให้และถอนสิทธิ์ตามองค์กรและ MFA" : "Grant and revoke organization-scoped MFA access", art: 11 }] : []),
         { href: `/${lang}/admin/policy`, label: lang === "th" ? "Policy และทีมผู้ตรวจ" : "Policy and review team", description: lang === "th" ? "notice ระยะเก็บ และสิทธิ์เจ้าหน้าที่" : "Notices, retention and staff scopes", art: 3 },
         { href: `/${lang}/admin/purge`, label: lang === "th" ? "คำขอลบข้อมูล" : "Deletion requests", description: lang === "th" ? "ตรวจขอบเขต hold และ restore ledger" : "Review scope, holds and restore ledger", art: 7 },
         ...platformSections.map((s, i) => ({
@@ -272,7 +282,7 @@ export function S2HomeMenus({
   return (
     <HomeMenuGrid
       label={demoText[lang].mainNav}
-      items={sections.flatMap((section, i) =>
+      items={[...s5Items(lang), ...sections.flatMap((section, i) =>
         section === "review" && !canReview
           ? []
           : [
@@ -284,7 +294,7 @@ export function S2HomeMenus({
                 wide: i === 0 || section === "review",
               },
             ],
-      )}
+      )]}
     />
   );
 }

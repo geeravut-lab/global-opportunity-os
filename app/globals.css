@@ -3270,9 +3270,13 @@ textarea::placeholder {
   color: var(--goos-muted);
   min-height: 3.5rem;
 }
-.mobile-bottom-nav a[aria-current] {
+.mobile-bottom-nav a[aria-current],
+.mobile-bottom-nav .more-button[aria-current] {
   color: var(--goos-primary-hover);
-  font-weight: 600;
+  background: var(--goos-highlight-bg);
+  border-radius: 0.75rem;
+  box-shadow: inset 0 -0.1875rem 0 var(--goos-primary);
+  font-weight: 700;
 }
 .mobile-bottom-nav span {
   white-space: normal;

@@ -67,6 +67,13 @@ restore ใช้ stack แยกและตรวจ withdrawal replay ขอ�
 งานลบปิดทั้ง runtime/DB โดยค่าเริ่มต้น ต้องมี policy/ทีมจริง ผู้ตรวจอิสระ และหลักฐานภายนอกก่อน worker ทำงาน ไม่มีการลบข้อมูลจริงในรอบพัฒนา
 คำสั่งจริงเพิ่มเติม: `npm run test:policy`, `npm run db:process-privacy-purge` (เฉพาะบัญชีสมมติใน loopback)
 
+## S5 — Navigator และรายงานรวม (ปิด production)
+
+implementation อยู่ใน PR แยก: `/th/navigator`, `/th/impact`, `/th/admin/reporting` พร้อม public corpus/citations/manual search และ protected fixed-cohort report/export/Live sync
+ใช้ rules + source guidance ตามจริง ไม่มี external LLM; ไม่มี auto-apply/raw case indexing หรือ external CSR contract
+ดู [ขอบเขต](docs/S5_SCOPE_TH.md), [วิธีใช้/ผลตรวจ/ข้อจำกัด](docs/S5_IMPLEMENTATION_TH.md) และ [OpenAPI](api/s5.openapi.json)
+คำสั่ง local ที่มีจริง: `npm run db:prepare-s5`, `npm run dev:s5`, `npm run test:s5`; migrations66–67 ยังไม่ rollout hosted
+
 ## เริ่มพัฒนา
 
 ใช้ Node.js **24.22.1** และ npm **11.9.0** รุ่น dependency ล็อกใน package.json และ package-lock.json

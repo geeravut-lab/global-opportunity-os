@@ -20,7 +20,7 @@ export function LiveSync({
     [offline, setOffline] = useState(false);
   const enabled = active && !/\/auth\//.test(pathname);
   const protectedPage =
-    /^\/(th|en)\/(account|admin|workspace|workflow|coordination)(\/|$)/.test(
+    /^\/(th|en)\/(account|admin|workspace|workflow|coordination|navigator|impact)(\/|$)/.test(
       pathname,
     );
   useEffect(() => {
@@ -128,6 +128,7 @@ export function LiveSync({
           if (mayRefresh(!document.hidden, dirty(), pathname)) {
             baseline = d.fingerprint;
             setPending(false);
+            window.dispatchEvent(new Event("goos:revalidate"));
             router.refresh();
           } else {
             setPending(true);
