@@ -26,8 +26,10 @@ test("ordinary users cannot open policy administration or retrieve its API", asy
 });
 for (const lang of ["th", "en"]) test(`${lang}: public notice and anonymous deletion tracking are accessible without exposing IDs`, async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 }); await page.goto(`/${lang}/policy`);
+  await expect(page.locator('.mobile-bottom-nav .more-button')).toHaveAttribute("aria-current", "true");
   expect((await new AxeBuilder({ page }).include("#main").analyze()).violations).toEqual([]);
   await page.goto(`/${lang}/deletion-status`); await expect(page.locator("main input")).toHaveAttribute("autocomplete", "off");
+  await expect(page.locator('.mobile-bottom-nav .more-button')).toHaveAttribute("aria-current", "true");
   expect((await new AxeBuilder({ page }).include("#main").analyze()).violations).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

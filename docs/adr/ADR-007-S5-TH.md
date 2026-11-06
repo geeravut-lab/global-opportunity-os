@@ -31,3 +31,5 @@ grant/report/source access ตรวจใหม่ทุก request; private re
 S5 App/DB flags ปิด default; source-guidance ใช้งานได้โดยไม่มี external model/provider key และไม่ลดสิทธิ์ค้นหาปกติเมื่อไม่ opt-in
 
 หลักฐาน tests/commands/ข้อจำกัดอยู่ [รายงาน S5](../S5_IMPLEMENTATION_TH.md) การทดสอบสังเคราะห์ไม่แทน human-labelled retrieval/safety หรือ hosted UAT
+
+เมื่อข้อมูลทดสอบสะสม พบ RLS ของ note และ historical revision join ผ่าน parent RLS ซ้ำ จึงใช้ narrow boolean metadata helpers ตาม case/revision UUID และคง current work/progress/author/job visibility predicates พร้อม child/application candidate indexes ไม่เปิด payload หรือให้ client อ่าน private tables; ผล regression ดูรายงาน S5

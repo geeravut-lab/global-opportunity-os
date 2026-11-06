@@ -90,6 +90,8 @@ describe("Platform boundaries", () => {
       ["/th/account/deletion", "/th/account/privacy"],
       ["/th/admin/policy", "/th/admin/policy"],
       ["/th/admin/reporting", "/th/admin/reporting"],
+      ["/th/policy", "/th/policy"],
+      ["/th/deletion-status", "/th/deletion-status"],
     ]) {
       const items = navigationFor("th", "beneficiary", path, null, true, true, { enabled: true, navigator: true });
       expect(items.filter(i => i.active).map(i => i.href)).toEqual([expected]);

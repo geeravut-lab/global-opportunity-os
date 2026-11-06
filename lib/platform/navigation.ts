@@ -237,8 +237,12 @@ function baseNavigationFor(
   ];
 }
 export function navigationFor(...args: Parameters<typeof baseNavigationFor>): NavEntry[] {
-  const items = baseNavigationFor(...args), pathname = args[2];
-  if (!/^\/(th|en)\/(account|auth|admin|workspace|workflow|coordination|navigator|impact)(\/|$)/.test(pathname)) return items;
+  const lang = args[0], pathname = args[2];
+  const items = [...baseNavigationFor(...args), ...(args[4] ? [
+    { href: `/${lang}/policy`, label: lang === "th" ? "นโยบายและสิทธิ์ข้อมูล" : "Policy and data rights", icon: "shield", active: false },
+    { href: `/${lang}/deletion-status`, label: lang === "th" ? "ติดตามคำขอลบข้อมูล" : "Track deletion request", icon: "clipboard", active: false },
+  ] : [])];
+  if (!/^\/(th|en)\/(account|auth|admin|workspace|workflow|coordination|navigator|impact|policy|deletion-status)(\/|$)/.test(pathname)) return items;
   const current = pathname.replace(/\/workflow\/application(?=\/)/, "/workflow/applications")
     .replace(/\/account\/deletion(?=\/|$)/, "/account/privacy")
     .replace(/\/auth(?:\/.*)?$/, "/account");
