@@ -28,7 +28,7 @@
 
 `NODE_USE_ENV_PROXY=1 node scripts/hosted-s1.mjs migrate --include-policy` เลือกถึง65เท่านั้น ไม่รวม S5
 `verify --include-policy` ตรวจจำนวน/ขอบเขตเดิม
-`policy-preview` ตั้ง S4 owner preview และเก็บ dedicated signing key/Auth cleanup key แบบ encrypted ใน Vercel โดยไม่แสดงค่า; คง public intake/purge/S5 ปิด ต้อง deploy commit ที่ผ่าน CI เพื่อรับ environment ใหม่
+`policy-preview` ตั้งเฉพาะ S4 owner preview และ flags; ไม่ดึง/คัดลอก Auth cleanup key หรือสร้าง signing key คง public intake/purge/S5 ปิด ต้อง deploy เพื่อรับ environment ใหม่
 ต้องใช้ script จาก commit ที่ตรวจแล้ว ไม่มีการเรียก `policy-preview` ในผลก่อนเปิด PR นี้
 
 worker production จะ execute purge ต่อเมื่อ runtime flag, DB flag, published policy/roster และ independent request/receipt ผ่านทั้งหมด งานลบจริงไม่เกิดจาก rollout โดยอัตโนมัติ
@@ -47,3 +47,7 @@ integration รวมครั้งแรกผ่าน110/113; inbox สอ�
 
 ผลตรวจแก้ inbox: หลัง seed Auth ตามขั้นตอนจริง รัน platform13 และ S3ทั้งหมด17 ผ่าน30/30 ในรอบเดียว
 สอง scenario ที่มีหลาย transition ให้ test harness45วินาที โดยไม่เพิ่ม SQL/API timeout8วินาที ผลนี้แทนเฉพาะสองไฟล์ที่เคย fail; ชุดรวมรอบก่อนยังบันทึก110/113 ตามจริง
+
+## การจำกัด credentials ใน owner preview
+
+ระบบตรวจอนุมัติอัตโนมัติปฏิเสธการคัดลอก service_role key ไปเก็บถาวรใน Vercel ระหว่าง preview เพราะสิทธิ์สูงเกินความจำเป็นในขั้นนี้ จึงเอาการ provision Auth/signing keys ออกจาก `policy-preview` แล้ว การเปิด purge จริงยังต้องมี policy/ทีม/คำขออิสระและจัดการ credential ฝั่งเซิร์ฟเวอร์อย่างชัดเจนก่อน ไม่ใช้การเปิด preview เป็นการอนุมัติให้ลบจริง
