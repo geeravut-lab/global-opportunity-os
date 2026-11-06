@@ -44,3 +44,6 @@ worker production จะ execute purge ต่อเมื่อ runtime flag, DB
 
 integration รวมครั้งแรกผ่าน110/113; inbox สองจุด timeout เมื่อประวัติแจ้งเตือนสะสม และ scenario recruiter หลาย transition เกิน test timeout20วินาที
 เพิ่ม recipient candidate query + index ก่อนตรวจ RLS ใน migrations65 (ยังไม่เผยแพร่ hosted) โดยคงสิทธิ์รายคนเดิม กำลังตรวจซ้ำ ไม่ merge จากผล110/113
+
+ผลตรวจแก้ inbox: หลัง seed Auth ตามขั้นตอนจริง รัน platform13 และ S3ทั้งหมด17 ผ่าน30/30 ในรอบเดียว
+สอง scenario ที่มีหลาย transition ให้ test harness45วินาที โดยไม่เพิ่ม SQL/API timeout8วินาที ผลนี้แทนเฉพาะสองไฟล์ที่เคย fail; ชุดรวมรอบก่อนยังบันทึก110/113 ตามจริง

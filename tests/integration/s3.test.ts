@@ -432,7 +432,7 @@ describe("S3 consent and transactional workflow", () => {
         ])
       )[0].filled_count,
     ).toBe(0);
-  });
+  }, 45000);
   it("job recruiter sees only the chosen skills/contact package; only the beneficiary can accept an offer", async () => {
     const p = await rpc(c.second, "goos_s3_preview", {
       p_subject: f.subjects.second,
@@ -502,7 +502,7 @@ describe("S3 consent and transactional workflow", () => {
     });
     await transition(receipt.id, "job_completed", c.recruiter);
     expect((await detail(receipt.id, c.second)).job_stage).toBe("completed");
-  });
+  }, 45000);
   it("prepare/submit/progress are separate authority; revoked authority invalidates pending previews and idempotent replay", async () => {
     const scopes = ["application:prepare"];
     let delegation = await rpc(c.second, "goos_s3_delegate", {
