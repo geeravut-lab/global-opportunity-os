@@ -86,6 +86,13 @@ C คือหลักฐานการตัดสินใจ P คือข
 | C-33 | ใช้ Resend เป็นผู้ให้บริการส่งอีเมล | เจ้าของระบุว่า “ผมจะใช้ Resend ในการส่ง email”; ยังไม่ระบุโดเมน/อีเมลผู้ส่งหรือให้ credentials จึงเตรียม SMTP setup ต่อโดยไม่ซื้อบริการหรือสร้างผู้ส่งแทนเจ้าของ; คง Confirm email Off/Google ตามเดิมและทดสอบ Recovery หลังตั้งค่าจริง |
 | C-34 | เริ่มพัฒนา S4 ตามขอบเขตที่เตรียมไว้ | เจ้าของสั่ง “ทำ S4 — เริ่มพัฒนาตามขอบเขตที่เตรียมไว้ ได้เลย”; อนุมัติ S4.1 referral/consent/destination case, S4.2 outcome/evidence/review/dispute และ S4.3 privacy requests/restricted reports/appeals ด้วยข้อมูลสมมติ ไม่ต้องรอ SMTP/hosted S1 เพื่อเริ่มพัฒนา แต่ readiness เหล่านั้นยังค้าง; ไม่ถือว่าคำสั่งเริ่มพัฒนาเป็นการรับรอง retention/holds/purge จริง, staffing, minors หรืออนุมัติเปิด S4 production โดยอัตโนมัติ |
 
+## อนุมัติ rollout S4 และเริ่ม S5 รอบวันที่ 6 พฤศจิกายน 2026
+
+| รหัส | ข้อยืนยัน | หลักฐาน/ขอบเขต |
+| --- | --- | --- |
+| C-35 | ตรวจ PR/CI และดำเนิน merge/rollout S4 พร้อม policy และงานลบข้อมูลจริง | เจ้าของสั่ง “ดำเนินการ S4: ตรวจ PR/CI แล้วพิจารณา merge และ rollout migrations/flags พร้อมกำหนด notice, retention และทีมผู้ตรวจ งานลบข้อมูลจริง”; อนุญาตฐาน S4 ที่ตรวจแล้วและพัฒนา policy/dual review/purge/restore replay ไม่ใช่ลบข้อมูลทุกคนหรือถือว่ามีคำขอลบที่ยืนยันแล้ว; ชื่อบุคคล/นิติบุคคลและหลักฐาน legal/roster ต้องเป็นข้อมูลจริง ไม่สร้างแทนเจ้าของ; เปิด owner preview ได้ก่อน ส่วน public intake/purge ต้องผ่าน policy/สิทธิ์ของรายการนั้น |
+| C-36 | ให้เลือกขอบเขต S5 และเริ่มพัฒนา | เจ้าของสั่ง “และต่อด้วย S5: เลือกขอบเขต Navigator พร้อมแหล่งอ้างอิง/ทางเลือกค้นหาปกติ และรายงาน impact รวมที่คุ้มครองข้อมูล แล้วเริ่มพัฒนาเลย”; เลือก corpus สาธารณะที่ตรวจสอบแล้ว/อ้างอิงรุ่นและ freshness, manual fallback, no auto-submit, aggregate fixed cohorts/k10/complementary suppression ตาม Blueprint ด้วย stack เดิม; provider/key/contract และ S5 production release ยังไม่ถือว่าอนุมัติจากการเริ่มพัฒนา ไม่ใช้ raw case/PII เป็น corpus หรือส่งให้ provider |
+
 ## สิ่งที่ต้องตัดสินใจก่อนระบบจริง
 
 

@@ -11,10 +11,10 @@ import {
 } from "@/lib/auth/http";
 import { object, text, uuid, InputError } from "@/lib/auth/input";
 import { choice } from "@/lib/s3/input";
-import { s4Enabled } from "@/lib/s4/model";
+import { s4IntakeEnabled } from "@/lib/s4/model";
 export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
-  if (!s4Enabled()) return problem(503, "S4_NOT_ENABLED");
+  if (!s4IntakeEnabled()) return problem(503, "S4_NOT_ENABLED");
   const config = authConfig(),
     c = publicClient();
   if (!config || !c) return problem(503, "SERVICE_UNAVAILABLE");

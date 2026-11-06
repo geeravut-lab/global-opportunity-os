@@ -1,4 +1,4 @@
-> อัปเดต C-34: เพิ่ม S4 บน feature branch โดยปิด release gates ไว้ ดู [ผลและข้อจำกัด S4](docs/S4_REPORT_TH.md) · production ยังเป็น S2/S3 จาก PR #3–10 ตาม [รายงาน rollout](docs/PRODUCTION_ROLLOUT_TH.md)
+> อัปเดต C-35/C-36: PR #11 รวม main แล้ว (`f043e80`) และ hosted ใช้ migrations1–59 แล้ว ส่วน policy/ทีมผู้ตรวจ/งานลบจริงเพิ่มใน PR แยก ดู [สถานะ rollout](docs/S4_ROLLOUT_2026_11_06_TH.md) · S5 เริ่มพัฒนาตาม [ขอบเขต](docs/S5_SCOPE_TH.md) ยังไม่ rollout
 
 # Global Opportunity OS
 
@@ -8,10 +8,10 @@
 หน้า `/th/demo/partner` และ `/th/demo/admin` เป็นตัวอย่างข้อมูลสมมติ; การสลับ role ใน demo ไม่ให้สิทธิ์จริง
 ระบบจริงใช้ `/th/auth/login`, `/th/account`, `/th/opportunities`, `/th/workflow` และหน้าจัดการที่ตรวจสิทธิ์ฝั่ง server/DB
 ผู้ดูแลจริงอยู่ `/th/admin` และต้องผ่าน MFA; เจ้าของยืนยัน Google login/MFA และเปิดหน้าผู้ดูแลได้แล้ว
-PR #3–10 รวม main แล้ว เปิด S2/S3 production flags และใช้ migrations 32 ไฟล์กับ Supabase ที่เจ้าของอนุญาต
+PR #3–11 รวม main แล้ว Supabase มี migrations1–59 โดยยังไม่เปิด S4 ให้ผู้ใช้ทั่วไป งาน policy60–65 ต้องผ่าน PR/CI แยก
 Confirm email ปิดชั่วคราวตามเจ้าของ: signup ที่ได้ session เข้าบัญชีทันที โดยคง JWT/RLS/MFA
 hosted Email/session/Live/สิทธิ์ ยังติด network ของ runtime แยกจากผล local/CI; SMTP/Recovery ยังไม่ปิด; production worker มี cron ทุกนาทีและผ่าน maintenance HTTP 200 หลังแก้ TLS
-S4 มี implementation สำหรับทดสอบข้อมูลสมมติที่ `/th/coordination` และ `/th/report` แล้ว แต่ยังไม่ rollout production; AI/aggregate impact จริงยังเป็น S5
+S4 มี implementation ที่ `/th/coordination`; public intake ปิดใน owner preview ส่วน S5 พัฒนาแยกและปิด default
 
 [ดูแผน S0–S6 พร้อม functions/features](docs/PHASE_PLAN_TH.md) ·
 [ดูผลเทียบ Blueprint/ภาพ](docs/BLUEPRINT_ALIGNMENT_TH.md) ·
@@ -63,9 +63,9 @@ npm run test:backup-restore
 restore ใช้ stack แยกและตรวจ withdrawal replay ของ S1/S3/S4 ตาม fixtures ที่มี ไม่ restore ทับ hosted
 รายการคำสั่งนี้เป็นคำสั่งที่มีอยู่จริง ผลการรันแต่ละรายการแยกบันทึกในรายงาน S4
 
-ไม่มี physical purge, การตัดสินด้วย AI, external S4 email หรือ personalized minor workflow
-คำขอลบอยู่ `awaiting_policy`/`on_hold`; ต้องรับรอง retention/holds/identity/notice/roster/abuse controls ก่อนรับข้อมูลจริง
-รอบนี้ไม่ได้รัน hosted S4 migrations, เปิด production flags หรือ deploy S4
+เพิ่ม policy รุ่น/hash, named roster, targeted DB scrub/Auth hard-delete และ signed intent/executed receipts แล้ว ดู [ข้อกำหนดและผลตรวจ](docs/S4_POLICY_PURGE_TH.md)
+งานลบปิดทั้ง runtime/DB โดยค่าเริ่มต้น ต้องมี policy/ทีมจริง ผู้ตรวจอิสระ และหลักฐานภายนอกก่อน worker ทำงาน ไม่มีการลบข้อมูลจริงในรอบพัฒนา
+คำสั่งจริงเพิ่มเติม: `npm run test:policy`, `npm run db:process-privacy-purge` (เฉพาะบัญชีสมมติใน loopback)
 
 ## เริ่มพัฒนา
 

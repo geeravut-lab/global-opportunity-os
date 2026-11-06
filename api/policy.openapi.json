@@ -1,0 +1,191 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Opp4All policy และ targeted deletion",
+    "version": "0.4.1",
+    "description": "C-35: cookie user JWT, current rights/MFA, no-store, POST origin/body bounds; ไม่รับ account ID เป็นคำสั่งลบจาก client; เอกสารนี้ไม่รับรอง hosted UAT/ทีมจริง"
+  },
+  "paths": {
+    "/api/policy": {
+      "get": {
+        "summary": "อ่าน policy/roster เฉพาะผู้ดูแล MFA",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จตาม DTO ของ components/policy-panel.tsx หรือ purge-panel.tsx"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "snapshot/state เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      },
+      "post": {
+        "summary": "บันทึกร่าง/publish immutable version/เลือกบัญชีทีม/owner preview",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จตาม DTO ของ components/policy-panel.tsx หรือ purge-panel.tsx"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "snapshot/state เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      }
+    },
+    "/api/purge": {
+      "get": {
+        "summary": "อ่านคิวและความพร้อม worker ไม่แสดง Auth credentials",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จตาม DTO ของ components/policy-panel.tsx หรือ purge-panel.tsx"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "snapshot/state เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      },
+      "post": {
+        "summary": "preview/approve/hold/receipt/ledger acknowledgement/enable ตามสิทธิ์อิสระ",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จตาม DTO ของ components/policy-panel.tsx หรือ purge-panel.tsx"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "snapshot/state เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      }
+    },
+    "/api/purge/ledger/{job}": {
+      "get": {
+        "summary": "ดาวน์โหลด signed intent/executed ledger เฉพาะผู้ดูแล MFA",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จตาม DTO ของ components/policy-panel.tsx หรือ purge-panel.tsx"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "snapshot/state เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      }
+    },
+    "/api/purge/status": {
+      "post": {
+        "summary": "ตรวจสถานะด้วย tracking key ใน body; ไม่มี ID/รายละเอียดเคสในผลลัพธ์",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "สำเร็จตาม DTO ของ components/policy-panel.tsx หรือ purge-panel.tsx"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์"
+          },
+          "409": {
+            "description": "snapshot/state เปลี่ยน"
+          },
+          "422": {
+            "description": "ข้อมูลไม่ถูกต้อง"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "Supabase session cookies"
+      }
+    }
+  }
+}

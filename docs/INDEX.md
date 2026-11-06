@@ -5,6 +5,10 @@
 
 ## เอกสารรอบปัจจุบัน
 
+- [S4 rollout และผลตรวจวันที่ 6 พฤศจิกายน 2026](S4_ROLLOUT_2026_11_06_TH.md)
+- [S4 policy/roster/targeted purge/restore](S4_POLICY_PURGE_TH.md)
+- [S5 ขอบเขต Navigator และรายงานรวม](S5_SCOPE_TH.md)
+
 - [Production rollout ตาม C-32](PRODUCTION_ROLLOUT_TH.md)
 - [ผลพัฒนา S4 และ gates ที่ยังเหลือ](S4_REPORT_TH.md)
 - [ขอบเขต S4 ตาม C-34](S4_SCOPE_TH.md)

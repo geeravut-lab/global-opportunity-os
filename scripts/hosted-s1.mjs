@@ -8,7 +8,7 @@ const ref = url.hostname.split(".")[0],
 if (
   url.protocol !== "https:" ||
   !/^\w{20}\.supabase\.co$/.test(url.hostname) ||
-  origin !== "https://opp4all.vercel.app"
+  origin !== "https://opp4all.vercel.app" || ref !== "fxqgvqvthrdzmgnmqgom"
 )
   throw Error("Project/origin guard rejected");
 const project = "prj_I54vkKfmGhOlEMUwrTSEwgX7uhdY",
@@ -81,7 +81,9 @@ if (action === "preflight") {
     (m) =>
       !applied.some((a) => a.version === m.version) &&
       m.version <=
-        (process.argv.includes("--include-s4")
+        (process.argv.includes("--include-policy")
+          ? "202611060065"
+          : process.argv.includes("--include-s4")
           ? "202611050059"
           : process.argv.includes("--include-s3")
             ? "202611050032"
@@ -200,6 +202,13 @@ if (action === "preflight") {
   console.log(
     "Production app environment configured; operator credentials excluded",
   );
+} else if (action === "policy-preview") {
+  const p = await api("vercel", `/v9/projects/${project}?teamId=${team}`);
+  if (p.link?.org !== "geeravut-lab" || p.link?.repo !== "global-opportunity-os") throw Error("Vercel repository guard rejected");
+  await query(`begin;do $$begin if not exists(select 1 from private.deployment_migrations where version='202611060065') then raise exception 'Policy migrations missing';end if;end $$;update private.s4_release set enabled=true,mode='owner_preview' where singleton;update private.purge_settings set enabled=false where singleton;commit;`, false);
+  const env = { S4_ENABLED: "true", S4_ROLLOUT_MODE: "owner_preview", S4_PURGE_ENABLED: "false", S5_ENABLED: "false" };
+  for (const [key, value] of Object.entries(env)) await api("vercel", `/v9/projects/${project}/env?teamId=${team}&upsert=true`, "POST", { key, value, type: "encrypted", target: ["production"] });
+  console.log("Owner preview configured; public intake, real purge and S5 disabled. No Auth cleanup or signing credentials were provisioned. Redeploy is required.");
 } else if (action === "worker-configure") {
   const pools = await api(
     "supabase",
@@ -259,7 +268,9 @@ if (action === "preflight") {
       migrations.filter(
         (m) =>
           m.version <=
-          (process.argv.includes("--include-s4")
+          (process.argv.includes("--include-policy")
+          ? "202611060065"
+          : process.argv.includes("--include-s4")
             ? "202611050059"
             : "202611050032"),
       ).length,
@@ -281,5 +292,5 @@ if (action === "preflight") {
   );
 } else
   throw Error(
-    "Use preflight | migrate | designate-owner | auth | vercel-env | worker-configure | worker-schedule | verify",
+    "Use preflight | migrate | designate-owner | auth | vercel-env | policy-preview | worker-configure | worker-schedule | verify",
   );

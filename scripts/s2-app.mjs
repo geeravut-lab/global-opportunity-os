@@ -23,6 +23,7 @@ const env = {
 };
 // Web child ไม่ต้องมี operator/service credentials; proxy/CA และ guard variables คงเดิม
 for (const name of [
+  "SUPABASE_PURGE_AUTH_KEY",
   "SUPABASE_ACCESS_TOKEN",
   "VERCEL_TOKEN",
   "SUPABASE_SERVICE_ROLE_KEY",

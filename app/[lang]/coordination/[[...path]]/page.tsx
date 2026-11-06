@@ -3,7 +3,7 @@ import Link from "@/components/busy-link";
 import { publicClient } from "@/lib/platform/server";
 import { serverClient } from "@/lib/supabase/server";
 import { isLocale } from "@/lib/i18n";
-import { s4Enabled, kinds } from "@/lib/s4/model";
+import { s4Enabled, s4IntakeEnabled, kinds } from "@/lib/s4/model";
 import type { S4Kind } from "@/lib/s4/model";
 import { s4Text } from "@/lib/s4/copy";
 import { S4Panel } from "@/components/s4-panel";
@@ -100,6 +100,7 @@ export default async function Coordination({
       section={section as S4Kind | "home"}
       initial={{
         liveFingerprint: initialFingerprint.data?.fingerprint,
+        publicIntake: s4IntakeEnabled(),
         context: results[0].data,
         sources: results[1].data,
         notice: results[2].data,

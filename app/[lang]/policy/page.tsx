@@ -1,0 +1,9 @@
+import { notFound } from "next/navigation";
+import { isLocale } from "@/lib/i18n";
+import { publicClient } from "@/lib/platform/server";
+import Link from "@/components/busy-link";
+export const dynamic = "force-dynamic";
+export default async function Policy({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params; if (!isLocale(lang)) notFound(); const r = await publicClient()?.rpc("goos_policy_public", { p_locale: lang }); const d = r?.data, th = lang === "th";
+  return <main id="main" className="account-page s2-page"><h1>{th ? "นโยบายและสิทธิ์ข้อมูล" : "Policy and data rights"}</h1>{!d ? <p>{th ? "ยังไม่มีนโยบายฉบับเผยแพร่ที่ยืนยันแล้ว ระบบยังอยู่ระหว่างเตรียมความพร้อมรับข้อมูลจริง" : "No confirmed published policy is available. Real-data readiness is being prepared."}</p> : <><section className="panel"><h2>{d.controller}</h2><p>{d.notice}</p><dl><div><dt>{th ? "ประเทศที่ครอบคลุม" : "Covered countries"}</dt><dd>{d.countries.join(", ")}</dd></div><div><dt>{th ? "ติดต่อ privacy" : "Privacy contact"}</dt><dd>{d.contact}</dd></div><div><dt>{th ? "เวลารับเรื่อง" : "Staffed hours"}</dt><dd>{d.hours}</dd></div></dl></section><section className="panel"><h2>{th ? "ระยะเวลาที่เลือกในนโยบาย (วัน)" : "Selected policy durations (days)"}</h2><dl>{Object.entries(d.retention as Record<string, number>).map(([k, n]) => <div key={k}><dt>{k}</dt><dd>{n}</dd></div>)}</dl><p>{th ? "อายุ backup เป็นเป้าหมายที่ต้องตรวจตาม plan จริง การลบตามคำขออาจมี hold หรือหน้าที่เก็บ metadata ที่ต้องแจ้งเหตุผล และไม่สามารถเรียกคืนสำเนาที่ผู้รับอ่านไปแล้วได้" : "Backup duration is a target subject to the actual plan. Deletion may have explained holds or restricted metadata retention; previously accessed recipient copies cannot be recalled."}</p><code className="source-hash">{d.hash}</code></section></>}<Link href={`/${lang}/deletion-status`}>{th ? "ติดตามคำขอลบหลังบัญชีถูกลบ" : "Track a request after account deletion"}</Link></main>;
+}

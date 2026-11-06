@@ -11,6 +11,7 @@ export function maintain(env?: NodeJS.ProcessEnv): Promise<{
   clean: number;
   rejected: number;
   emailConfigured: boolean;
+  purge: { configured: boolean; processed: boolean; blocked?: boolean; authentication?: string };
 }>;
 
 export function inspectEvidence(

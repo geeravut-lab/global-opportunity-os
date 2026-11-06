@@ -1,5 +1,6 @@
 // S4 launcher บังคับ local runtime และไม่ส่ง operator credentials ให้ web process
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { localRuntime } from "./local-runtime.ts";
 const r = localRuntime(),
   mode = process.argv[2] ?? "dev",
@@ -15,6 +16,9 @@ const env = {
   ...process.env,
   S3_ENABLED: "true",
   S4_ENABLED: "true",
+  S4_ROLLOUT_MODE: "synthetic",
+  S4_PURGE_ENABLED: "false",
+  PURGE_LEDGER_SIGNING_KEY: createHash("sha256").update(r.serviceRoleKey + "local-synthetic-purge-receipts").digest("hex"),
   S2_ENABLED: "true",
   AUTH_ENABLED: "true",
   AUTH_GOOGLE_ENABLED: "false",
@@ -24,6 +28,7 @@ const env = {
   NEXT_TELEMETRY_DISABLED: "1",
 };
 for (const name of [
+  "SUPABASE_PURGE_AUTH_KEY",
   "SUPABASE_ACCESS_TOKEN",
   "VERCEL_TOKEN",
   "SUPABASE_SERVICE_ROLE_KEY",
