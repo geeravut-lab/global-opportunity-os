@@ -12,3 +12,8 @@ export function maintain(env?: NodeJS.ProcessEnv): Promise<{
   rejected: number;
   emailConfigured: boolean;
 }>;
+
+export function inspectEvidence(
+  client: import("pg").Client,
+  table: string,
+): Promise<"clean" | "rejected" | null>;

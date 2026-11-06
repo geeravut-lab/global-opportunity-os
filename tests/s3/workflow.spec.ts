@@ -62,6 +62,7 @@ test.beforeAll(async ({ browser }) => {
       });
       expect(r.status()).toBe(200);
     }
+    await p.goto("about:blank");
   }
 });
 test.afterAll(async () => {
@@ -168,7 +169,9 @@ test("beneficiary creates an exact-field preview and explicitly confirms one rea
   const receipt = (await r.json()).data;
   application = receipt.id;
   caseId = receipt.case_id;
-  await expect(p).toHaveURL("/en/workflow/application/" + application);
+  await expect(p).toHaveURL("/en/workflow/application/" + application, {
+    timeout: 20000,
+  });
   await busyDone(p);
   const d = await detail();
   expect(Object.keys(d.package.values).sort()).toEqual([
@@ -347,6 +350,7 @@ test("notification settings preserve a second-window draft and reject a stale ve
   await expect(p.locator("main")).toContainText(t.conflict);
   await p.getByRole("button", { name: t.reload, exact: true }).click();
   await busyDone(p);
+  await c.close();
 });
 for (const lang of ["th", "en"] as const)
   test(

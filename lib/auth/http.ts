@@ -69,6 +69,7 @@ export function dbProblem(error: { code?: string; message?: string }) {
     return problem(404, "NOT_FOUND");
   if (
     error.code === "40001" ||
+    error.code === "40P01" ||
     error.code === "23505" ||
     error.message === "last_owner"
   )

@@ -6,7 +6,11 @@
 ## เอกสารรอบปัจจุบัน
 
 - [Production rollout ตาม C-32](PRODUCTION_ROLLOUT_TH.md)
-- [ขอบเขต S4 ก่อนเริ่มพัฒนา](S4_SCOPE_TH.md)
+- [ผลพัฒนา S4 และ gates ที่ยังเหลือ](S4_REPORT_TH.md)
+- [ขอบเขต S4 ตาม C-34](S4_SCOPE_TH.md)
+- [การพัฒนา S4 ด้วยข้อมูลสมมติ](S4_EXECUTION_TH.md)
+- [ADR-006: ส่งต่อ/outcomes/privacy/reports](adr/ADR-006-S4-TH.md)
+- [OpenAPI ของ BFF S4](../api/s4.openapi.json)
 - [SMTP/Recovery production และข้อมูลที่ยังต้องมี](SMTP_RECOVERY_ROLLOUT_TH.md)
 
 - [ผลพัฒนา S3 และงาน readiness ที่ยังเหลือ](S3_REPORT_TH.md)

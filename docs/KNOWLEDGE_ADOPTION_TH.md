@@ -10,6 +10,17 @@ S3 เพิ่ม atomic preview/consent/application/share/assignment/notes/job
 C-30 เพิ่ม knowledge ที่16: [TYPOGRAPHY-COLOR](TYPOGRAPHY-COLOR-KNOWLEDGE.md) → ฟอนต์ฝังเอง/rem/contrast/tokens/44px และ C-31 → loading/กันกดซ้ำ ตาม [รายงาน UX](TYPOGRAPHY_LOADING_REPORT_TH.md)
 ไม่มี LINE/AI/aggregate impact/production mail จากงานนี้ ข้อเสนอ P/G ยังไม่ accepted
 
+## เพิ่มเติม S4 ตาม C-34
+
+- Navigation/back-button: หน้าส่งต่อ/ผลลัพธ์/privacy/reports มี parent links และ mobile bottom bar ตาม role; ป้องกันการเปลี่ยนข้อมูลฟอร์มที่ยังไม่บันทึก
+- Live sync: account signals/fingerprint ตรวจสิทธิ์ปัจจุบันของ referral/outcome/privacy/report; เมื่อถอน membership/share/scope ต้องปิดหน้าที่ไม่มีสิทธิ์ แม้มี dirty form
+- Audit trail: consent package/notes/history/withdrawals เป็น append-only; บันทึก identity/hold/review reason แบบรหัส ไม่เก็บ narrative ในสัญญาณหรือ audit
+- Data management: exact-field preview/snapshot, current notice version, owner-only no-store export และ operator-only withdrawal replay; ไม่ใช้ retention/purge ของ RooSuk โดยอัตโนมัติ
+- Typography/color/loading: คง fonts/tokens/rem/contrast และ BusyForm/BusyLink/busyFetch/DownloadLink; ฟอร์มใหม่มี spinner และกันกดซ้ำระหว่างรอ
+- Automation: ต่อ restricted PNG worker และ expiry fingerprint เดิม ไม่มีการยินยอม/รับรองผล/ชี้ขาด safeguarding อัตโนมัติ และยังไม่เพิ่ม S4 email outbox
+
+รายละเอียด implementation/ผลตรวจจริง/ส่วนที่ยังขาดดู [รายงาน S4](S4_REPORT_TH.md); ตารางประวัติ S1 ด้านล่างไม่ใช้แทนสถานะปัจจุบัน
+
 ## ความสามารถและ Phase ที่นำไปใช้
 
 | Knowledge ต้นทาง | นำมาใช้กับ functions/features ของ Opp4All | ทำแล้วในรอบนี้ | ส่วนที่ออกแบบไว้สำหรับ Phase ถัดไป |
@@ -51,4 +62,4 @@ C-30 เพิ่ม knowledge ที่16: [TYPOGRAPHY-COLOR](TYPOGRAPHY-COLOR-
 
 S2 และ S3 ได้รับอนุมัติ C-28/C-29 และมีโค้ด/ผลทดสอบ local ตามรายงานแล้ว; typography/loading ตาม C-30/C-31
 ขั้นต่อไปคือ review PR/rollout/production worker/notices และปิด S1 hosted/Recovery ก่อนผู้ใช้จริง ตาม [NEXT_STEPS](NEXT_STEPS.md)
-S4 ส่งต่อ/ผลลัพธ์/privacy; S5 Navigator/impact; S6 operational/UAT gates ยังรอ scope/policy/ผู้รับผิดชอบ ไม่อนุมัติ vendor ราคา retention หรือระยะใหม่จากตารางนี้
+S4 เริ่มพัฒนาตาม C-34 แล้ว แต่ยังรอ review/rollout/policy/ผู้รับผิดชอบก่อนข้อมูลจริง; S5 Navigator/impact และ S6 operational/UAT gates ยังไม่อนุมัติ vendor ราคา retention หรือระยะใหม่จากตารางนี้

@@ -1,3 +1,5 @@
+> สถานะ C-34: S4 มี implementation บน feature branch แล้ว ดู [รายงาน S4](S4_REPORT_TH.md); production ยังเป็น S2/S3, hosted S1/Recovery/SMTP และ gates ข้อมูลจริงยังไม่ปิด
+
 > สถานะล่าสุด C-32: รวมPR3–8และdeploy S2/S3 productionแล้ว ดู [รายงาน rollout](PRODUCTION_ROLLOUT_TH.md); ผล/ข้อความก่อนC-32ด้านล่างรักษาไว้เป็นหลักฐานตามวันที่ ไม่ใช่สถานะrolloutล่าสุด
 
 # แผนพัฒนาใหม่ตาม Product Blueprint v1.0
@@ -127,8 +129,8 @@ BP-D-01/02/03/04 ส่วนที่เกี่ยวข้อง ระบ�
 | --- | --- | --- |
 | S0 | prototype/แผน, ADR-002, schema/permissions, OpenAPI S1, local user-JWT/RLS spike | pilot scope/ops/privacy sign-off, hosted region/PITR/budget; ไม่อ้างว่าปิด S0 ทั้งระยะ |
 | S1 | Email/password, Google login/MFA/admin ที่ owner ยืนยัน, session revoke, own adult profile, notice/consent/delegation, org invitations, branding/admin/live; เพิ่ม validation/Orca/restore และ MFA-owner runbooks | hosted Email/Live/tenant tests ยังติด network; Recovery/SMTP เลื่อนตาม C-24; operational roster/backup/device UAT ก่อนผู้ใช้จริง; S3เพิ่ม prepare/submit/progress แยก scope ใน local ตาม C-29 |
-| S2 | migrations14–18, verified organizations/evidence, catalog/search/assessment/bookmarks/rules, workspace/live/tests ตาม C-28; แบ่ง3 PR ที่ต่อกัน | ยังต้อง review/CI/hosted rollout, production evidence worker/scan policy/ผู้ตรวจจริง และประกาศ privacy/retention; S1 hosted ไม่ได้ผ่านจากการเริ่ม S2 |
-| S3 | migrations19–31, consent preview/atomic application/share/case/outbox, assigned staff notes/progress/job steps, local SMTP/typed rules และ UI/tests; ปรับ typography/loading ร่วมทุกหน้า | review/rollout/production worker/SMTP/notices/key/retention/operations ตาม [รายงานS3](S3_REPORT_TH.md); S1 hostedยังไม่ผ่าน |
-| S4 | ยังไม่มี backend ของระยะนี้ | warm referral/outcomes/safety/privacy lifecycle |
+| S2 | verified organizations/evidence, catalog/search/assessment/bookmarks/rules, workspace/live/tests ตาม C-28; รวม main และ rollout production ตาม C-32 แล้ว | scan policy/ผู้ตรวจจริง, privacy/retention และ hosted UAT ยังต้องปิด; S1 hosted ไม่ได้ผ่านจากการ rollout S2 |
+| S3 | consent preview/atomic application/share/case/outbox, assigned staff notes/progress/job steps, typed rules และ UI/tests; typography/loading ร่วมทุกหน้า; รวม PR3–10 และเปิด production worker/cron หลังแก้ TLS แล้ว | ยืนยัน Resend SMTP/delivery, Recovery/notices/key/retention/operations และ hosted UAT ตาม [รายงาน rollout](PRODUCTION_ROLLOUT_TH.md); S1 hosted ยังไม่ผ่าน |
+| S4 | migrations33–59, warm referral พร้อม consent ใหม่และ destination case, outcomes L0/L1/L2/evidence/dispute, privacy/export/holds/cessation/withdrawal replay และ restricted reports/appeals บน feature branch | review/rollout แยก; notice/retention/roster/abuse/SLA/hosted restore ก่อนข้อมูลจริง; ไม่มี physical purge, user blocking หรือ external S4 email |
 | S5 | มีหน้าตัวอย่าง AI/impact เท่านั้น | RAG/AI gateway/evaluation และ aggregate privacy จริง |
 | S6 | ยังไม่เริ่ม pilot readiness | manual a11y/UAT/restore/incident/load/release gates |

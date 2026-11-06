@@ -65,7 +65,12 @@ function ShellContent({
   hasSessionCookie?: boolean;
   s2?: boolean;
   canReview?: boolean;
-  workflow?: { enabled?: boolean; hasOrg?: boolean; canRoute?: boolean };
+  workflow?: {
+    enabled?: boolean;
+    hasOrg?: boolean;
+    canRoute?: boolean;
+    coordination?: boolean;
+  };
 }) {
   const pathname = usePathname(),
     params = useSearchParams(),
@@ -73,7 +78,7 @@ function ShellContent({
     pt = platformCopy[lang],
     t = demoText[lang];
   const accountMode =
-      /^\/(th|en)\/(account|auth|admin|workspace|workflow)(\/|$)/.test(
+      /^\/(th|en)\/(account|auth|admin|workspace|workflow|coordination)(\/|$)/.test(
         pathname,
       ),
     adminMode = /^\/(th|en)\/admin(\/|$)/.test(pathname);
@@ -436,7 +441,12 @@ export function AppShell(props: {
   hasSessionCookie?: boolean;
   s2?: boolean;
   canReview?: boolean;
-  workflow?: { enabled?: boolean; hasOrg?: boolean; canRoute?: boolean };
+  workflow?: {
+    enabled?: boolean;
+    hasOrg?: boolean;
+    canRoute?: boolean;
+    coordination?: boolean;
+  };
 }) {
   return <ShellContent {...props} />;
 }

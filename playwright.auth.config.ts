@@ -3,6 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 import { localRuntime } from "./scripts/local-runtime";
 const local = localRuntime();
 export default defineConfig({
+  globalSetup: "./tests/auth/setup.ts",
   testDir: "./tests/auth",
   workers: 1,
   retries: 0,

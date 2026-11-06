@@ -51,13 +51,17 @@ export default async function Workflow({
   const results = await Promise.all([
     c.rpc("goos_context"),
     c.rpc("goos_s3_orgs"),
-    c.rpc("goos_s3_subjects"),
+    ["apply", "settings"].includes(section)
+      ? c.rpc("goos_s3_subjects")
+      : Promise.resolve({ data: [], error: null }),
     c.rpc("goos_s3_notices", { p_locale: lang, p_purpose: "application" }),
     c.rpc("goos_s3_notices", {
       p_locale: lang,
       p_purpose: "application_delegation",
     }),
-    c.rpc("goos_delegations"),
+    section === "settings"
+      ? c.rpc("goos_delegations")
+      : Promise.resolve({ data: [], error: null }),
   ]);
   const t = s3Copy[lang];
   const errorPage = () => (
@@ -71,8 +75,23 @@ export default async function Workflow({
     results.some((r) => r.error) ||
     !results[3].data?.[0] ||
     !results[4].data?.[0]
-  )
+  ) {
+    const codes = new Set(["57014", "42501", "28000", "P0002", "PGRST202"]);
+    console.error(
+      "S3_PAGE_UNAVAILABLE",
+      results.flatMap((r, index) =>
+        r.error
+          ? [
+              {
+                index,
+                code: codes.has(r.error.code) ? r.error.code : "TRANSPORT",
+              },
+            ]
+          : [],
+      ),
+    );
     return errorPage();
+  }
   const orgs = results[1].data as S3Org[];
   let org = typeof query.org === "string" ? query.org : null;
   if (org && !orgs.some((o) => o.id === org)) notFound();
@@ -113,6 +132,11 @@ export default async function Workflow({
       notFound();
     if (result.error) return errorPage();
     data.detail = result.data;
+    if (data.detail?.state === "needs_information" && data.detail.can_submit) {
+      const subjects = await c.rpc("goos_s3_subjects");
+      if (subjects.error) return errorPage();
+      data.subjects = subjects.data ?? [];
+    }
   } else if (section === "applications" || (section === "queue" && org)) {
     const result = await c.rpc("goos_s3_list", {
       p_org: section === "queue" ? org : null,

@@ -130,6 +130,15 @@ try {
     throw Error("fresh S2 assessment policy failed");
   if ((await client.rpc("goos_s3_subjects")).error)
     throw Error("fresh S3 subject policy failed");
+  if ((await client.rpc("goos_s4_sources")).error?.code !== "42501")
+    throw Error("fresh S4 release gate must deny direct calls");
+  const s4 = (
+    await c.query(
+      "select (select enabled from private.s4_release where singleton) enabled,has_table_privilege('goos_reporter','private.s4_reports','select') reads,has_function_privilege('goos_reporter','private.goos_s3_decrypt(bytea)','execute') decrypts,has_table_privilege('authenticated','private.s4_reports','select') user_reads",
+    )
+  ).rows[0];
+  if (Object.values(s4).some(Boolean))
+    throw Error("fresh S4 write-only/report release boundary failed");
   const worker = (
     await c.query(
       "select has_function_privilege('goos_worker','private.goos_s3_claim(text,integer,uuid[])','execute') as claim,has_table_privilege('goos_worker','private.application_packages','select') as package",

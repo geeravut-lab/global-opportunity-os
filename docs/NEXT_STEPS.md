@@ -1,15 +1,12 @@
-# ขั้นถัดไปหลัง rollout ตาม C-32
+# ขั้นถัดไปหลังพัฒนา S4 ตาม C-34
 
-- PR3–8 รวมmainและ deploy production แล้ว เปิด S2/S3 flags และverify migrations31; เพิ่มmigration32สำหรับmachineworkerแล้วตามรายงาน
-- worker PR #9 รวมแล้ว; รุ่นแก้ TLS ตอบ HTTP 200 และ cron active ทุกนาทีตามรายงาน ส่วน SMTP และ hosted tests ยังไม่ปิด
-- S4เลือกขอบเขตส่งต่อ/ผลลัพธ์/privacyใน [S4_SCOPE_TH](S4_SCOPE_TH.md) แล้ว ยังไม่เริ่มimplementation
-- ผลละเอียด/ข้อจำกัด/production IDs ดู [PRODUCTION_ROLLOUT_TH](PRODUCTION_ROLLOUT_TH.md)
+production ปัจจุบันเป็น S2/S3 จาก PR #3–10 และ migrations1–32 ตาม [รายงาน rollout](PRODUCTION_ROLLOUT_TH.md)
+S4 เพิ่มบน feature branch ด้วยข้อมูลสมมติ ยังไม่ใช้ migrations33–59 หรือเปิด flags บน hosted
+ผลตรวจที่รันจริงและข้อจำกัดดู [รายงาน S4](S4_REPORT_TH.md)
 
-## ขั้นตอนที่ยังเหลือ
+1. **S4 — review และ rollout:** ตรวจ PR การส่งต่อเคส/consent/destination assignment, outcomes/evidence/dispute และ privacy/export/holds/reports; ตรวจ notice/TTL/สิทธิ์เจ้าหน้าที่และนโยบายหลักฐาน ก่อนเลือกอนุมัติ rollout migrations/flags แบบแยกขั้น พร้อม rollback ที่ปิด gates โดยไม่ลบข้อมูล
+2. **S4 — ก่อนข้อมูลจริง:** กำหนดผู้ตรวจอิสระและ privacy/safety roster, identity/SLA/retention/holds/recipient cessation; ทดสอบ escalation/abuse controls และ hosted restore/replay คำขอลบยังไม่มี physical purge และไม่ได้ถือว่าผ่าน BP-AC-16 ทั้งข้อ; การแจ้งเตือน S4 ทางอีเมลยังไม่รวมใน implementation นี้
+3. **S1/S3/S6 — Email/Recovery/hosted:** ยืนยัน Resend API key และ sender ที่ verify แล้วในช่องทางจัดเก็บ secrets ที่ใช้จริง; ตั้ง Supabase SMTP และทดสอบ delivery/Recovery เมื่อ runtime เข้าถึงเว็บและ Supabase ได้ ทดสอบ Email Confirm=Off, session, Live sync, revoke/tenant และ cleanup ข้อมูลสมมติ; ปิดงาน backup/restore และ manual accessibility/device UAT ก่อนรับข้อมูลจริง
+4. **S5 — Navigator และ impact:** ให้เจ้าของเลือกขอบเขต approved public corpus/AI gateway/citations/manual fallback กับ aggregate privacy/metric provenance ก่อนเริ่มพัฒนา ไม่เริ่มจากการเสนอขั้นถัดไปนี้
 
-1. **S3 operations:** ติดตาม worker/cron ที่เปิดแล้ว; ตั้ง Resend SMTP/verified sender และทดสอบ delivery; ระบุops roster และretention/key policyก่อนข้อมูลจริง
-2. **S1/S6:** ให้taskใช้runtimeที่อนุญาตเว็บ/Supabaseจริง แล้วทดสอบEmailOff/session/Live/MFA/revoke/tenantและcleanup; ทดสอบRecoveryกับSMTPจริง และhosted backup/restore/manual AT/device UAT
-3. **S4:** ทบทวนขอบเขตS4.1 warm referral consent/accept/destination case ก่อนเริ่ม; S4.2outcome review/dispute และS4.3privacy/retention/holdsต้องมีผู้รับผิดชอบและpolicyชัด
-4. **S5–S6:** Navigator/aggregate impact และpilot gatesยังไม่เริ่มจากคำสั่งนี้
-
-ทุกคำตอบจบpromptต้องแจ้งขั้นถัดไปในแชตตาม C-18; ไม่ใช้คำว่าREADYหรือlocal/CIpassแทน hosted UAT/operational gates
+ทุกคำตอบจบ prompt ต้องแจ้งขั้นถัดไปในแชตตาม C-18; ผล local/CI หรือ deployment READY ไม่แทน hosted UAT/operational gates
