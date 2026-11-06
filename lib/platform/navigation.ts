@@ -10,7 +10,7 @@ export interface NavEntry {
   icon: string;
   active: boolean;
 }
-export function navigationFor(
+function baseNavigationFor(
   lang: "th" | "en",
   role: DemoRole,
   pathname: string,
@@ -23,6 +23,7 @@ export function navigationFor(
     canRoute?: boolean;
     coordination?: boolean;
     intake?: boolean;
+    navigator?: boolean;
   } = {},
 ): NavEntry[] {
   const flowEntry = {
@@ -43,7 +44,17 @@ export function navigationFor(
     icon: "shield",
     active: pathname === `/${lang}/report`,
   };
-  const coordinationEntries = workflow.coordination ? [coordinationEntry, ...(workflow.intake === false ? [] : [reportEntry])] : [];
+  const s5Entries: NavEntry[] = workflow.navigator ? [
+    { href: `/${lang}/navigator`, label: lang === "th" ? "Navigator สำรวจโอกาส" : "Opportunity Navigator", icon: "ai", active: pathname === `/${lang}/navigator` },
+    { href: `/${lang}/impact`, label: lang === "th" ? "รายงานผลลัพธ์รวม" : "Aggregate outcomes", icon: "chart", active: pathname === `/${lang}/impact` },
+  ] : [];
+  const coordinationEntries = [...(workflow.coordination ? [coordinationEntry, ...(workflow.intake === false ? [] : [reportEntry])] : []), ...s5Entries];
+  if (/^\/(th|en)\/(navigator|impact)(\/|$)/.test(pathname)) return [
+    { href: `/${lang}`, label: lang === "th" ? "หน้าแรก" : "Home", icon: "home", active: false },
+    { href: `/${lang}/opportunities`, label: lang === "th" ? "ค้นหาปกติ" : "Normal search", icon: "search", active: false },
+    ...s5Entries,
+    { href: `/${lang}/account`, label: lang === "th" ? "บัญชี" : "Account", icon: "user", active: false },
+  ];
   if (/^\/(th|en)\/coordination(\/|$)/.test(pathname))
     return [
       ...(["home", "referrals", "outcomes", "privacy", "reports"] as const).map(
@@ -58,6 +69,7 @@ export function navigationFor(
         }),
       ),
       flowEntry,
+      ...s5Entries,
     ];
   if (/^\/(th|en)\/workflow(\/|$)/.test(pathname)) {
     return (
@@ -126,6 +138,11 @@ export function navigationFor(
         icon: "home",
         active: pathname === `/${lang}/admin`,
       },
+      ...[
+        { id: "policy", th: "Policy และทีมผู้ตรวจ", en: "Policy and review team", icon: "shield" },
+        { id: "purge", th: "คำขอลบข้อมูล", en: "Deletion requests", icon: "clipboard" },
+        ...(workflow.navigator ? [{ id: "reporting", th: "สิทธิ์รายงานรวม", en: "Report permissions", icon: "chart" }] : []),
+      ].map(s => ({ href: `/${lang}/admin/${s.id}`, label: s[lang], icon: s.icon, active: pathname === `/${lang}/admin/${s.id}` })),
       ...platformSections.map((s) => ({
         href: `/${lang}/admin/${s}`,
         label: platformCopy[lang][s],
@@ -218,6 +235,23 @@ export function navigationFor(
     ...(workflow.enabled ? [flowEntry] : []),
     ...(coordinationEntries),
   ];
+}
+export function navigationFor(...args: Parameters<typeof baseNavigationFor>): NavEntry[] {
+  const lang = args[0], pathname = args[2];
+  const items = [...baseNavigationFor(...args), ...(args[4] ? [
+    { href: `/${lang}/policy`, label: lang === "th" ? "นโยบายและสิทธิ์ข้อมูล" : "Policy and data rights", icon: "shield", active: false },
+    { href: `/${lang}/deletion-status`, label: lang === "th" ? "ติดตามคำขอลบข้อมูล" : "Track deletion request", icon: "clipboard", active: false },
+  ] : [])];
+  if (!/^\/(th|en)\/(account|auth|admin|workspace|workflow|coordination|navigator|impact|policy|deletion-status)(\/|$)/.test(pathname)) return items;
+  const current = pathname.replace(/\/workflow\/application(?=\/)/, "/workflow/applications")
+    .replace(/\/account\/deletion(?=\/|$)/, "/account/privacy")
+    .replace(/\/auth(?:\/.*)?$/, "/account");
+  let selected = -1, longest = -1;
+  items.forEach((item, index) => {
+    const path = item.href.split("?")[0];
+    if ((current === path || current.startsWith(path + "/")) && path.length > longest) { selected = index; longest = path.length; }
+  });
+  return selected < 0 ? items : items.map((item, index) => ({ ...item, active: index === selected }));
 }
 export function backTarget(pathname: string, from: string | null) {
   const locale = pathname.startsWith("/en") ? "en" : "th";

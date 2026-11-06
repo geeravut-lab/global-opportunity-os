@@ -83,6 +83,20 @@ describe("Platform boundaries", () => {
       items.some((i) => i.href === "/th/account/notifications" && i.active),
     ).toBe(true);
   });
+  it("marks the deepest real menu for detail pages and new administration routes", () => {
+    for (const [path, expected] of [
+      ["/th/workflow/application/00000000-0000-4000-8000-000000000001", "/th/workflow/applications"],
+      ["/th/workspace/catalog/00000000-0000-4000-8000-000000000001", "/th/workspace/catalog"],
+      ["/th/account/deletion", "/th/account/privacy"],
+      ["/th/admin/policy", "/th/admin/policy"],
+      ["/th/admin/reporting", "/th/admin/reporting"],
+      ["/th/policy", "/th/policy"],
+      ["/th/deletion-status", "/th/deletion-status"],
+    ]) {
+      const items = navigationFor("th", "beneficiary", path, null, true, true, { enabled: true, navigator: true });
+      expect(items.filter(i => i.active).map(i => i.href)).toEqual([expected]);
+    }
+  });
   it("default PNG favicon passes actual decoder and strips metadata", async () => {
     const r = await validateBrandImage(
       readFileSync("public/brand-defaults/favicon.png"),

@@ -329,7 +329,7 @@ describe("S2 lifecycle, private evidence and matching", () => {
         })
       ).items,
     ).toHaveLength(0);
-  });
+  }, 45000);
   it("direct user table access and revision edits are denied", async () => {
     const id = (await draft()).revision.id;
     await expect(

@@ -1,3 +1,5 @@
+> อัปเดต C-36/C-37: มี S5 source-guided Navigator/impact/grants/export/Live sync บน feature branch และ mobile active menu/More auto-scroll แล้ว ดู [ผล S5](S5_IMPLEMENTATION_TH.md) และ [เมนูมือถือ](MOBILE_NAVIGATION_TH.md); ยังไม่ใช่การเปิด S5 production หรือปิด human/hosted gates
+
 > อัปเดต C-35/C-36: S4 PR #11 merge และ hosted migrations1–59 แล้ว; policy60–65/targeted purge ตรวจใน PR แยก S5 ได้รับอนุมัติให้เลือกขอบเขตและเริ่มพัฒนาแล้ว ดู [สถานะล่าสุด](S4_ROLLOUT_2026_11_06_TH.md) และ [ขอบเขต S5](S5_SCOPE_TH.md) ข้อความก่อนหน้านี้ด้านล่างเป็นประวัติ
 
 > สถานะ C-34: S4 มี implementation บน feature branch แล้ว ดู [รายงาน S4](S4_REPORT_TH.md); production ยังเป็น S2/S3, hosted S1/Recovery/SMTP และ gates ข้อมูลจริงยังไม่ปิด
@@ -125,7 +127,7 @@ BP-D-01/02/03/04 ส่วนที่เกี่ยวข้อง ระบ�
 ไม่ต้องเลือก AI vendor/ราคา/ประเทศที่สองเพื่อให้ต้นแบบรอบนี้เสร็จ
 
 
-## สถานะชิ้นงานล่าสุดตาม C-29–C-31
+## สถานะชิ้นงานล่าสุดตาม C-29–C-37
 
 | ระยะ | ทำแล้ว | งานถัดไป/สิ่งที่ยังไม่ยืนยัน |
 | --- | --- | --- |
@@ -133,6 +135,6 @@ BP-D-01/02/03/04 ส่วนที่เกี่ยวข้อง ระบ�
 | S1 | Email/password, Google login/MFA/admin ที่ owner ยืนยัน, session revoke, own adult profile, notice/consent/delegation, org invitations, branding/admin/live; เพิ่ม validation/Orca/restore และ MFA-owner runbooks | hosted Email/Live/tenant tests ยังติด network; Recovery/SMTP เลื่อนตาม C-24; operational roster/backup/device UAT ก่อนผู้ใช้จริง; S3เพิ่ม prepare/submit/progress แยก scope ใน local ตาม C-29 |
 | S2 | verified organizations/evidence, catalog/search/assessment/bookmarks/rules, workspace/live/tests ตาม C-28; รวม main และ rollout production ตาม C-32 แล้ว | scan policy/ผู้ตรวจจริง, privacy/retention และ hosted UAT ยังต้องปิด; S1 hosted ไม่ได้ผ่านจากการ rollout S2 |
 | S3 | consent preview/atomic application/share/case/outbox, assigned staff notes/progress/job steps, typed rules และ UI/tests; typography/loading ร่วมทุกหน้า; รวม PR3–10 และเปิด production worker/cron หลังแก้ TLS แล้ว | ยืนยัน Resend SMTP/delivery, Recovery/notices/key/retention/operations และ hosted UAT ตาม [รายงาน rollout](PRODUCTION_ROLLOUT_TH.md); S1 hosted ยังไม่ผ่าน |
-| S4 | migrations33–59, warm referral พร้อม consent ใหม่และ destination case, outcomes L0/L1/L2/evidence/dispute, privacy/export/holds/cessation/withdrawal replay และ restricted reports/appeals บน feature branch | review/rollout แยก; notice/retention/roster/abuse/SLA/hosted restore ก่อนข้อมูลจริง; ไม่มี physical purge, user blocking หรือ external S4 email |
-| S5 | มีหน้าตัวอย่าง AI/impact เท่านั้น | RAG/AI gateway/evaluation และ aggregate privacy จริง |
+| S4 | PR #11–12 รวม main และ deploy `4174b55` READY; hosted schema65/owner preview มีส่งต่อเคส/ผลลัพธ์/สิทธิ์ข้อมูล, versioned policy/retention/roster และ targeted DB/Auth purge พร้อม signed restore receipts | public intake/purge ปิด; ต้องมี controller/ประเทศ/contact/เวลาทำงาน/ทีม MFA จริงและทบทวน notice/retention/holds/ledger/credentials ก่อนเปิดใช้; ไม่มีการลบข้อมูลจริงในรอบนี้ ดู [rollout](S4_ROLLOUT_2026_11_06_TH.md) |
+| S5 | PR #13 มี Navigator สองภาษา/approved public corpus/citations/manual search, optional gateway interface, L2 fixed-month reports/k10/complementary suppression/report grants/export/Live; เมนูมือถือ active/More/auto-scroll ตาม C-37; local integration124/124 และ restore70 ผ่าน | ยังไม่ merge/rollout migrations66–70 หรือเปิด S5 บน production; ตรวจ CI/review และอนุมัติ rollout แยก; external provider/terms/human evaluation/CSR contracts/hosted UAT ยังไม่ผ่าน ดู [ผลตรวจ](S5_IMPLEMENTATION_TH.md) |
 | S6 | ยังไม่เริ่ม pilot readiness | manual a11y/UAT/restore/incident/load/release gates |

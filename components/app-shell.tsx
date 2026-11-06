@@ -71,6 +71,7 @@ function ShellContent({
     canRoute?: boolean;
     coordination?: boolean;
     intake?: boolean;
+    navigator?: boolean;
   };
 }) {
   const pathname = usePathname(),
@@ -79,7 +80,7 @@ function ShellContent({
     pt = platformCopy[lang],
     t = demoText[lang];
   const accountMode =
-      /^\/(th|en)\/(account|auth|admin|workspace|workflow|coordination)(\/|$)/.test(
+      /^\/(th|en)\/(account|auth|admin|workspace|workflow|coordination|navigator|impact)(\/|$)/.test(
         pathname,
       ),
     adminMode = /^\/(th|en)\/admin(\/|$)/.test(pathname);
@@ -135,9 +136,10 @@ function ShellContent({
     requestAnimationFrame(() => {
       const n = scroll.current,
         active = n?.querySelector<HTMLElement>("[aria-current=page]");
-      if (n && active)
-        n.scrollTop =
-          active.offsetTop - n.clientHeight / 2 + active.clientHeight / 2;
+      if (n && active) {
+        const top = active.getBoundingClientRect().top - n.getBoundingClientRect().top + n.scrollTop;
+        n.scrollTo({ top: Math.max(0, top - (n.clientHeight - active.clientHeight) / 2), behavior: "instant" });
+      }
       measure();
     });
   }
@@ -448,6 +450,7 @@ export function AppShell(props: {
     canRoute?: boolean;
     coordination?: boolean;
     intake?: boolean;
+    navigator?: boolean;
   };
 }) {
   return <ShellContent {...props} />;

@@ -1,0 +1,213 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Opp4All S5 Navigator และ aggregate impact",
+    "version": "0.5.0",
+    "description": "C-36 development; S5 default off; cookie JWT/current authorization/MFA, no-store, origin/body bounds. ไม่มี external LLM หรือ S5 production rollout"
+  },
+  "paths": {
+    "/api/navigator": {
+      "post": {
+        "summary": "opt-in source-backed guidance ด้วย public filters ไม่มีการสมัคร/แชร์แทน",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ผล DTO ที่ตัด private fields และคุ้มครองข้อมูลแล้ว"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์/flag ปิด"
+          },
+          "409": {
+            "description": "snapshot ถูก invalidate"
+          },
+          "422": {
+            "description": "input ไม่ผ่าน"
+          },
+          "429": {
+            "description": "budget/rate limit"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      }
+    },
+    "/api/impact": {
+      "get": {
+        "summary": "อ่าน scopes ตาม MFA/grant/tenant ปัจจุบัน",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ผล DTO ที่ตัด private fields และคุ้มครองข้อมูลแล้ว"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์/flag ปิด"
+          },
+          "409": {
+            "description": "snapshot ถูก invalidate"
+          },
+          "422": {
+            "description": "input ไม่ผ่าน"
+          },
+          "429": {
+            "description": "budget/rate limit"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      },
+      "post": {
+        "summary": "อ่าน fixed closed-month snapshot ที่คุ้มครองกลุ่มเล็ก",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ผล DTO ที่ตัด private fields และคุ้มครองข้อมูลแล้ว"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์/flag ปิด"
+          },
+          "409": {
+            "description": "snapshot ถูก invalidate"
+          },
+          "422": {
+            "description": "input ไม่ผ่าน"
+          },
+          "429": {
+            "description": "budget/rate limit"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      }
+    },
+    "/api/impact/export": {
+      "get": {
+        "summary": "JSON จาก protected DTO เดียวกัน ตรวจ grant ใหม่ ไม่มี raw drilldown",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ผล DTO ที่ตัด private fields และคุ้มครองข้อมูลแล้ว"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์/flag ปิด"
+          },
+          "409": {
+            "description": "snapshot ถูก invalidate"
+          },
+          "422": {
+            "description": "input ไม่ผ่าน"
+          },
+          "429": {
+            "description": "budget/rate limit"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      }
+    },
+    "/api/impact/admin": {
+      "get": {
+        "summary": "ผู้ดูแล MFA อ่าน grants/องค์กรที่ตรวจแล้ว",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ผล DTO ที่ตัด private fields และคุ้มครองข้อมูลแล้ว"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์/flag ปิด"
+          },
+          "409": {
+            "description": "snapshot ถูก invalidate"
+          },
+          "422": {
+            "description": "input ไม่ผ่าน"
+          },
+          "429": {
+            "description": "budget/rate limit"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      },
+      "post": {
+        "summary": "ให้/ถอน expiring report grant ให้บัญชีที่มีอยู่จริง",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ผล DTO ที่ตัด private fields และคุ้มครองข้อมูลแล้ว"
+          },
+          "401": {
+            "description": "ต้องเข้าสู่ระบบ"
+          },
+          "404": {
+            "description": "ไม่พบ/ไม่มีสิทธิ์/flag ปิด"
+          },
+          "409": {
+            "description": "snapshot ถูก invalidate"
+          },
+          "422": {
+            "description": "input ไม่ผ่าน"
+          },
+          "429": {
+            "description": "budget/rate limit"
+          },
+          "503": {
+            "description": "ยังไม่พร้อม"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "Supabase session cookies"
+      }
+    }
+  }
+}

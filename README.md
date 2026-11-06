@@ -1,14 +1,14 @@
-> อัปเดต C-35/C-36: PR #11 รวม main แล้ว (`f043e80`) และ hosted ใช้ migrations1–59 แล้ว ส่วน policy/ทีมผู้ตรวจ/งานลบจริงเพิ่มใน PR แยก ดู [สถานะ rollout](docs/S4_ROLLOUT_2026_11_06_TH.md) · S5 เริ่มพัฒนาตาม [ขอบเขต](docs/S5_SCOPE_TH.md) ยังไม่ rollout
+> สถานะ 6 พฤศจิกายน 2026: S4 PR #12 merge/deploy แล้ว (`4174b55`, Vercel READY, hosted schema65, owner preview) ส่วน S5 และเมนูมือถือ C-37 อยู่ใน [PR #13](https://github.com/geeravut-lab/global-opportunity-os/pull/13) ยังไม่เปิด production ดู [rollout](docs/S4_ROLLOUT_2026_11_06_TH.md) และ [ผล S5](docs/S5_IMPLEMENTATION_TH.md)
 
 # Global Opportunity OS
 
 โครงการมีพันธกิจทั่วโลก ครอบคลุมผู้รับประโยชน์ทุกกลุ่ม พร้อมเป้าหมายธุรกิจยั่งยืน
-ชิ้นงานปัจจุบันมี **หน้าแรกสามมุมมอง, S1 Email/Google/MFA/branding/Live sync, S2 directory, S3 applications/cases และ S4 ส่งต่อ/ผลลัพธ์/สิทธิ์ข้อมูลบน feature branch**
+ชิ้นงานปัจจุบันมี **หน้าแรกสามมุมมอง, S1 Email/Google/MFA/branding/Live sync, S2 directory, S3 applications/cases และ S4 owner preview บน main**; S5 Navigator/รายงานรวมและเมนูมือถือปัจจุบันอยู่ใน PR #13
 ปรับตาม [Product Blueprint TH v1.0](docs/Global-Opportunity-OS-Product-Blueprint-TH.md) และภาพ UX Showcase ที่เจ้าของแนบ
 หน้า `/th/demo/partner` และ `/th/demo/admin` เป็นตัวอย่างข้อมูลสมมติ; การสลับ role ใน demo ไม่ให้สิทธิ์จริง
 ระบบจริงใช้ `/th/auth/login`, `/th/account`, `/th/opportunities`, `/th/workflow` และหน้าจัดการที่ตรวจสิทธิ์ฝั่ง server/DB
 ผู้ดูแลจริงอยู่ `/th/admin` และต้องผ่าน MFA; เจ้าของยืนยัน Google login/MFA และเปิดหน้าผู้ดูแลได้แล้ว
-PR #3–11 รวม main แล้ว Supabase มี migrations1–59 โดยยังไม่เปิด S4 ให้ผู้ใช้ทั่วไป งาน policy60–65 ต้องผ่าน PR/CI แยก
+PR #3–12 รวม main แล้ว Supabase มี migrations1–65 เปิดเฉพาะ S4 owner preview; public intake/purge/S5 ปิดไว้
 Confirm email ปิดชั่วคราวตามเจ้าของ: signup ที่ได้ session เข้าบัญชีทันที โดยคง JWT/RLS/MFA
 hosted Email/session/Live/สิทธิ์ ยังติด network ของ runtime แยกจากผล local/CI; SMTP/Recovery ยังไม่ปิด; production worker มี cron ทุกนาทีและผ่าน maintenance HTTP 200 หลังแก้ TLS
 S4 มี implementation ที่ `/th/coordination`; public intake ปิดใน owner preview ส่วน S5 พัฒนาแยกและปิด default
@@ -66,6 +66,13 @@ restore ใช้ stack แยกและตรวจ withdrawal replay ขอ�
 เพิ่ม policy รุ่น/hash, named roster, targeted DB scrub/Auth hard-delete และ signed intent/executed receipts แล้ว ดู [ข้อกำหนดและผลตรวจ](docs/S4_POLICY_PURGE_TH.md)
 งานลบปิดทั้ง runtime/DB โดยค่าเริ่มต้น ต้องมี policy/ทีมจริง ผู้ตรวจอิสระ และหลักฐานภายนอกก่อน worker ทำงาน ไม่มีการลบข้อมูลจริงในรอบพัฒนา
 คำสั่งจริงเพิ่มเติม: `npm run test:policy`, `npm run db:process-privacy-purge` (เฉพาะบัญชีสมมติใน loopback)
+
+## S5 — Navigator และรายงานรวม (ปิด production)
+
+implementation อยู่ใน PR แยก: `/th/navigator`, `/th/impact`, `/th/admin/reporting` พร้อม public corpus/citations/manual search และ protected fixed-cohort report/export/Live sync
+ใช้ rules + source guidance ตามจริง ไม่มี external LLM; ไม่มี auto-apply/raw case indexing หรือ external CSR contract
+ดู [ขอบเขต](docs/S5_SCOPE_TH.md), [วิธีใช้/ผลตรวจ/ข้อจำกัด](docs/S5_IMPLEMENTATION_TH.md) และ [OpenAPI](api/s5.openapi.json)
+คำสั่ง local ที่มีจริง: `npm run db:prepare-s5`, `npm run dev:s5`, `npm run test:s5`; migrations66–70 ยังไม่ rollout hosted
 
 ## เริ่มพัฒนา
 

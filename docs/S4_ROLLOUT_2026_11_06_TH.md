@@ -1,5 +1,13 @@
 # S4 — rollout และข้อจำกัด ณ 6 พฤศจิกายน 2026
 
+**สถานะล่าสุด:** PR #12 head `7ffef08` ผ่าน check/s1-local ทั้งสองรันและ Vercel preview; merge เป็น `4174b558c0957a1cf00198c191a64fa856a4d2c1` วันที่6พฤศจิกายน2026 เวลา10:05น.ตามเวลาไทย
+production deployment `dpl_25mRiuGwKC734n7mCULrehaPMhBF` เป็น READY และ Vercel API ยืนยัน alias `opp4all.vercel.app` ชี้ deployment นี้
+hosted schema1–65 ผ่าน checksum/no-op migration จาก checkout ที่ตรวจแล้ว; verify65/unsafe goos_api-authz0/ตารางไร้RLS0/owner1/Realtime guard1/audit immutable1
+เปิด S4 owner preview ทั้ง App/DB; public intake, purge และ S5 ปิด ไม่เพิ่ม Auth cleanup/signing keys และไม่ลบข้อมูลจริง
+ผลนี้มาจาก CI/Management API/Vercel metadata ไม่ใช่ hosted browser UAT; policy/ทีมจริง/Recovery/SMTP และ hosted tests ยังค้าง
+
+รายละเอียดก่อนเปิด PR ด้านล่างเก็บไว้ตามลำดับหลักฐาน ไม่ใช้สถานะเก่ามาแทนสถานะล่าสุดนี้
+
 ตาม C-35 เจ้าของอนุมัติตรวจ PR/CI, merge และ rollout พร้อม policy/retention/ทีมผู้ตรวจ/งานลบจริง
 เป้าหมาย BP-B-401–403 และ BP-AC-16 ไม่ถือว่าผ่านทั้งข้อจากผล local เพียงอย่างเดียว
 

@@ -20,7 +20,7 @@ jobs:
       - run: npm run check
   s1-local:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
@@ -39,6 +39,7 @@ jobs:
       - run: npm run test:s3
       - run: npm run test:s4
       - run: npm run test:policy
+      - run: npm run test:s5
       - run: npm run db:test:fresh
       - run: npm run db:validation:start
       - run: npm run test:validation:local
