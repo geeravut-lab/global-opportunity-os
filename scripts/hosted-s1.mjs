@@ -206,18 +206,9 @@ if (action === "preflight") {
   const p = await api("vercel", `/v9/projects/${project}?teamId=${team}`);
   if (p.link?.org !== "geeravut-lab" || p.link?.repo !== "global-opportunity-os") throw Error("Vercel repository guard rejected");
   await query(`begin;do $$begin if not exists(select 1 from private.deployment_migrations where version='202611060065') then raise exception 'Policy migrations missing';end if;end $$;update private.s4_release set enabled=true,mode='owner_preview' where singleton;update private.purge_settings set enabled=false where singleton;commit;`, false);
-  const existing = await api("vercel", `/v9/projects/${project}/env?teamId=${team}`);
-  const configured = new Set(existing.envs.filter(e => e.target.includes("production")).map(e => e.key));
   const env = { S4_ENABLED: "true", S4_ROLLOUT_MODE: "owner_preview", S4_PURGE_ENABLED: "false", S5_ENABLED: "false" };
-  if (!configured.has("PURGE_LEDGER_SIGNING_KEY")) env.PURGE_LEDGER_SIGNING_KEY = randomBytes(48).toString("base64url");
-  if (!configured.has("SUPABASE_PURGE_AUTH_KEY")) {
-    const keys = await api("supabase", `/v1/projects/${ref}/api-keys`);
-    const key = Array.isArray(keys) ? keys.find(k => k.name === "service_role")?.api_key : undefined;
-    if (!key) throw Error("Server Auth cleanup credential unavailable; no purge enabled");
-    env.SUPABASE_PURGE_AUTH_KEY = key;
-  }
   for (const [key, value] of Object.entries(env)) await api("vercel", `/v9/projects/${project}/env?teamId=${team}&upsert=true`, "POST", { key, value, type: "encrypted", target: ["production"] });
-  console.log("Owner preview configured; public intake, real purge and S5 disabled. Server credentials stored encrypted without printing values. Redeploy is required.");
+  console.log("Owner preview configured; public intake, real purge and S5 disabled. No Auth cleanup or signing credentials were provisioned. Redeploy is required.");
 } else if (action === "worker-configure") {
   const pools = await api(
     "supabase",
