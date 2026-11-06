@@ -33,3 +33,17 @@ DO $$declare d text;r text;begin
  r:=replace(d,$s$where g.revoked_at is null and g.expires_at>now()$s$,$s$where g.revoked_at is null and g.expires_at>now() and exists(select 1 from private.policy_current pc join private.policy_roster pr on pr.policy_id=pc.policy_id where pr.account_id=g.account_id and pr.scope=g.scope and pr.revoked_at is null)$s$);if r=d then raise exception 'Policy roster projection source mismatch';end if;execute r;
 end $$;
 notify pgrst,'reload schema';
+-- เลือก recipient candidates ก่อน RLS; ป้องกัน inbox timeout เมื่อมีประวัติหลายผู้ใช้
+create index notification_recipient_recent on app.notifications(account_id,created_at desc,id);
+create function private.goos_notification_candidates(p_limit integer) returns uuid[] language sql stable security definer set search_path='' as $$
+ select coalesce(array_agg(id),'{}'::uuid[]) from(select id from app.notifications where account_id=private.goos_uid() and private.goos_actor_active() order by created_at desc,id limit least(greatest(p_limit,1),100)) n;
+$$;
+revoke all on function private.goos_notification_candidates(integer) from public,anon,authenticated,goos_authz,goos_worker,goos_reporter;
+grant execute on function private.goos_notification_candidates(integer) to goos_api;
+DO $$declare d text;r text;begin
+ d:=pg_get_functiondef('public.goos_notifications()'::regprocedure);
+ r:=replace(d,'from app.notifications order by','from app.notifications where id=any(private.goos_notification_candidates(100)) order by');if r=d then raise exception 'Notification candidate source mismatch';end if;execute r;
+ d:=pg_get_functiondef('public.goos_s3_inbox()'::regprocedure);
+ r:=replace(d,'where account_id=private.goos_uid() and private.goos_actor_active() order by','where id=any(private.goos_notification_candidates(50)) and account_id=(select private.goos_uid()) and (select private.goos_actor_active()) order by');if r=d then raise exception 'Inbox candidate source mismatch';end if;execute r;
+end $$;
+notify pgrst,'reload schema';

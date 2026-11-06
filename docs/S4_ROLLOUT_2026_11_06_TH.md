@@ -39,3 +39,8 @@ worker production จะ execute purge ต่อเมื่อ runtime flag, DB
 2. ทบทวน notice/retention/holds/ผู้รับสำเนาและที่เก็บ signed ledger ภายนอก; รักษากุญแจรุ่นเก่าและ quarantine restore ก่อนเปิด traffic
 3. runtime ยัง revision1 ไม่อนุญาตเว็บ/Supabase project host; hosted Email/session/Live sync/revoke/tenant และ Recovery/Resend ยังไม่ผ่านใน task นี้
 4. backup/restore hosted, manual accessibility/device UAT และทีมปฏิบัติงานจริง ยังแยกจากผล local/CI
+
+## Regression ที่พบก่อน merge
+
+integration รวมครั้งแรกผ่าน110/113; inbox สองจุด timeout เมื่อประวัติแจ้งเตือนสะสม และ scenario recruiter หลาย transition เกิน test timeout20วินาที
+เพิ่ม recipient candidate query + index ก่อนตรวจ RLS ใน migrations65 (ยังไม่เผยแพร่ hosted) โดยคงสิทธิ์รายคนเดิม กำลังตรวจซ้ำ ไม่ merge จากผล110/113
