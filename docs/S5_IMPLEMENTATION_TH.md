@@ -45,7 +45,7 @@ npm run test:backup-restore
 `test:s5` seed และเปิด/ปิด server3400 เอง; integration seed ด้วย user JWT/MFA และ DB/RLS ในเครื่อง
 restore ใช้ target แยก ไม่ restore ทับฐานจริง; commands ด้านบนมีอยู่จริง แต่ผลรันแต่ละรายการต้องดูตารางด้านล่าง ไม่ถือว่ารายการคำสั่งแปลว่าผ่านแล้วทั้งหมด
 
-## ผลที่รันจริงก่อนเปิด PR S5
+## ผลที่รันจริงล่าสุด — 6 พฤศจิกายน 2026
 
 | การตรวจ | ผล |
 | --- | --- |
@@ -55,9 +55,10 @@ restore ใช้ target แยก ไม่ restore ทับฐานจริ
 | browser | 7/7: filters/citations/fallback/spinner/no duplicate, minor/urgent/personal details, report/export DTO/grant revoke Live sync, Thai/English mobile/axe และ guest manual search |
 | fresh1–70 | ผ่าน source ล่าสุด รวม metadata authorization helpers และ indexes |
 | public browser/axe | 31/31 และ24/24 ผ่าน; mobile selected-menu6/6 แยกหลักฐานตาม C-37 |
-| policy/purge บน schema67 | 10/10 ผ่านหลังเพิ่ม S5 purge hooks |
-| restore67 | ผ่าน stack แยก รวม signed deletion/Auth replay และ idempotency |
-| CI S5 / integration รวม | ยังรอรอบ PR แยก; ผล local แยก suite ไม่แทน CI ล่าสุด |
+| integration รวมบน schema70 | 124/124 ใน8ไฟล์ รวม S1–S5/policy/purge; รัน219.98วินาทีหลังแก้ metadata RLS |
+| policy browser รอบสุดท้าย | 4/4 รวมสิทธิ์ MFA และ current-menu highlight ของหน้า policy/deletion status ไทย–อังกฤษ |
+| restore70 | ผ่าน stack แยก รวม exact data/PNG/RLS/password/MFA, signed deletion/Auth replay และ idempotency |
+| CI PR #13 | head `744ae13` ผ่าน check/s1-local ทั้งสองรันและ Vercel preview; commit เอกสารหลังจากนี้ต้องตรวจสถานะ CI ของ commit นั้นแยก |
 
 ## Rollout และสิ่งที่ยังไม่อนุมัติ/ยังไม่ผ่าน
 
@@ -75,8 +76,9 @@ script hosted `--include-policy` หยุดที่65 ไม่มีกา�
 ชุดรวมก่อนแก้ performance ผ่าน112/124 ไม่ถือว่าผ่านทั้งหมด พบ note INSERT ของ S3 timeout8วินาทีจาก RLS join metadata ซ้อนกัน และมีผลต่อเนื่องใน scenario ถัดไป
 migrations68เพิ่ม child-row indexes;69ให้ note RLS เรียก narrow boolean helpers ที่อ่านเฉพาะ metadata ตาม case UUID แล้วใช้ current progress/work/author/job visibility เดิม ไม่ให้ client อ่าน payload ผ่าน helper
 rollback diagnostic ด้วยบัญชี/MFA สมมติ: เดิม statement timeout8วินาที หลังแก้123ms (เป็นการวัด DB ในเครื่อง ไม่ใช่ latency เว็บจริง)
-กำลังตรวจ S2/S3/purge ซ้ำ; scenario S2 ที่ทำหลาย RPC ให้ test harness45วินาที โดยคง SQL/API timeout เดิม
+scenario S2 ที่ทำหลาย RPC ให้ test harness45วินาที โดยคง SQL/API timeout เดิม
 
 ผลหลังแก้ performance: S2/S3/purge รวม42/42 ผ่านในรอบเดียว97.43วินาที เทียบกับรอบก่อน69ที่ผ่าน40/42ใน498.47วินาที (เวลานี้รวม setup/test หลายรายการ ไม่ใช่ SLA เว็บ)
 migration70จำกัด historical revision metadata candidates และคง `goos_s3_visible` เดิม ตรวจ transition rollback ภายใต้ budget1วินาทีได้ผล invalid-state ที่คาดไว้ใน654ms แทนการ timeoutที่จุดอ่านrevision
-ชุดรวม124และbrowserรอบสุดท้ายยังรอผล; ห้ามนำ42/42ไปเขียนว่าชุดรวม124ผ่านแล้ว
+หลังจากนั้นรันชุดรวมใหม่ผ่าน124/124 บน schema70 ตามตารางด้านบน และรัน browser S5ใหม่7/7 กับ policy4/4 ผ่าน จึงแยกผลครั้งแรก112/124และผลเฉพาะ42/42ออกจากหลักฐานรอบสุดท้ายนี้
+fresh migrations1–70 และ isolated restore70 ผ่านด้วย ไม่มีการ reset/restore ฐาน hosted หรือ seed ข้อมูลสมมติบน production

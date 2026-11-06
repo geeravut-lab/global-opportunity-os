@@ -3,7 +3,7 @@
 # Global Opportunity OS
 
 โครงการมีพันธกิจทั่วโลก ครอบคลุมผู้รับประโยชน์ทุกกลุ่ม พร้อมเป้าหมายธุรกิจยั่งยืน
-ชิ้นงานปัจจุบันมี **หน้าแรกสามมุมมอง, S1 Email/Google/MFA/branding/Live sync, S2 directory, S3 applications/cases และ S4 ส่งต่อ/ผลลัพธ์/สิทธิ์ข้อมูลบน feature branch**
+ชิ้นงานปัจจุบันมี **หน้าแรกสามมุมมอง, S1 Email/Google/MFA/branding/Live sync, S2 directory, S3 applications/cases และ S4 owner preview บน main**; S5 Navigator/รายงานรวมและเมนูมือถือปัจจุบันอยู่ใน PR #13
 ปรับตาม [Product Blueprint TH v1.0](docs/Global-Opportunity-OS-Product-Blueprint-TH.md) และภาพ UX Showcase ที่เจ้าของแนบ
 หน้า `/th/demo/partner` และ `/th/demo/admin` เป็นตัวอย่างข้อมูลสมมติ; การสลับ role ใน demo ไม่ให้สิทธิ์จริง
 ระบบจริงใช้ `/th/auth/login`, `/th/account`, `/th/opportunities`, `/th/workflow` และหน้าจัดการที่ตรวจสิทธิ์ฝั่ง server/DB
