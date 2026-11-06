@@ -82,7 +82,8 @@ try {
       if (r.error) throw Error("S4 fixture MFA verify");
     }
   }
-  await db.query("update private.s4_release set enabled=true where singleton");
+  await db.query("update private.s4_release set enabled=true,mode='synthetic' where singleton");
+  await db.query("update private.policy_current set policy_id=null where singleton; update private.policy_versions set state='retired' where state='published'; update private.s4_current_notices set notice_id=case locale when 'th' then '00000000-0000-4000-8000-000000000401'::uuid else '00000000-0000-4000-8000-000000000402'::uuid end; update private.purge_settings set enabled=false where singleton");
   // Fixed synthetic organization state; core scenarios below use real user JWTs.
   await db.query(
     "update app.organizations set status='verified',verification_expires_at=now()+interval '30 days' where id=$1 and created_by=$2",

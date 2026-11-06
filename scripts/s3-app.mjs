@@ -23,6 +23,7 @@ const env = {
   NEXT_TELEMETRY_DISABLED: "1",
 };
 for (const name of [
+  "SUPABASE_PURGE_AUTH_KEY",
   "SUPABASE_ACCESS_TOKEN",
   "VERCEL_TOKEN",
   "SUPABASE_SERVICE_ROLE_KEY",

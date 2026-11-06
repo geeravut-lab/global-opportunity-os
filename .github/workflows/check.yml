@@ -38,6 +38,7 @@ jobs:
       - run: npm run test:s2
       - run: npm run test:s3
       - run: npm run test:s4
+      - run: npm run test:policy
       - run: npm run db:test:fresh
       - run: npm run db:validation:start
       - run: npm run test:validation:local

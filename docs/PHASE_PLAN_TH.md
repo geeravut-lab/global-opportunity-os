@@ -1,3 +1,5 @@
+> อัปเดต C-35/C-36: S4 PR #11 merge และ hosted migrations1–59 แล้ว; policy60–65/targeted purge ตรวจใน PR แยก S5 ได้รับอนุมัติให้เลือกขอบเขตและเริ่มพัฒนาแล้ว ดู [สถานะล่าสุด](S4_ROLLOUT_2026_11_06_TH.md) และ [ขอบเขต S5](S5_SCOPE_TH.md) ข้อความก่อนหน้านี้ด้านล่างเป็นประวัติ
+
 > สถานะ C-34: S4 มี implementation บน feature branch แล้ว ดู [รายงาน S4](S4_REPORT_TH.md); production ยังเป็น S2/S3, hosted S1/Recovery/SMTP และ gates ข้อมูลจริงยังไม่ปิด
 
 > สถานะล่าสุด C-32: รวมPR3–8และdeploy S2/S3 productionแล้ว ดู [รายงาน rollout](PRODUCTION_ROLLOUT_TH.md); ผล/ข้อความก่อนC-32ด้านล่างรักษาไว้เป็นหลักฐานตามวันที่ ไม่ใช่สถานะrolloutล่าสุด

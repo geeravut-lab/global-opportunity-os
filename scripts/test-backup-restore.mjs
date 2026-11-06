@@ -14,6 +14,7 @@ import { spawnSync } from "node:child_process";
 import { randomBytes, createHash, randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import pg from "pg";
+import { preparePurgeRestore } from "./purge-restore-drill.mjs";
 import { localRuntime } from "./local-runtime.ts";
 import {
   privateJson,
@@ -338,19 +339,20 @@ try {
         p_purpose: "service_support",
       }),
     );
+    const currentS4Notice = p(await s4Client.rpc("goos_s4_notice", { p_locale: "en" })).id;
     const preview = p(
       await s4Client.rpc("goos_s4_preview", {
         p_id: s4Referral,
         p_fields: ["display_alias"],
         p_skills: [],
-        p_notice: "00000000-0000-4000-8000-000000000402",
+        p_notice: currentS4Notice,
       }),
     );
     p(
       await s4Client.rpc("goos_s4_submit", {
         p_preview: preview.id,
         p_hash: preview.hash,
-        p_notice: "00000000-0000-4000-8000-000000000402",
+        p_notice: currentS4Notice,
         p_confirmed: true,
         p_key: randomUUID(),
       }),
@@ -363,7 +365,7 @@ try {
     ).rows[0].hash;
   }
   const clients = [];
-  for (const label of ["a", "b"]) {
+  for (const label of ["a", "b", "c"]) {
     const email = run + "-" + label + "@example.test",
       password = "S1-Restore-" + randomBytes(18).toString("base64url"),
       created = await admin.auth.admin.createUser({
@@ -430,6 +432,7 @@ try {
     "insert into private.brand_assets(id,kind,body,width,height,created_by) values($1,'favicon',$2,512,512,$3)",
     [asset, png, a.id],
   );
+  const purgeRestore = await preparePurgeRestore(source, sourceConnection, manifest.actors[2], clients[2], dir);
   snapshot = new pg.Client({ connectionString: source.dbUrl });
   await snapshot.connect();
   await snapshot.query("begin isolation level repeatable read read only");
@@ -521,6 +524,7 @@ try {
     ).rows;
     assert(s4Ledger.length === 1, "S4 withdrawal ledger missing");
   }
+  await purgeRestore.execute();
   const ledger = {
     s4: s4Ledger,
     s3: s3Ledger,
@@ -736,9 +740,14 @@ try {
       throw e;
     }
   }
+  for (const name of stopped) docker(["start", name], "purge-resume-" + name.split("_")[1]);
+  stopped = [];
+  await new Promise(done => setTimeout(done, 2500));
   await replay();
+  await purgeRestore.replay(targetConnection, target);
   const once = await fingerprint(targetConnection);
   await replay();
+  await purgeRestore.replay(targetConnection, target);
   assert(
     JSON.stringify(await fingerprint(targetConnection)) ===
       JSON.stringify(once),
@@ -853,6 +862,8 @@ try {
     sessionRevokeReplay: true,
     delegationWithdrawalReplay: true,
     idempotentReplay: true,
+    signedTargetedDeletionReplay: true,
+    hardDeletedAuthReplay: true,
     s3EncryptedPayload: !!s3Application,
     s3WithdrawalReplay: !!s3Application,
     seconds: Math.round((Date.now() - started) / 1000),
@@ -878,7 +889,7 @@ try {
     await sourceConnection.end();
   }
   try {
-    if (manifest.actors.length) await cleanupFixtures(source, manifest, admin);
+    if (manifest.actors.length) await cleanupFixtures(source, { ...manifest, actors: manifest.actors.slice(0, 2) }, admin);
   } finally {
     privateJson(dir + "/manifest.json", manifest);
     if (targetStarted) runCli(["stop"], "stop");

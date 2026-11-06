@@ -3544,3 +3544,5 @@ label:has(input[type="radio"]) {
 .s4-page :is(p, dd, li) {
   overflow-wrap: anywhere;
 }
+
+.source-hash { overflow-wrap: anywhere; word-break: break-all; }

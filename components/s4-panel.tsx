@@ -32,6 +32,7 @@ const timezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 const serverTimezone = () => "UTC";
 type Data = {
   liveFingerprint?: string;
+  publicIntake?: boolean;
   context: AccountContext;
   sources: S4Source[];
   notice: Notice;
@@ -390,7 +391,7 @@ export function S4Panel({
     >
       <h1>{t(section)}</h1>
       <p className="notice">{t("synthetic")}</p>
-      <Link href={"/" + lang + "/report"}>{t("anonymous_report")}</Link>
+      {d.publicIntake !== false && <Link href={"/" + lang + "/report"}>{t("anonymous_report")}</Link>}
       <nav className="s2-tabs" aria-label={t("home")}>
         {(["home", ...kinds] as const).map((k) => (
           <Link
@@ -839,6 +840,7 @@ export function S4Panel({
                   >
                     {t("stop_sharing")}
                   </button>
+                  {row.title === "delete" && row.own && <Link href={`/${lang}/account/deletion?request=${row.id}`}>{lang === "th" ? "บันทึกรหัสติดตามก่อนบัญชีถูกลบ" : "Save a tracking key before account deletion"}</Link>}
                   {row.title === "correct" && row.state === "approved" && (
                     <>
                       <Link href={"/" + lang + "/account/profile"}>

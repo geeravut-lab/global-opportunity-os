@@ -210,6 +210,8 @@ export function AdminHomeMenus({
     <HomeMenuGrid
       label={demoText[lang].mainNav}
       items={[
+        { href: `/${lang}/admin/policy`, label: lang === "th" ? "Policy และทีมผู้ตรวจ" : "Policy and review team", description: lang === "th" ? "notice ระยะเก็บ และสิทธิ์เจ้าหน้าที่" : "Notices, retention and staff scopes", art: 3 },
+        { href: `/${lang}/admin/purge`, label: lang === "th" ? "คำขอลบข้อมูล" : "Deletion requests", description: lang === "th" ? "ตรวจขอบเขต hold และ restore ledger" : "Review scope, holds and restore ledger", art: 7 },
         ...platformSections.map((s, i) => ({
           href: `/${lang}/admin/${s}`,
           label: platformCopy[lang][s],

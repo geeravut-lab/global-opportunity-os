@@ -70,6 +70,7 @@ function ShellContent({
     hasOrg?: boolean;
     canRoute?: boolean;
     coordination?: boolean;
+    intake?: boolean;
   };
 }) {
   const pathname = usePathname(),
@@ -446,6 +447,7 @@ export function AppShell(props: {
     hasOrg?: boolean;
     canRoute?: boolean;
     coordination?: boolean;
+    intake?: boolean;
   };
 }) {
   return <ShellContent {...props} />;

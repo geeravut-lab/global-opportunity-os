@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { copy, isLocale } from "@/lib/i18n";
 import { publicSettings } from "@/lib/platform/server";
 import { imageUrl } from "@/lib/platform/settings";
-import { s4Enabled } from "@/lib/s4/model";
+import { s4Enabled, s4IntakeEnabled } from "@/lib/s4/model";
 import { s3Enabled } from "@/lib/s3/model";
 import { s2Enabled } from "@/lib/s2/model";
 import { serverClient } from "@/lib/supabase/server";
@@ -72,6 +72,7 @@ export default async function LocaleLayout({
           workflow={{
             enabled: s3Enabled(),
             coordination: s4Enabled(),
+            intake: s4IntakeEnabled(),
             hasOrg: !!context?.data?.has_membership,
             canRoute: (workflowOrgs?.data ?? []).some(
               (o: { can_route: boolean }) => o.can_route,

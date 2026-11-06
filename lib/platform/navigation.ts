@@ -22,6 +22,7 @@ export function navigationFor(
     hasOrg?: boolean;
     canRoute?: boolean;
     coordination?: boolean;
+    intake?: boolean;
   } = {},
 ): NavEntry[] {
   const flowEntry = {
@@ -42,6 +43,7 @@ export function navigationFor(
     icon: "shield",
     active: pathname === `/${lang}/report`,
   };
+  const coordinationEntries = workflow.coordination ? [coordinationEntry, ...(workflow.intake === false ? [] : [reportEntry])] : [];
   if (/^\/(th|en)\/coordination(\/|$)/.test(pathname))
     return [
       ...(["home", "referrals", "outcomes", "privacy", "reports"] as const).map(
@@ -85,12 +87,12 @@ export function navigationFor(
         active:
           pathname === `/${lang}/workflow${key === "home" ? "" : "/" + key}`,
       }))
-      .concat(workflow.coordination ? [coordinationEntry, reportEntry] : []);
+      .concat(coordinationEntries);
   }
   if (/^\/(th|en)\/workspace(\/|$)/.test(pathname))
     return [
       ...(workflow.enabled ? [flowEntry] : []),
-      ...(workflow.coordination ? [coordinationEntry, reportEntry] : []),
+      ...(coordinationEntries),
       ...s2Sections
         .filter((s) => s !== "review" || canReview)
         .map((s) => ({
@@ -117,7 +119,7 @@ export function navigationFor(
   if (/^\/(th|en)\/admin(\/|$)/.test(pathname))
     return [
       ...(workflow.enabled ? [flowEntry] : []),
-      ...(workflow.coordination ? [coordinationEntry, reportEntry] : []),
+      ...(coordinationEntries),
       {
         href: `/${lang}/admin`,
         label: platformCopy[lang].platform,
@@ -157,7 +159,7 @@ export function navigationFor(
   if (/\/(account|auth)(\/|$)/.test(pathname))
     return [
       ...(workflow.enabled ? [flowEntry] : []),
-      ...(workflow.coordination ? [coordinationEntry, reportEntry] : []),
+      ...(coordinationEntries),
       ...accountSections.map((s, i) => ({
         href: `/${lang}/account${s === "home" ? "" : "/" + s}`,
         label: authText[lang][s],
@@ -214,7 +216,7 @@ export function navigationFor(
         active: current === s.id,
       })),
     ...(workflow.enabled ? [flowEntry] : []),
-    ...(workflow.coordination ? [coordinationEntry, reportEntry] : []),
+    ...(coordinationEntries),
   ];
 }
 export function backTarget(pathname: string, from: string | null) {

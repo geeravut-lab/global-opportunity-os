@@ -2,6 +2,9 @@ import { s3Enabled } from "../s3/model";
 export function s4Enabled() {
   return s3Enabled() && process.env.S4_ENABLED === "true";
 }
+export function s4IntakeEnabled() {
+  return s4Enabled() && process.env.S4_ROLLOUT_MODE !== "owner_preview" && process.env.S4_ROLLOUT_MODE !== "off";
+}
 export const kinds = ["referrals", "outcomes", "privacy", "reports"] as const;
 export type S4Kind = (typeof kinds)[number];
 export type S4Row = {

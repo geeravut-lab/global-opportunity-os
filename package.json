@@ -42,7 +42,9 @@
     "db:prepare-s4": "node scripts/seed-s4-fixtures.mjs",
     "dev:s4": "node scripts/s4-app.mjs dev",
     "test:s4": "npm run db:prepare-s4 && playwright test --config playwright.s4.config.ts",
-    "db:process-s4-evidence": "node scripts/process-s4-evidence.mjs"
+    "db:process-s4-evidence": "node scripts/process-s4-evidence.mjs",
+    "test:policy": "npm run db:prepare-s4 && playwright test --config playwright.policy.config.ts",
+    "db:process-privacy-purge": "node scripts/process-privacy-purge.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "5.3.0",
